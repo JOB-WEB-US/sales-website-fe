@@ -1,0 +1,226 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+  }
+
+  body {
+    background-color: #0b0b0b;
+    color: #fcf7fa;
+    font-family: var(--font-inter), sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-plus-jakarta), sans-serif;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #141414;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff7700;
+}
+
+/* LIGHT MODE STYLES OVERRIDES */
+html.light-mode body,
+html.light-mode main {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Header Navbar & Cart Button */
+html.light-mode header,
+html.light-mode nav,
+html.light-mode .bg-\[\#0c0c0c\],
+html.light-mode .bg-\[\#121212\] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html.light-mode button.bg-\[\#1e1e1e\],
+html.light-mode div.bg-\[\#1e1e1e\] {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html.light-mode header button:not(.bg-\[\#a80000\]):not(.bg-red-600):not(.bg-\[\#ff7700\]),
+html.light-mode header a:not(.bg-\[\#a80000\]):not(.bg-red-600):not(.bg-\[\#ff7700\]),
+html.light-mode nav a,
+html.light-mode nav button {
+  color: #0f172a !important;
+}
+
+html.light-mode header a:hover,
+html.light-mode header button:hover,
+html.light-mode nav a:hover,
+html.light-mode nav button:hover {
+  color: #ff7700 !important;
+}
+
+/* Search input in Light Mode */
+html.light-mode input.bg-\[\#1e1e1e\],
+html.light-mode input.bg-\[\#181818\],
+html.light-mode input {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light-mode input::placeholder {
+  color: #64748b !important;
+}
+
+/* Drawers (Cart Drawer & Wishlist Drawer) in Light Mode */
+html.light-mode .bg-\[\#0f0f0f\],
+html.light-mode .bg-\[\#141414\],
+html.light-mode .bg-\[\#181818\],
+html.light-mode .bg-\[\#1c1c1c\] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Footer in Light Mode */
+html.light-mode footer,
+html.light-mode footer div,
+html.light-mode .bg-\[\#080808\] {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html.light-mode footer h4 {
+  color: #0f172a !important;
+}
+
+html.light-mode footer a {
+  color: #475569 !important;
+}
+
+html.light-mode footer a:hover {
+  color: #ff7700 !important;
+}
+
+/* Section Containers & Cards in Light Mode */
+html.light-mode section:not(.hero-slider-section),
+html.light-mode div.bg-\[\#0b0b0b\],
+html.light-mode div.bg-\[\#0d0d0d\] {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Headings & Paragraphs in Light Mode */
+html.light-mode h1:not(.text-white-force),
+html.light-mode h2:not(.text-white-force),
+html.light-mode h3:not(.text-white-force),
+html.light-mode h4:not(.text-white-force) {
+  color: #0f172a !important;
+}
+
+html.light-mode p:not(.text-white-force),
+html.light-mode span:not(.bg-\[\#a80000\]):not(.bg-red-600):not(.bg-\[\#ff7700\]):not(.text-\[\#ff7700\]):not(.text-red-500):not(.text-amber-400):not(.text-white-force) {
+  color: #334155 !important;
+}
+
+html.light-mode .text-gray-300,
+html.light-mode .text-gray-400,
+html.light-mode .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Category Filter Pills in Light Mode */
+html.light-mode button.bg-white {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light-mode button.bg-white:hover {
+  background-color: #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+/* Borders in Light Mode */
+html.light-mode .border-\[\#222\],
+html.light-mode .border-\[\#262626\],
+html.light-mode .border-\[\#2a2a2a\],
+html.light-mode .border-\[\#333\],
+html.light-mode .border-\[\#1e1e1e\],
+html.light-mode .border-\[\#181818\] {
+  border-color: #e2e8f0 !important;
+}
+
+/* PRESERVE HIGH CONTRAST ON RED / BRAND BUTTONS & BADGES */
+html.light-mode .bg-\[\#a80000\],
+html.light-mode .bg-\[\#a80000\] *,
+html.light-mode .bg-\[\#a80000\] span,
+html.light-mode button.bg-\[\#a80000\],
+html.light-mode button.bg-\[\#a80000\] *,
+html.light-mode a.bg-\[\#a80000\],
+html.light-mode a.bg-\[\#a80000\] *,
+html.light-mode .bg-red-600,
+html.light-mode .bg-red-600 * {
+  background-color: #a80000 !important;
+  color: #ffffff !important;
+}
+
+html.light-mode .bg-\[\#ff7700\],
+html.light-mode .bg-\[\#ff7700\] * {
+  background-color: #ff7700 !important;
+  color: #000000 !important;
+}
+
+/* HERO SLIDER IS ALWAYS DARK BACKGROUND WITH WHITE TEXT */
+html.light-mode .hero-slider-section,
+html.light-mode .hero-slider-section * {
+  color: #ffffff !important;
+}
+
+/* MARQUEE ANNOUNCEMENT BAR WHITE TEXT OVERRIDE */
+.animate-marquee span,
+html.light-mode .animate-marquee span,
+html.light-mode .text-white-force {
+  color: #ffffff !important;
+}
+
+/* URGENCY BANNER IN LIGHT MODE */
+html.light-mode .urgency-banner,
+html.light-mode .from-red-950\/80,
+html.light-mode div[class*="from-red-950"] {
+  background: linear-gradient(to right, #fff1f2, #fff7ed) !important;
+  border-color: #fecdd3 !important;
+}
+
+html.light-mode .urgency-banner span,
+html.light-mode .urgency-banner div,
+html.light-mode div[class*="from-red-950"] span,
+html.light-mode div[class*="from-red-950"] div {
+  color: #9f1239 !important;
+}
+
+html.light-mode .urgency-banner strong,
+html.light-mode div[class*="from-red-950"] strong {
+  color: #e11d48 !important;
+}
+
+
+
+

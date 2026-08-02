@@ -1,0 +1,29 @@
+# Strict Project Rule File for AI Assistant (Antigravity)
+
+CRITICAL INSTRUCTION: You MUST strictly limit all code suggestions, implementations, and refactoring to the following exact stack:
+
+- Frontend Framework: Next.js 13+ (React App Router)
+- Styling & UI Kit: Tailwind CSS + Shadcn UI
+- Animation & Motion: Framer Motion
+- State Management: Zustand (`store/useCartStore.ts`, `store/useUIStore.ts`)
+- Data Fetching: TanStack Query (React Query v5)
+- Backend Framework: Node.js (Express / NestJS)
+- Database ORM: Prisma ORM
+- Database (CSDL): PostgreSQL
+
+Do NOT introduce or suggest alternative frameworks (like Vue, Angular, Svelte, Bootstrap, Redux, Context API for cart, MongoDB, MySQL) unless explicitly asked by the user.
+
+## Master Coding Directives for AI:
+1. **Architecture & File Location**:
+   - Next.js App Router in `app/(shop)/`
+   - Reusable UI in `components/ui/` or `components/common/`
+   - E-commerce features in `components/features/`
+   - State stores in `store/`
+   - Types in `types/`
+
+2. **TypeScript & Performance**:
+   - 100% strict TypeScript. NO `any`.
+   - Server Components (RSC) by default. Use `'use client'` only when interactive (state, events, framer-motion).
+   - SEO & Performance optimized: use `next/image` with proper priority/sizes, zero CLS.
+   - Prevent Hydration Mismatch for client-only state (e.g. Zustand with localStorage).
+
