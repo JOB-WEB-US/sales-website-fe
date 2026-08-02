@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velora Store - Custom Apparel & Graphic Tees</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="marquee">
+      <div class="marquee-group" aria-hidden="true">
+        <span>🔥 10% off on all products</span>
+        <span>⭐ High-quality products</span>
+        <span>🚚 Free shipping on orders over $60</span>
+      </div>
+      <div class="marquee-group">
+        <span>🔥 10% off on all products</span>
+        <span>⭐ High-quality products</span>
+        <span>🚚 Free shipping on orders over $60</span>
+      </div>
+    </div>
+  </div>
+
+  <header class="main-header">
+  <!-- Tầng 1: Logo - Search - Icons -->
+  <div class="header-top container">
+    <!-- Logo -->
+    <a href="#home" class="logo nav-link" data-page="home">
+      <!-- Thay 'images/logo.png' bằng đường dẫn logo Erihot của bạn -->
+      <img src="images/logo.png" alt="Velora Logo" class="logo-img">
+    </a>
+
+    <!-- Search Bar -->
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" placeholder="Search" id="headerSearchInput">
+    </div>
+
+    <!-- Header Actions (Wishlist, User, Cart) -->
+    <div class="header-actions">
+      <a href="#" class="action-btn" title="Wishlist">
+        <i class="fa-regular fa-heart"></i>
+      </a>
+      <a href="#" class="action-btn" title="Account">
+        <i class="fa-regular fa-user"></i>
+      </a>
+      <div class="action-btn cart-icon" id="cartBtn" title="Cart">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span class="cart-count" id="cartCount">0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-divider container"></div>
+
+  <!-- Tầng 2: Navigation Menu -->
+  <nav class="header-nav">
+    <div class="container nav-container">
+      <a href="#shop" class="nav-link" data-page="shop">Shop All</a>
+      <a href="#shop" class="nav-link" data-page="shop">🎃 Halloween 🎃</a>
+      
+      <!-- Dropdown Menu: Products -->
+      <div class="nav-item has-dropdown">
+        <a href="#shop" class="nav-link" data-page="shop">
+          Products <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+        </a>
+        <div class="dropdown-menu">
+          <a href="#shop" class="nav-link" data-page="shop">T-Shirts</a>
+          <a href="#shop" class="nav-link" data-page="shop">Hoodies</a>
+          <a href="#shop" class="nav-link" data-page="shop">Calendars</a>
+        </div>
+      </div>
+
+      <!-- Dropdown Menu: All Collection -->
+      <div class="nav-item has-dropdown">
+        <a href="#shop" class="nav-link" data-page="shop">
+          All Collection <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+        </a>
+        <div class="dropdown-menu">
+          <a href="#shop" class="nav-link" data-page="shop">Trending Now</a>
+          <a href="#shop" class="nav-link" data-page="shop">Horror Movie</a>
+          <a href="#shop" class="nav-link" data-page="shop">Vintage 80s/90s</a>
+        </div>
+      </div>
+
+      <a href="#contact" class="nav-link" data-page="contact">Contact Us</a>
+    </div>
+  </nav>
+</header>
+
+  <!-- DYNAMIC MAIN CONTENT CONTAINER -->
+  <main id="app">
+    <!-- Component HTML sẽ được fetch và chèn vào đây -->
+  </main>
+
+  <!-- Cart Side Drawer (Giỏ hàng trượt) -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <h3>Giỏ hàng của bạn</h3>
+      <button class="close-cart" id="closeCartBtn">&times;</button>
+    </div>
+    <div class="cart-body" id="cartItemsContainer">
+      <!-- Item giỏ hàng render động -->
+    </div>
+    <div class="cart-footer">
+      <div class="total-price-box">
+        <span>Tổng tiền:</span>
+        <span id="cartTotalPrice">$0.00</span>
+      </div>
+      <button class="btn-checkout" onclick="alert('Cảm ơn bạn đã đặt hàng!')">Thanh toán ngay</button>
+    </div>
+  </div>
+  
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#contact" class="nav-link" data-page="contact">Contact us</a></li>
+          <li><a href="#">Order tracking</a></li>
+          <li><a href="#">FAQs</a></li>
+          <li><a href="#">Product detail & Sizing</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Policies</h4>
+        <ul>
+          <li><a href="#">Privacy policy</a></li>
+          <li><a href="#">Terms of service</a></li>
+          <li><a href="#">Shipping policy</a></li>
+          <li><a href="#">Return policy</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col newsletter">
+        <h4>Join Our Newsletter</h4>
+        <p>Get exclusive offers and news delivered to your inbox.</p>
+        <form id="newsletterForm" onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký!');">
+          <input type="email" placeholder="Enter your email" required />
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Velora Store. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/home.js"></script>
+ 
+</body>
+</html>

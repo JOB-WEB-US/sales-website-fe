@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+  <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+
+  <!-- HERO SLIDESHOW -->
+  <section class="large-hero-slideshow-clean">
+  <div class="slideshow-wrapper-clean">
+    <!-- Các Slide Ảnh -->
+    <div class="hero-slide-clean active">
+      <img src="images/slide1.png" alt="Slide 1" class="slide-img-clean">
+    </div>
+    <div class="hero-slide-clean">
+      <img src="images/slide2.png" alt="Slide 2" class="slide-img-clean">
+    </div>
+    <div class="hero-slide-clean">
+      <img src="images/slide3.png" alt="Slide 3" class="slide-img-clean">
+    </div>
+
+    <!-- Nút Trái / Phải -->
+<button class="slide-btn prev-btn" id="prevBtn" type="button">&#10094;</button>
+<button class="slide-btn next-btn" id="nextBtn" type="button">&#10095;</button>
+
+    <!-- 🟢 CÁC CHẤM TRÒN CHỈ SỐ (DOTS) 🟢 -->
+    <div class="slide-dots-container">
+      <span class="dot active" data-index="0"></span>
+      <span class="dot" data-index="1"></span>
+      <span class="dot" data-index="2"></span>
+    </div>
+  </div>
+</section>
+
+<!-- --- PHẦN HALLOWEEN TIME (SẢN PHẨM) --- -->
+<section class="halloween-section">
+  <!-- Nút Trái -->
+<button class="halloween-prev-btn" onclick="document.querySelector('.halloween-product-grid').scrollBy({left: -600, behavior: 'smooth'})" aria-label="Previous">❮</button>
+
+<!-- Nút Phải -->
+<button class="halloween-next-btn" onclick="document.querySelector('.halloween-product-grid').scrollBy({left: 600, behavior: 'smooth'})" aria-label="Next">❯</button>
+  <div class="container">
+  
+    <div class="section-header" style="display: flex !important; justify-content: space-between !important; align-items: center !important; margin-bottom: 20px !important;">
+  
+  <!-- Nút HALLOWEEN TIME thon gọn -->
+  <a href="#" class="halloween-title-btn">
+    <div class="title-content-wrapper" style="display: flex !important; align-items: center !important; gap: 8px !important;">
+      <span style="font-size: 1rem;">🎃</span>
+      <h2 style="font-size: 1.25rem !important; font-weight: bold !important; text-transform: uppercase !important; margin: 0 !important; color: #ff7700 !important; letter-spacing: 0.5px !important;">
+        HALLOWEEN TIME
+      </h2>
+      <span style="font-size: 1rem;">🎃</span>
+    </div>
+  </a>
+
+  <!-- Dòng chữ bên phải -->
+  <div class="header-subtitle" style="color: #dddddd; font-size: 0.9rem; font-style: italic; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); text-align: right;">
+    Patriotic spooky designs made for Halloween night
+  </div>
+
+</div>
+
+
+    <!-- Lưới sản phẩm (Product Grid) -->
+    <div class="halloween-product-grid">
+      <!-- Sản phẩm mẫu 1 -->
+    <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+
+      <!-- Sản phẩm mẫu 2 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+
+      <!-- Sản phẩm mẫu 3 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+      <!-- Sản phẩm mẫu 4 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+ <!-- Sản phẩm mẫu 5 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<!-- Sản phẩm mẫu 6 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<div class="view-more-container">
+    <a href="#" class="view-more-btn">View more</a>
+  </div>
+</section>
+
+<!-- Đường line phân cách giữa hai phần -->
+<div class="section-divider-container">
+  <hr class="section-divider-line">
+</div>
+
+<!-- PHẦN SECTION ALL PRODUCTS MỚI -->
+<section class="all-products-section" style="padding: 60px 0; background-color: #121212; color: #ffffff;">
+  <div class="container">
+    
+    <div class="section-header text-center" style="margin-bottom: 40px;">
+      <h2 style="font-size: 2.5rem; font-weight: bold; color: #ff7700; text-transform: uppercase;">All Products</h2>
+    </div>
+    <!-- Lưới 2 cột -->
+    <div class="all-products-grid">
+  
+      <!-- Sản phẩm mẫu 1 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+      <!-- Sản phẩm mẫu 2 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<!-- Sản phẩm mẫu 3 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<!-- Sản phẩm mẫu 4 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+      <!-- Sản phẩm mẫu 5 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<!-- Sản phẩm mẫu 6 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<!-- Sản phẩm mẫu 7 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<!-- Sản phẩm mẫu 8 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+
+    <div class="all-products-view-more-container">
+    <a href="#" class="all-products-view-more-btn">View more</a>
+  </div>
+</section>
+
+<!-- Đường line phân cách giữa hai phần -->
+<div class="section-divider-container">
+  <hr class="section-divider-line">
+</div>
+
+<section class="trending-section" style="position: relative !important; background: url('../images/halloween-wallpaper-with-evil-pumpkins2.jpg') no-repeat center center !important; background-size: cover !important; padding: 60px 0 90px 0 !important;">
+  <!-- Lớp phủ tối nền -->
+  <!-- <div class="trending-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1;"></div> -->
+
+  <div class="container" style="position: relative; z-index: 2;">
+    
+    <!-- Tiêu đề phần Trending Now -->
+    <div class="section-header text-center" style="margin-bottom: 25px;">
+      <h2 style="font-size: 2.2rem; font-weight: bold; color: #ff7700; text-transform: uppercase;">
+        🔥 Trending Now 🔥
+      </h2>
+      <p style="color: #080808; margin-top: 5px;">Discover What's Hot Right Now!</p>
+    </div>
+
+    <!-- Thanh Tabs Lọc Chủ Đề -->
+    <div class="trending-tabs" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 35px;">
+  <button class="trend-tab-btn active" data-category="ella-langley" style="background-color: #a80000; color: #080808; padding: 8px 20px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer;">Ella Langley</button>
+  <button class="trend-tab-btn" data-category="car-truck" style="background-color: rgba(255,255,255,0.15); color: #080808; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer;">Car & Truck</button>
+  <button class="trend-tab-btn" data-category="halloween" style="background-color: rgba(255,255,255,0.15); color: #080808; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer;">Halloween</button>
+  <button class="trend-tab-btn" data-category="tombstone" style="background-color: rgba(255,255,255,0.15); color: #080808; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer;">Tombstone</button>
+  <button class="trend-tab-btn" data-category="ozzy" style="background-color: rgba(255,255,255,0.15); color: #080808; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer;">Ozzy</button>
+  <button class="trend-tab-btn" data-category="bts" style="background-color: rgba(255,255,255,0.15); color: #080808; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer;">BTS</button>
+  <button class="trend-tab-btn" data-category="morgan-wallen" style="background-color: rgba(255,255,255,0.15); color: #080808; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer;">Morgan Wallen</button>
+  <button class="trend-tab-btn" data-category="keith-whitley" style="background-color: rgba(255,255,255,0.15); color: #080808; padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer;">Keith Whitley</button>
+</div>
+
+    <!-- Lưới sản phẩm (2 hàng x 4 cột = 8 sản phẩm) -->
+    <div class="trending-product-grid">
+      <!-- Sản phẩm mẫu 1 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+      <!-- Sản phẩm mẫu 2 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<!-- Sản phẩm mẫu 3 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<!-- Sản phẩm mẫu 4 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+      <!-- Sản phẩm mẫu 5 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<!-- Sản phẩm mẫu 6 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<!-- Sản phẩm mẫu 7 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+<!-- Sản phẩm mẫu 8 -->
+      <div class="product-card">
+  <div class="product-image-wrap">
+    <!-- Nút Wishlist -->
+    <button class="wishlist-btn" type="button" title="Add to wishlist">🤍</button>
+    <!-- Nhãn Sale -->
+    <span class="sale-badge">SALE</span>
+    
+    <!-- HÌNH ẢNH CHÍNH (Mặt trước) -->
+    <img src="mockup_data/mk1.jpg" alt="Haunted House Tee Front" class="product-img img-front">
+    
+    <!-- HÌNH ẢNH THAY THẾ (Mặt sau/Hover) -->
+    <img src="mockup_data/mk1_dark.jpg" alt="Haunted House Tee Back" class="product-img img-hover">
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">Haunted House Halloween Tee</h3>
+    <!-- Phần giá và nút giỏ hàng giữ nguyên như các bước trước -->
+    <div class="product-price-action">
+      <div class="product-price">
+        <span class="price-new">$19.99 - $53.99</span>
+        <span class="price-old">$29.99</span>
+      </div>
+      <button class="add-to-cart-btn" type="button" title="Add to cart">🛒</button>
+    </div>
+  </div>
+</div>
+    </div>
+
+  </div>
+
+  <!-- Nút View More ở đáy section -->
+  <div class="trending-view-more-container" style="position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); z-index: 2;">
+    <a href="#" class="view-more-btn" style="display: inline-block; padding: 12px 35px; background-color: #7a0000; color: #fff; text-decoration: none; border-radius: 4px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.6);">View more</a>
+  </div>
+</section>
+  <script src="js/home.js"></script>
+</body>
+</html>
