@@ -1,5 +1,7 @@
 {
+  "/(shop)/account/login/page": "app/(shop)/account/login/page.js",
   "/(shop)/page": "app/(shop)/page.js",
-  "/(shop)/shop/page": "app/(shop)/shop/page.js",
+  "/(shop)/account/page": "app/(shop)/account/page.js",
+  "/(shop)/checkout/page": "app/(shop)/checkout/page.js",
   "/(shop)/products/[slug]/page": "app/(shop)/products/[slug]/page.js"
 }

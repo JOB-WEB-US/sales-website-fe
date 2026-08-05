@@ -11,6 +11,16 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(shop)/page.js"
     ],
+    "/(shop)/account/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(shop)/account/page.js"
+    ],
+    "/(shop)/account/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(shop)/account/login/page.js"
+    ],
     "/(shop)/shop/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -20,6 +30,11 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(shop)/products/[slug]/page.js"
+    ],
+    "/(shop)/checkout/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(shop)/checkout/page.js"
     ]
   }
 }
