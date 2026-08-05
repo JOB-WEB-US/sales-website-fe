@@ -22,6 +22,14 @@ const SLIDES = [
     buttonText: 'Explore Trending',
     link: '/collections/trending',
   },
+  {
+    id: 3,
+    title: 'PATRIOTIC & AUTUMN SPECIALS',
+    subtitle: 'Bold & Fearless Designs Built For Everyday Heroes',
+    image: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?w=1600&q=80',
+    buttonText: 'Discover Specials',
+    link: '/shop',
+  },
 ];
 
 export default function HeroSlider() {
@@ -91,17 +99,39 @@ export default function HeroSlider() {
       {/* Slide Navigation Buttons */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/80 text-white p-2.5 rounded-full transition z-20 backdrop-blur"
+        aria-label="Previous Slide"
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/80 text-white p-2.5 rounded-full transition z-20 backdrop-blur border border-white/10 cursor-pointer"
       >
         <ChevronLeft size={24} />
       </button>
 
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/80 text-white p-2.5 rounded-full transition z-20 backdrop-blur"
+        aria-label="Next Slide"
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/80 text-white p-2.5 rounded-full transition z-20 backdrop-blur border border-white/10 cursor-pointer"
       >
         <ChevronRight size={24} />
       </button>
+
+      {/* Dynamic Slide Indicators (Dots) */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center z-20">
+        {/* Indicator Dots */}
+        <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3.5 py-2 rounded-full border border-white/15 shadow-xl">
+          {SLIDES.map((slide, idx) => (
+            <button
+              key={slide.id}
+              onClick={() => setCurrent(idx)}
+              aria-label={`Go to slide ${idx + 1}`}
+              className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                current === idx
+                  ? 'w-7 bg-[#ff7700] shadow-[0_0_10px_rgba(255,119,0,0.8)]'
+                  : 'w-2.5 bg-white/40 hover:bg-white/80'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
+

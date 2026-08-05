@@ -553,8 +553,14 @@ video {
 .bottom-4 {
   bottom: 1rem;
 }
+.bottom-6 {
+  bottom: 1.5rem;
+}
 .left-0 {
   left: 0px;
+}
+.left-1\/2 {
+  left: 50%;
 }
 .left-2 {
   left: 0.5rem;
@@ -636,6 +642,10 @@ video {
 }
 .z-50 {
   z-index: 50;
+}
+.mx-1 {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
 }
 .mx-4 {
   margin-left: 1rem;
@@ -797,6 +807,9 @@ video {
 .h-16 {
   height: 4rem;
 }
+.h-2\.5 {
+  height: 0.625rem;
+}
 .h-20 {
   height: 5rem;
 }
@@ -875,6 +888,9 @@ video {
 .w-16 {
   width: 4rem;
 }
+.w-2\.5 {
+  width: 0.625rem;
+}
 .w-20 {
   width: 5rem;
 }
@@ -901,6 +917,9 @@ video {
 }
 .w-6 {
   width: 1.5rem;
+}
+.w-7 {
+  width: 1.75rem;
 }
 .w-9 {
   width: 2.25rem;
@@ -974,6 +993,10 @@ video {
 }
 .flex-grow {
   flex-grow: 1;
+}
+.-translate-x-1\/2 {
+  --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .-translate-y-1\/2 {
   --tw-translate-y: -50%;
@@ -1351,17 +1374,23 @@ video {
 .border-red-800\/50 {
   border-color: rgb(153 27 27 / 0.5);
 }
+.border-red-800\/80 {
+  border-color: rgb(153 27 27 / 0.8);
+}
 .border-red-900\/50 {
   border-color: rgb(127 29 29 / 0.5);
 }
 .border-transparent {
   border-color: transparent;
 }
+.border-white\/10 {
+  border-color: rgb(255 255 255 / 0.1);
+}
+.border-white\/15 {
+  border-color: rgb(255 255 255 / 0.15);
+}
 .border-white\/20 {
   border-color: rgb(255 255 255 / 0.2);
-}
-.border-red-800\/80 {
-  border-color: rgb(153 27 27 / 0.8);
 }
 .bg-\[\#000\]\/60 {
   background-color: rgb(0 0 0 / 0.6);
@@ -1551,6 +1580,9 @@ video {
 }
 .bg-white\/20 {
   background-color: rgb(255 255 255 / 0.2);
+}
+.bg-white\/40 {
+  background-color: rgb(255 255 255 / 0.4);
 }
 .bg-gradient-to-br {
   background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
@@ -1881,6 +1913,9 @@ video {
 .font-heading {
   font-family: var(--font-plus-jakarta), sans-serif;
 }
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
 .text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
@@ -2151,6 +2186,11 @@ video {
 .shadow-2xl {
   --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+.shadow-\[0_0_10px_rgba\(255\2c 119\2c 0\2c 0\.8\)\] {
+  --tw-shadow: 0 0 10px rgba(255,119,0,0.8);
+  --tw-shadow-colored: 0 0 10px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 .shadow-lg {
@@ -2606,6 +2646,10 @@ html.light-mode div[class*="from-red-950"] strong {
 .hover\:bg-red-900:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(127 29 29 / var(--tw-bg-opacity, 1));
+}
+
+.hover\:bg-white\/80:hover {
+  background-color: rgb(255 255 255 / 0.8);
 }
 
 .hover\:text-\[\#a80000\]:hover {
