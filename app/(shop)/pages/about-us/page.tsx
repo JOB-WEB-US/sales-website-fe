@@ -18,13 +18,13 @@ export default function AboutUsPage() {
         {/* Hero Banner Section */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-red-950/60 text-[#ff7700] border border-red-800/40 text-xs font-extrabold rounded-full mb-4">
-            <Sparkles className="w-4 h-4" /> About Velora Store
+            <Sparkles className="w-4 h-4" /> About Velora Tees
           </span>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight font-heading leading-tight mb-4">
             Crafting Premium Graphic Apparel & Pop-Culture Art
           </h1>
           <p className="text-gray-400 text-sm md:text-base leading-relaxed">
-            Velora Store is an independent Print-On-Demand studio dedicated to horror fans, country music lovers, vintage aesthetic enthusiasts, and custom apparel collectors worldwide.
+            Velora Tees is an independent Print-On-Demand studio dedicated to horror fans, country music lovers, vintage aesthetic enthusiasts, and custom apparel collectors worldwide.
           </p>
         </div>
 
@@ -51,7 +51,7 @@ export default function AboutUsPage() {
         {/* Core Pillars */}
         <div className="bg-[#141414] rounded-3xl border border-[#222] p-8 md:p-12 mb-16 shadow-xl">
           <h2 className="text-xl md:text-2xl font-bold text-white mb-8 text-center font-heading">
-            Why Thousands Choose Velora Store
+            Why Thousands Choose Velora Tees
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

@@ -19,7 +19,9 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ZoomIn,
+  X
 } from 'lucide-react';
 import { MOCK_PRODUCTS } from '@/lib/mock-data';
 import { formatCurrency } from '@/lib/formatters';
@@ -82,6 +84,29 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
   const [currentFront, setCurrentFront] = useState(product.frontImage);
   const [currentBack, setCurrentBack] = useState(product.backImage || product.frontImage);
   const [activeImage, setActiveImage] = useState(product.frontImage);
+  const [isZoomed, setIsZoomed] = useState(false);
+
+  const imagesList = Array.from(new Set([currentFront, currentBack]));
+
+  const handlePrevImage = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const currentIndex = imagesList.indexOf(activeImage);
+    const prevIndex = (currentIndex - 1 + imagesList.length) % imagesList.length;
+    setActiveImage(imagesList[prevIndex]);
+  };
+
+  const handleNextImage = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const currentIndex = imagesList.indexOf(activeImage);
+    const nextIndex = (currentIndex + 1) % imagesList.length;
+    setActiveImage(imagesList[nextIndex]);
+  };
 
   // Variant selection state
   const [selectedType, setSelectedType] = useState<ProductType>('T-Shirt');
@@ -136,7 +161,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
       verified: true,
       rating: 5,
       title: 'Must have for horror movie fans!',
-      text: 'Great vintage wash aesthetic. Looks like an authentic 90s tour shirt. Will definitely buy more from Velora Store.',
+      text: 'Great vintage wash aesthetic. Looks like an authentic 90s tour shirt. Will definitely buy more from Velora Tees.',
     },
     {
       name: 'Amanda Perez',
@@ -203,48 +228,67 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
           
           {/* LEFT: Image Gallery */}
-          <div className="lg:col-span-6 space-y-4">
-            {/* Main Preview */}
-            <div className="relative aspect-square w-full rounded-3xl overflow-hidden bg-[#181818] border border-[#262626] shadow-2xl">
-              <Image
-                src={activeImage}
-                alt={product.title}
-                fill
-                priority
-                className="object-cover"
-              />
-              {product.isSale && (
-                <span className="absolute top-4 left-4 bg-[#a80000] text-white font-extrabold text-xs uppercase px-3 py-1 rounded-md shadow-md">
-                  SALE
-                </span>
-              )}
-            </div>
+          <div className="lg:col-span-6">
+            <div className="flex gap-4 items-start">
+              {/* Vertical Column of Thumbnails (Left side) */}
+              <div className="flex flex-col gap-2.5 w-16 sm:w-20 flex-shrink-0">
+                {imagesList.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImage(img)}
+                    className={`relative aspect-square w-full rounded-xl overflow-hidden bg-[#181818] border-2 transition cursor-pointer ${
+                      activeImage === img ? 'border-[#ff7700] ring-2 ring-[#ff7700]/30' : 'border-[#262626] opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+                  </button>
+                ))}
+              </div>
 
-            {/* Thumbnails (Front & Back View) */}
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                onClick={() => setActiveImage(currentFront)}
-                className={`relative aspect-square rounded-2xl overflow-hidden bg-[#181818] border-2 transition ${
-                  activeImage === currentFront ? 'border-[#ff7700] ring-2 ring-[#ff7700]/30' : 'border-[#262626] opacity-70 hover:opacity-100'
-                }`}
+              {/* Main Preview with Navigation Arrows */}
+              <div 
+                onClick={() => setIsZoomed(true)}
+                className="flex-1 relative aspect-square rounded-3xl overflow-hidden bg-[#181818] border border-[#262626] shadow-2xl group/main cursor-zoom-in"
               >
-                <Image src={currentFront} alt="Front View" fill className="object-cover" />
-                <span className="absolute bottom-2 left-2 bg-black/80 text-[10px] font-bold px-2 py-0.5 rounded text-white">
-                  Front View
-                </span>
-              </button>
+                <Image
+                  src={activeImage}
+                  alt={product.title}
+                  fill
+                  priority
+                  className="object-cover"
+                />
+                
+                {product.isSale && (
+                  <span className="absolute top-4 left-4 bg-[#a80000] text-white font-extrabold text-xs uppercase px-3 py-1 rounded-md shadow-md z-10">
+                    SALE
+                  </span>
+                )}
 
-              <button
-                onClick={() => setActiveImage(currentBack)}
-                className={`relative aspect-square rounded-2xl overflow-hidden bg-[#181818] border-2 transition ${
-                  activeImage === currentBack ? 'border-[#ff7700] ring-2 ring-[#ff7700]/30' : 'border-[#262626] opacity-70 hover:opacity-100'
-                }`}
-              >
-                <Image src={currentBack} alt="Back View" fill className="object-cover" />
-                <span className="absolute bottom-2 left-2 bg-black/80 text-[10px] font-bold px-2 py-0.5 rounded text-white">
-                  Back View
-                </span>
-              </button>
+                {/* Previous & Next overlay buttons */}
+                {imagesList.length > 1 && (
+                  <>
+                    <button
+                      onClick={handlePrevImage}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-[#ff7700] text-white hover:text-black flex items-center justify-center border border-gray-800 hover:border-[#ff7700] transition opacity-0 group-hover/main:opacity-100 cursor-pointer z-10"
+                      title="Previous Image"
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    <button
+                      onClick={handleNextImage}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-[#ff7700] text-white hover:text-black flex items-center justify-center border border-gray-800 hover:border-[#ff7700] transition opacity-0 group-hover/main:opacity-100 cursor-pointer z-10"
+                      title="Next Image"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </>
+                )}
+
+                {/* Zoom indicator overlay */}
+                <div className="absolute bottom-4 right-4 bg-black/60 p-2 rounded-full border border-gray-800 text-white opacity-0 group-hover/main:opacity-100 transition z-10">
+                  <ZoomIn size={14} />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -329,8 +373,8 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
 
               {/* Option 2: Color */}
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-400 mb-3">
-                  2. Select Color: <span className="text-white font-extrabold">{selectedColor}</span>
+                <label className="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-3">
+                  2. Select Color: <span className="text-gray-900 dark:text-white font-extrabold">{selectedColor}</span>
                 </label>
                 <div className="flex gap-3.5">
                   {COLORS.map((c) => (
@@ -338,8 +382,10 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                       key={c.name}
                       type="button"
                       onClick={() => handleSelectColor(c.name)}
-                      className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition ${
-                        selectedColor === c.name ? 'border-[#ff7700] scale-110' : 'border-transparent'
+                      className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition shadow-sm ${
+                        selectedColor === c.name 
+                          ? 'border-[#ff7700] ring-2 ring-[#ff7700]/30 scale-110' 
+                          : 'border-gray-300 dark:border-gray-700 hover:scale-105'
                       }`}
                       style={{ backgroundColor: c.hex }}
                       title={c.name}
@@ -355,8 +401,8 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               {/* Option 3: Size */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <label className="text-xs font-bold uppercase text-gray-400">
-                    3. Select Size: <span className="text-white font-extrabold">{selectedSize}</span>
+                  <label className="text-xs font-bold uppercase text-gray-500 dark:text-gray-400">
+                    3. Select Size: <span className="text-gray-900 dark:text-white font-extrabold">{selectedSize}</span>
                   </label>
                   <button
                     type="button"
@@ -610,6 +656,74 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
         </div>
 
       </div>
+
+      {/* Fullscreen Zoom Modal */}
+      {isZoomed && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-between p-4 sm:p-8 animate-fade-in"
+          onClick={() => setIsZoomed(false)}
+        >
+          {/* Close Button */}
+          <button
+            onClick={() => setIsZoomed(false)}
+            className="absolute top-4 right-4 text-gray-400 hover:text-white bg-[#1a1a1a]/60 hover:bg-[#1a1a1a] p-2.5 rounded-full border border-gray-800 transition z-10 cursor-pointer"
+            title="Close Zoom"
+          >
+            <X size={20} />
+          </button>
+
+          {/* Spacer */}
+          <div className="hidden sm:block h-6" />
+
+          {/* Main Zoomed Image Container */}
+          <div className="relative flex-1 w-full max-w-4xl flex items-center justify-center">
+            {imagesList.length > 1 && (
+              <button
+                onClick={handlePrevImage}
+                className="absolute left-2 sm:left-4 p-3 rounded-full bg-[#1a1a1a]/60 hover:bg-[#ff7700] text-white border border-gray-800 hover:border-[#ff7700] hover:text-black transition z-10 cursor-pointer"
+              >
+                <ChevronLeft size={24} />
+              </button>
+            )}
+
+            <div className="relative max-h-[70vh] aspect-square w-full max-w-2xl overflow-hidden rounded-xl bg-black">
+              <Image
+                src={activeImage}
+                alt={product.title}
+                fill
+                className="object-contain"
+              />
+            </div>
+
+            {imagesList.length > 1 && (
+              <button
+                onClick={handleNextImage}
+                className="absolute right-2 sm:right-4 p-3 rounded-full bg-[#1a1a1a]/60 hover:bg-[#ff7700] text-white border border-gray-800 hover:border-[#ff7700] hover:text-black transition z-10 cursor-pointer"
+              >
+                <ChevronRight size={24} />
+              </button>
+            )}
+          </div>
+
+          {/* Bottom Horizontal Thumbnails List */}
+          <div 
+            className="flex items-center gap-3 mt-6 pb-2"
+            onClick={(e) => e.stopPropagation()} // Prevent closing modal when clicking thumbnails
+          >
+            {imagesList.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveImage(img)}
+                className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-[#181818] border-2 transition cursor-pointer ${
+                  activeImage === img ? 'border-[#ff7700] ring-2 ring-[#ff7700]/30' : 'border-[#262626] opacity-60 hover:opacity-100'
+                }`}
+              >
+                <Image src={img} alt={`Zoom Thumbnail ${idx + 1}`} fill className="object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

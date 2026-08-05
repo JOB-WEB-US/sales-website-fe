@@ -46,7 +46,7 @@ export default function ReturnPolicyPage() {
             <div className="p-4 bg-[#1a1a1a] rounded-xl border border-[#2a2a2a]">
               <span className="w-6 h-6 rounded-full bg-[#ff7700] text-black font-extrabold flex items-center justify-center mb-3">1</span>
               <h3 className="font-bold text-white mb-1">Contact Support</h3>
-              <p className="text-gray-400">Email us at support@velorastore.com within 30 days of package delivery.</p>
+              <p className="text-gray-400">Email us at support@veloratees.com within 30 days of package delivery.</p>
             </div>
 
             <div className="p-4 bg-[#1a1a1a] rounded-xl border border-[#2a2a2a]">

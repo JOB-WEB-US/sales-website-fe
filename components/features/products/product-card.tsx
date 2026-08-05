@@ -31,7 +31,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     : formatCurrency(minPrice);
 
   return (
-    <div className="group bg-[#141414] border border-[#222] rounded-xl overflow-hidden flex flex-col justify-between hover:border-[#ff7700]/50 transition duration-300 shadow-lg">
+    <div className="group bg-[#141414] border border-[#333] hover:border-[#ff7700] rounded-xl overflow-hidden flex flex-col justify-between transition duration-300 shadow-lg hover:shadow-2xl hover:shadow-[#ff7700]/5">
       {/* Product Image Wrap */}
       <Link
         href={`/products/${product.slug}`}

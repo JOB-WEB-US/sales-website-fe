@@ -54,25 +54,26 @@ export default function TermsAndPrivacyPage() {
           {activeTab === 'terms' ? (
             <>
               <div>
-                <h2 className="text-base font-bold text-white mb-2">1. Acceptance of Terms</h2>
+                <h2 className="text-base font-bold text-white mb-2">1. Terms Acceptance</h2>
                 <p>
-                  By accessing and purchasing from Velora Store, you agree to be bound by these Terms of Service. 
-                  All products sold on this platform are custom printed on demand for personal, non-commercial use.
+                  By accessing and purchasing from Velora Tees, you agree to be bound by these Terms of Service. 
+                  Please read them carefully before submitting your order.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-base font-bold text-white mb-2">2. Product Availability & Pricing</h2>
+                <h2 className="text-base font-bold text-white mb-2">2. Intellectual Property</h2>
                 <p>
-                  Prices for our graphic apparel are subject to change without notice. We reserve the right to modify or discontinue any product collection at any time.
+                  All graphic artwork, custom typography, apparel designs, and brand logos are exclusive intellectual property. 
+                  Unauthorized reproduction or resale of Velora Tees designs is strictly prohibited.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-base font-bold text-white mb-2">3. Intellectual Property Rights</h2>
+                <h2 className="text-base font-bold text-white mb-2">3. Payment & Pricing</h2>
                 <p>
-                  All custom artwork, graphic designs, logos, and website assets are protected by copyright laws. 
-                  Unauthorized reproduction or resale of Velora Store designs is strictly prohibited.
+                  All prices are listed in USD unless otherwise specified. 
+                  All payments processed on Velora Tees are encrypted using 256-bit SSL technology. 
                 </p>
               </div>
             </>
@@ -89,7 +90,7 @@ export default function TermsAndPrivacyPage() {
               <div>
                 <h2 className="text-base font-bold text-white mb-2">2. Payment Security</h2>
                 <p>
-                  All payments processed on Velora Store are encrypted using 256-bit SSL technology. 
+                  All payments processed on Velora Tees are encrypted using 256-bit SSL technology. 
                   Your full credit card details are handled directly by PCI-compliant payment gateways (Stripe / PayPal) and are never stored on our servers.
                 </p>
               </div>

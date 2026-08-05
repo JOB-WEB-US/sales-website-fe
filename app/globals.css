@@ -146,6 +146,14 @@ html.light-mode .text-gray-500 {
   color: #64748b !important;
 }
 
+/* Generic text-white override in Light Mode */
+html.light-mode .text-white:not(.bg-\[\#a80000\]):not(.bg-red-600):not(.bg-\[\#ff7700\]):not(.text-white-force) {
+  color: #0f172a !important;
+}
+html.light-mode .text-white:not(.bg-\[\#a80000\]):not(.bg-red-600):not(.bg-\[\#ff7700\]):not(.text-white-force):hover {
+  color: #ff7700 !important;
+}
+
 /* Category Filter Pills in Light Mode */
 html.light-mode button.bg-white {
   background-color: #f1f5f9 !important;

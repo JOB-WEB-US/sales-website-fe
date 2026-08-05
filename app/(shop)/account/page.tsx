@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { User, Package, MapPin, Settings, LogOut, Truck, ArrowRight, ShieldCheck, Clock } from 'lucide-react';
-import { getOrdersFromStorage } from '@/lib/mock-orders';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, Package, MapPin, Settings, LogOut, Truck, ArrowRight, ShieldCheck, Clock, Star, X, Camera } from 'lucide-react';
+import { getOrdersFromStorage, getOrderTrackingStatus } from '@/lib/mock-orders';
 import { Order } from '@/types/orders';
 import { formatCurrency } from '@/lib/formatters';
 
@@ -13,22 +14,277 @@ export default function AccountDashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'orders' | 'addresses' | 'settings'>('orders');
   const [orders, setOrders] = useState<Order[]>([]);
-  const [userName, setUserName] = useState('Alex Vance');
-  const [userEmail, setUserEmail] = useState('alex.vance@example.com');
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Write Review Modal States
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewProductId, setReviewProductId] = useState('');
+  const [reviewProductTitle, setReviewProductTitle] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewName, setReviewName] = useState('');
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewComment, setReviewComment] = useState('');
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+
+  // Multiple Saved Addresses Type & States
+  interface UserAddress {
+    id: string;
+    firstName: string;
+    lastName: string;
+    street: string;
+    apartment?: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+    isDefault: boolean;
+  }
+
+  const [addresses, setAddresses] = useState<UserAddress[]>([]);
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
+
+  // Address Form States
+  const [addrFirstName, setAddrFirstName] = useState('');
+  const [addrLastName, setAddrLastName] = useState('');
+  const [addrStreet, setAddrStreet] = useState('');
+  const [addrApartment, setAddrApartment] = useState('');
+  const [addrCity, setAddrCity] = useState('');
+  const [addrState, setAddrState] = useState('');
+  const [addrZip, setAddrZip] = useState('');
+  const [addrCountry, setAddrCountry] = useState('United States');
+  const [addrIsDefault, setAddrIsDefault] = useState(false);
+
+  const loadAddresses = (currentUserName: string) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const data = localStorage.getItem('velora_user_addresses');
+      if (data) {
+        setAddresses(JSON.parse(data));
+      } else {
+        setAddresses([]);
+      }
+    } catch (e) {
+      setAddresses([]);
+    }
+  };
+
+  const handleSaveAddress = (e: React.FormEvent) => {
+    e.preventDefault();
+    let updatedList = [...addresses];
+
+    const newAddr: UserAddress = {
+      id: editingAddressId || `addr-${Date.now()}`,
+      firstName: addrFirstName,
+      lastName: addrLastName,
+      street: addrStreet,
+      apartment: addrApartment,
+      city: addrCity,
+      state: addrState,
+      zip: addrZip,
+      country: addrCountry,
+      isDefault: addrIsDefault || addresses.length === 0,
+    };
+
+    if (newAddr.isDefault) {
+      updatedList = updatedList.map(a => ({ ...a, isDefault: false }));
+    }
+
+    if (editingAddressId) {
+      updatedList = updatedList.map(a => a.id === editingAddressId ? newAddr : a);
+    } else {
+      updatedList.push(newAddr);
+    }
+
+    if (updatedList.length > 0 && !updatedList.some(a => a.isDefault)) {
+      updatedList[0].isDefault = true;
+    }
+
+    localStorage.setItem('velora_user_addresses', JSON.stringify(updatedList));
+    setAddresses(updatedList);
+    setIsEditingAddress(false);
+    setEditingAddressId(null);
+  };
+
+  const handleSetDefaultAddress = (id: string) => {
+    const updatedList = addresses.map(a => ({
+      ...a,
+      isDefault: a.id === id,
+    }));
+    localStorage.setItem('velora_user_addresses', JSON.stringify(updatedList));
+    setAddresses(updatedList);
+  };
+
+  const handleDeleteAddress = (id: string) => {
+    let updatedList = addresses.filter(a => a.id !== id);
+    if (addresses.find(a => a.id === id)?.isDefault && updatedList.length > 0) {
+      updatedList[0].isDefault = true;
+    }
+    localStorage.setItem('velora_user_addresses', JSON.stringify(updatedList));
+    setAddresses(updatedList);
+  };
+
+  const handleOpenAddAddress = () => {
+    setEditingAddressId(null);
+    setAddrFirstName(userName.split(' ')[0] || '');
+    setAddrLastName(userName.split(' ').slice(1).join(' ') || '');
+    setAddrStreet('');
+    setAddrApartment('');
+    setAddrCity('');
+    setAddrState('');
+    setAddrZip('');
+    setAddrCountry('United States');
+    setAddrIsDefault(addresses.length === 0);
+    setIsEditingAddress(true);
+  };
+
+  const handleOpenEditAddress = (addr: UserAddress) => {
+    setEditingAddressId(addr.id);
+    setAddrFirstName(addr.firstName);
+    setAddrLastName(addr.lastName);
+    setAddrStreet(addr.street);
+    setAddrApartment(addr.apartment || '');
+    setAddrCity(addr.city);
+    setAddrState(addr.state);
+    setAddrZip(addr.zip);
+    setAddrCountry(addr.country);
+    setAddrIsDefault(addr.isDefault);
+    setIsEditingAddress(true);
+  };
+
+  // Helper to count how many times a product has been reviewed by the user
+  const getReviewedCount = (productId: string) => {
+    if (typeof window === 'undefined') return 0;
+    try {
+      const data = localStorage.getItem('velora_reviewed_products');
+      if (!data) return 0;
+      const reviewed = JSON.parse(data);
+      return reviewed[productId] || 0;
+    } catch (e) {
+      return 0;
+    }
+  };
+
+  // Helper to count how many of a product was purchased in all orders
+  const getPurchasedQty = (productId: string) => {
+    if (typeof window === 'undefined') return 0;
+    try {
+      const data = localStorage.getItem('velora_orders');
+      if (!data) return 0;
+      const ordersMap = JSON.parse(data);
+      
+      let qty = 0;
+      Object.values(ordersMap).forEach((order: any) => {
+        if (order.items && Array.isArray(order.items) && order.status === 'delivered') {
+          order.items.forEach((item: any) => {
+            if (item.productId === productId) {
+              qty += (item.quantity || 1);
+            }
+          });
+        }
+      });
+      return qty;
+    } catch (e) {
+      return 0;
+    }
+  };
+
+  // Helper to load and sort orders (newest first)
+  const loadSortedOrders = () => {
+    const allOrders = Object.values(getOrdersFromStorage()).sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+    setOrders(allOrders);
+  };
+
+  const handleConfirmDelivery = (orderId: string) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const data = localStorage.getItem('velora_orders');
+      if (!data) return;
+      const ordersMap = JSON.parse(data);
+      if (ordersMap[orderId]) {
+        ordersMap[orderId].status = 'delivered';
+        localStorage.setItem('velora_orders', JSON.stringify(ordersMap));
+        
+        // Refresh local state using sorted loader
+        loadSortedOrders();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleOpenReviewModal = (productId: string, productTitle: string) => {
+    setReviewProductId(productId);
+    setReviewProductTitle(productTitle);
+    setReviewRating(5);
+    setReviewName(userName || '');
+    setReviewTitle('');
+    setReviewComment('');
+    setAttachedFile(null);
+    setFilePreview(null);
+    setIsReviewModalOpen(true);
+  };
+
+  const handleAddReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewName.trim() || !reviewComment.trim() || !reviewProductId) return;
+
+    const newRev = {
+      id: `rev-${Date.now()}`,
+      name: reviewName,
+      location: 'Verified Buyer',
+      rating: reviewRating,
+      date: 'Just now',
+      productTitle: reviewProductTitle,
+      title: reviewTitle || 'Great Product!',
+      comment: reviewComment,
+      verified: true,
+      helpfulCount: 0,
+      image: filePreview || undefined,
+    };
+
+    try {
+      const existingReviewsData = localStorage.getItem('velora_custom_reviews');
+      const existingReviews = existingReviewsData ? JSON.parse(existingReviewsData) : [];
+      localStorage.setItem('velora_custom_reviews', JSON.stringify([newRev, ...existingReviews]));
+    } catch (e) {}
+
+    try {
+      const reviewedData = localStorage.getItem('velora_reviewed_products');
+      const reviewed = reviewedData ? JSON.parse(reviewedData) : {};
+      reviewed[reviewProductId] = (reviewed[reviewProductId] || 0) + 1;
+      localStorage.setItem('velora_reviewed_products', JSON.stringify(reviewed));
+    } catch (e) {}
+
+    setIsReviewModalOpen(false);
+    loadSortedOrders();
+  };
 
   useEffect(() => {
+    let currentName = '';
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('velora_user');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (parsed.email) setUserEmail(parsed.email);
-          if (parsed.name) setUserName(parsed.name);
-        } catch (e) {}
+      if (!stored) {
+        router.push('/account/login');
+        return;
       }
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.email) setUserEmail(parsed.email);
+        if (parsed.name) {
+          setUserName(parsed.name);
+          currentName = parsed.name;
+        }
+      } catch (e) {}
+      loadAddresses(currentName);
     }
-    const allOrders = Object.values(getOrdersFromStorage());
-    setOrders(allOrders);
+    loadSortedOrders();
+    setIsLoading(false);
   }, []);
 
   const handleLogout = () => {
@@ -37,6 +293,27 @@ export default function AccountDashboardPage() {
     }
     router.push('/account/login');
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0d0d0d] text-white py-10 md:py-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-pulse">
+          <div className="bg-[#141414] rounded-3xl border border-[#222] p-6 sm:p-8 flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-[#222]" />
+            <div className="space-y-2 flex-1">
+              <div className="h-5 bg-[#222] rounded w-48" />
+              <div className="h-3 bg-[#1e1e1e] rounded w-32" />
+            </div>
+          </div>
+          <div className="h-12 bg-[#141414] rounded-2xl border border-[#222]" />
+          <div className="space-y-4">
+            <div className="h-32 bg-[#141414] rounded-2xl border border-[#222]" />
+            <div className="h-32 bg-[#141414] rounded-2xl border border-[#222]" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white py-10 md:py-16">
@@ -47,7 +324,7 @@ export default function AccountDashboardPage() {
           <div className="flex items-center gap-4 text-center sm:text-left">
             <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#a80000] to-[#ff7700] p-0.5 shadow-lg flex-shrink-0">
               <div className="w-full h-full bg-[#181818] rounded-full flex items-center justify-center text-white font-black text-xl font-heading">
-                {userName.charAt(0)}
+                {userName ? userName.charAt(0) : 'U'}
               </div>
             </div>
             <div>
@@ -135,12 +412,36 @@ export default function AccountDashboardPage() {
                       </p>
                     </div>
 
-                    <Link
-                      href={`/pages/order-tracking?orderId=${order.id}`}
-                      className="px-4 py-2 bg-[#1e1e1e] hover:bg-[#282828] text-white text-xs font-bold rounded-xl transition border border-[#2a2a2a] flex items-center gap-1.5"
-                    >
-                      <Truck size={14} className="text-[#ff7700]" /> Track Status
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      {order.status !== 'delivered' && (() => {
+                        const trackingStatus = getOrderTrackingStatus(order);
+                        const isDeliveryClickable = trackingStatus === 'delivered';
+                        return (
+                          <button
+                            onClick={() => {
+                              if (isDeliveryClickable) {
+                                handleConfirmDelivery(order.id);
+                              }
+                            }}
+                            disabled={!isDeliveryClickable}
+                            className={`px-3 py-2 text-xs font-bold rounded-xl transition ${
+                              isDeliveryClickable 
+                                ? "bg-[#ff7700] hover:bg-[#ff8822] text-black shadow-md cursor-pointer border-none"
+                                : "bg-[#181818] text-gray-500 border border-gray-800 cursor-not-allowed"
+                            }`}
+                            title={isDeliveryClickable ? "Confirm receipt of your order" : "Confirm receipt is only available once order status in tracking is 'Delivered'"}
+                          >
+                            {isDeliveryClickable ? "Confirm Delivery" : "Awaiting Delivery..."}
+                          </button>
+                        );
+                      })()}
+                      <Link
+                        href={`/pages/order-tracking?orderId=${order.id}`}
+                        className="px-4 py-2 bg-[#1e1e1e] hover:bg-[#282828] text-white text-xs font-bold rounded-xl transition border border-[#2a2a2a] flex items-center gap-1.5"
+                      >
+                        <Truck size={14} className="text-[#ff7700]" /> Track Status
+                      </Link>
+                    </div>
                   </div>
 
                   {/* Purchased Items List */}
@@ -158,9 +459,28 @@ export default function AccountDashboardPage() {
                             </p>
                           </div>
                         </div>
-                        <span className="text-xs font-bold text-[#ff7700]">
-                          {formatCurrency(item.price * item.quantity)}
-                        </span>
+                        
+                        <div className="text-right flex flex-col items-end gap-1 flex-shrink-0">
+                          <span className="text-xs font-bold text-[#ff7700]">
+                            {formatCurrency(item.price * item.quantity)}
+                          </span>
+                          
+                          {/* Write Review Button */}
+                          {order.status === 'delivered' && (
+                            getReviewedCount(item.productId) < getPurchasedQty(item.productId) ? (
+                              <button
+                                onClick={() => handleOpenReviewModal(item.productId, item.title)}
+                                className="px-2.5 py-1 bg-[#a80000] hover:bg-[#7a0000] text-white text-[9px] font-black uppercase rounded border border-transparent transition cursor-pointer"
+                              >
+                                Write Review
+                              </button>
+                            ) : (
+                              <span className="text-[9px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-full">
+                                Reviewed ✓
+                              </span>
+                            )
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -178,17 +498,198 @@ export default function AccountDashboardPage() {
 
         {/* Tab Content 2: Saved Addresses */}
         {activeTab === 'addresses' && (
-          <div className="bg-[#141414] rounded-2xl border border-[#222] p-6 text-xs space-y-4">
-            <h3 className="text-sm font-bold text-white mb-2">Default Shipping Address</h3>
-            <p className="font-semibold text-white">{userName}</p>
-            <p className="text-gray-400 leading-relaxed">
-              742 Evergreen Terrace, Apt 4B<br />
-              Springfield, IL 62704<br />
-              United States
-            </p>
-            <button className="px-4 py-2 bg-[#1e1e1e] hover:bg-[#282828] text-white font-bold rounded-xl border border-[#2a2a2a] transition">
-              Edit Address
-            </button>
+          <div className="bg-[#141414] rounded-2xl border border-[#222] p-6 text-xs space-y-6">
+            <div className="flex items-center justify-between border-b border-[#222] pb-3">
+              <h3 className="text-sm font-bold text-white">Saved Addresses</h3>
+              {!isEditingAddress && (
+                <button
+                  onClick={handleOpenAddAddress}
+                  className="px-3.5 py-1.5 bg-[#ff7700] hover:bg-[#ff8822] text-black text-[11px] font-black rounded-lg transition cursor-pointer"
+                >
+                  + Add New Address
+                </button>
+              )}
+            </div>
+            
+            {isEditingAddress ? (
+              <form onSubmit={handleSaveAddress} className="space-y-4 max-w-md bg-[#1a1a1a] p-5 rounded-2xl border border-[#262626]">
+                <h4 className="text-xs font-black text-[#ff7700] uppercase tracking-wider mb-2">
+                  {editingAddressId ? 'Edit Address' : 'Add New Address'}
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] text-gray-400 mb-1 font-semibold">First Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addrFirstName}
+                      onChange={(e) => setAddrFirstName(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#141414] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-gray-400 mb-1 font-semibold">Last Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addrLastName}
+                      onChange={(e) => setAddrLastName(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#141414] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-[10px] text-gray-400 mb-1 font-semibold">Street Address *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addrStreet}
+                      onChange={(e) => setAddrStreet(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#141414] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-gray-400 mb-1 font-semibold">Apartment, Suite, etc. (Optional)</label>
+                    <input
+                      type="text"
+                      value={addrApartment}
+                      onChange={(e) => setAddrApartment(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#141414] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-gray-400 mb-1 font-semibold">City *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addrCity}
+                      onChange={(e) => setAddrCity(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#141414] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-gray-400 mb-1 font-semibold">State / Province *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addrState}
+                      onChange={(e) => setAddrState(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#141414] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-gray-400 mb-1 font-semibold">Zip / Postal Code *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addrZip}
+                      onChange={(e) => setAddrZip(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#141414] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-[10px] text-gray-400 mb-1 font-semibold">Country *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addrCountry}
+                      onChange={(e) => setAddrCountry(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#141414] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    />
+                  </div>
+                  <div className="sm:col-span-2 pt-1">
+                    <label className="flex items-center gap-2 cursor-pointer text-gray-300 font-semibold select-none">
+                      <input
+                        type="checkbox"
+                        checked={addrIsDefault}
+                        onChange={(e) => setAddrIsDefault(e.target.checked)}
+                        disabled={addresses.length > 0 && !!addresses.find(a => a.id === editingAddressId)?.isDefault}
+                        className="text-[#ff7700] focus:ring-[#ff7700] rounded bg-[#141414] border-[#333] w-3.5 h-3.5"
+                      />
+                      <span>Set as default shipping address</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-[#ff7700] hover:bg-[#ff8822] text-black font-extrabold rounded-xl transition cursor-pointer"
+                  >
+                    Save Address
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingAddress(false);
+                      setEditingAddressId(null);
+                    }}
+                    className="px-4 py-2 bg-[#222] hover:bg-[#333] text-gray-300 rounded-xl transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {addresses.length === 0 ? (
+                  <div className="md:col-span-2 py-8 text-center text-gray-500 font-semibold">
+                    No saved addresses found. Please add a shipping address.
+                  </div>
+                ) : (
+                  addresses.map((addr) => (
+                    <div
+                      key={addr.id}
+                      className={`p-5 rounded-2xl border transition-all flex flex-col justify-between gap-4 ${
+                        addr.isDefault 
+                          ? 'border-[#ff7700]/40 bg-[#ff7700]/5 shadow-lg' 
+                          : 'border-[#222] bg-[#141414] hover:border-[#333]'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="font-extrabold text-white text-xs">{addr.firstName} {addr.lastName}</p>
+                          {addr.isDefault && (
+                            <span className="bg-[#ff7700]/10 text-[#ff7700] text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-[#ff7700]/20">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-400 leading-relaxed font-medium">
+                          {addr.street}{addr.apartment ? `, ${addr.apartment}` : ''}<br />
+                          {addr.city}, {addr.state} {addr.zip}<br />
+                          {addr.country}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#222]/30 mt-auto">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleOpenEditAddress(addr)}
+                            className="text-[#ff7700] hover:text-white transition font-bold"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAddress(addr.id)}
+                            className="text-red-500 hover:text-red-400 transition font-bold"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                        {!addr.isDefault && (
+                          <button
+                            onClick={() => handleSetDefaultAddress(addr.id)}
+                            className="px-2.5 py-1 bg-[#222] hover:bg-[#333] text-gray-300 font-bold rounded-lg border border-[#2a2a2a] transition cursor-pointer text-[10px]"
+                          >
+                            Set as Default
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -206,6 +707,149 @@ export default function AccountDashboardPage() {
             </label>
           </div>
         )}
+
+        {/* WRITE REVIEW MODAL */}
+        <AnimatePresence>
+          {isReviewModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="relative w-full max-w-lg bg-[#141414] border border-[#2a2a2a] rounded-2xl p-6 text-white shadow-2xl z-50"
+              >
+                <div className="flex items-center justify-between border-b border-[#262626] pb-3 mb-4">
+                  <div>
+                    <h3 className="text-base font-bold">Write A Customer Review</h3>
+                    <p className="text-[10px] text-[#ff7700] font-semibold mt-0.5">{reviewProductTitle}</p>
+                  </div>
+                  <button onClick={() => setIsReviewModalOpen(false)} className="text-gray-400 hover:text-white cursor-pointer">
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <form onSubmit={handleAddReview} className="space-y-4">
+                  {/* Rating selection */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 mb-1">Overall Rating</label>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setReviewRating(star)}
+                          className="p-1 text-amber-400 hover:scale-110 transition cursor-pointer"
+                        >
+                          <Star size={24} fill={star <= reviewRating ? 'currentColor' : 'none'} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 mb-1">Your Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Alex M."
+                      value={reviewName}
+                      onChange={(e) => setReviewName(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#1c1c1c] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 mb-1">Review Headline *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Awesome quality and fast shipping!"
+                      value={reviewTitle}
+                      onChange={(e) => setReviewTitle(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#1c1c1c] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 mb-1">Your Review *</label>
+                    <textarea
+                      required
+                      rows={3}
+                      placeholder="Tell us what you liked about the fit, fabric, and print..."
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#1c1c1c] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    />
+                  </div>
+
+                  {/* Photo Upload */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 mb-1">Upload Photo (Optional)</label>
+                    <div className="relative border border-dashed border-[#333] hover:border-[#ff7700]/55 rounded-xl p-3 bg-[#1c1c1c] transition flex flex-col items-center justify-center text-center">
+                      {filePreview ? (
+                        <div className="flex items-center gap-3 w-full">
+                          <img
+                            src={filePreview}
+                            alt="Preview"
+                            className="w-12 h-12 object-cover rounded-lg border border-[#333]"
+                          />
+                          <div className="flex-1 text-left min-w-0">
+                            <p className="text-xs text-white font-semibold truncate">{attachedFile?.name}</p>
+                            <p className="text-[9px] text-gray-500">
+                              {attachedFile && attachedFile.size / 1024 > 1024 
+                                ? `${(attachedFile.size / (1024 * 1024)).toFixed(2)} MB` 
+                                : `${attachedFile ? (attachedFile.size / 1024).toFixed(0) : 0} KB`}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAttachedFile(null);
+                              setFilePreview(null);
+                            }}
+                            className="px-2 py-1 bg-red-950 text-red-500 text-[10px] font-bold rounded-lg border border-red-800 hover:bg-red-900 transition cursor-pointer"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="cursor-pointer flex flex-col items-center justify-center w-full py-1">
+                          <div className="flex items-center gap-2 text-xs font-bold text-gray-300 hover:text-[#ff7700] transition">
+                            <span className="bg-[#2a2a2a] px-2.5 py-1 rounded-lg border border-[#333] text-[10px]">Add Photo</span>
+                            <span className="text-gray-500 text-[10px]">or drag it here</span>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                const file = e.target.files[0];
+                                setAttachedFile(file);
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  setFilePreview(reader.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-3 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-lg cursor-pointer"
+                  >
+                    Submit Review
+                  </button>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
       </div>
     </div>

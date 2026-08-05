@@ -1,4 +1,4 @@
-# 🛍️ Velora Store - E-Commerce POD Platform Frontend
+# 🛍️ VELORA TEES - E-Commerce POD Platform Frontend
 
 Trang web thương mại điện tử chuyên về thời trang Print-On-Demand (Áo thun Graphic Tees, Hoodies, Quà tặng cá nhân hóa)
 

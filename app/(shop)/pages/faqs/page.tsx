@@ -55,7 +55,7 @@ const ALL_FAQS: FAQItem[] = [
   {
     category: 'returns',
     question: 'What if I ordered the wrong size?',
-    answer: 'We recommend checking our Sizing Guide (/pages/product-details-sizing) before ordering. If you receive the wrong size, contact support@velorastore.com within 30 days for exchange options.',
+    answer: 'We recommend checking our Sizing Guide (/pages/product-details-sizing) before ordering. If you receive the wrong size, contact support@veloratees.com within 30 days for exchange options.',
   },
 
   // Payments

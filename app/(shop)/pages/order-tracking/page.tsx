@@ -4,8 +4,8 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { getOrderById } from '@/lib/mock-orders';
-import { Order } from '@/types/orders';
+import { getOrderById, getOrderTrackingStatus } from '@/lib/mock-orders';
+import { Order, OrderStatus } from '@/types/orders';
 import { formatCurrency } from '@/lib/formatters';
 import { 
   Search, 
@@ -177,53 +177,76 @@ function OrderTrackingContent() {
                 Fulfillment Process
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
-                
-                {/* Step 1 */}
-                <div className="flex md:flex-col items-center md:text-center gap-4 md:gap-2">
-                  <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
-                    ✓
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-900">1. Order Placed</p>
-                    <p className="text-[11px] text-gray-500">Confirmed & Verified</p>
-                  </div>
-                </div>
+              {(() => {
+                const trackingStatus = getOrderTrackingStatus(activeOrder);
+                const stepIndex = trackingStatus === 'placed' ? 1 
+                                : trackingStatus === 'printing' ? 2 
+                                : trackingStatus === 'shipped' ? 3 
+                                : 4;
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+                    {/* Step 1 */}
+                    <div className="flex md:flex-col items-center md:text-center gap-4 md:gap-2">
+                      <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
+                        ✓
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-900">1. Order Placed</p>
+                        <p className="text-[11px] text-gray-500">Confirmed & Verified</p>
+                      </div>
+                    </div>
 
-                {/* Step 2 */}
-                <div className="flex md:flex-col items-center md:text-center gap-4 md:gap-2">
-                  <div className="w-10 h-10 rounded-full bg-red-700 text-white flex items-center justify-center font-bold text-sm ring-4 ring-red-100 animate-pulse">
-                    <Printer className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-red-700">2. POD Printing</p>
-                    <p className="text-[11px] text-red-600 font-medium">Custom Art Production</p>
-                  </div>
-                </div>
+                    {/* Step 2 */}
+                    <div className={`flex md:flex-col items-center md:text-center gap-4 md:gap-2 ${stepIndex < 2 ? 'opacity-50' : ''}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${
+                        stepIndex > 2 
+                          ? "bg-emerald-600 text-white" 
+                          : stepIndex === 2 
+                            ? "bg-red-700 text-white ring-4 ring-red-100 animate-pulse" 
+                            : "bg-gray-200 text-gray-600"
+                      }`}>
+                        {stepIndex > 2 ? "✓" : <Printer className="w-4 h-4" />}
+                      </div>
+                      <div>
+                        <p className={`text-xs font-bold ${stepIndex === 2 ? 'text-red-700' : 'text-gray-950'}`}>2. POD Printing</p>
+                        <p className={`text-[11px] ${stepIndex === 2 ? 'text-red-600 font-medium' : 'text-gray-500'}`}>Custom Art Production</p>
+                      </div>
+                    </div>
 
-                {/* Step 3 */}
-                <div className="flex md:flex-col items-center md:text-center gap-4 md:gap-2 opacity-50">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-sm">
-                    <Truck className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-800">3. In Transit</p>
-                    <p className="text-[11px] text-gray-400">Carrier Handover</p>
-                  </div>
-                </div>
+                    {/* Step 3 */}
+                    <div className={`flex md:flex-col items-center md:text-center gap-4 md:gap-2 ${stepIndex < 3 ? 'opacity-50' : ''}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${
+                        stepIndex > 3 
+                          ? "bg-emerald-600 text-white" 
+                          : stepIndex === 3 
+                            ? "bg-red-700 text-white ring-4 ring-red-100 animate-pulse" 
+                            : "bg-gray-200 text-gray-600"
+                      }`}>
+                        {stepIndex > 3 ? "✓" : <Truck className="w-4 h-4" />}
+                      </div>
+                      <div>
+                        <p className={`text-xs font-bold ${stepIndex === 3 ? 'text-red-700' : 'text-gray-950'}`}>3. In Transit</p>
+                        <p className={`text-[11px] ${stepIndex === 3 ? 'text-red-600 font-medium' : 'text-gray-500'}`}>Carrier Handover</p>
+                      </div>
+                    </div>
 
-                {/* Step 4 */}
-                <div className="flex md:flex-col items-center md:text-center gap-4 md:gap-2 opacity-50">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-sm">
-                    <CheckCircle2 className="w-4 h-4" />
+                    {/* Step 4 */}
+                    <div className={`flex md:flex-col items-center md:text-center gap-4 md:gap-2 ${stepIndex < 4 ? 'opacity-50' : ''}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${
+                        stepIndex === 4 
+                          ? "bg-emerald-600 text-white" 
+                          : "bg-gray-200 text-gray-600"
+                      }`}>
+                        {stepIndex === 4 ? "✓" : <CheckCircle2 className="w-4 h-4" />}
+                      </div>
+                      <div>
+                        <p className={`text-xs font-bold ${stepIndex === 4 ? 'text-emerald-700' : 'text-gray-950'}`}>4. Delivered</p>
+                        <p className={`text-[11px] ${stepIndex === 4 ? 'text-emerald-600 font-medium' : 'text-gray-500'}`}>Destination Arrival</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-800">4. Delivered</p>
-                    <p className="text-[11px] text-gray-400">Destination Arrival</p>
-                  </div>
-                </div>
-
-              </div>
+                );
+              })()}
 
               {/* Carrier Tracking Badge */}
               {activeOrder.trackingNumber && (

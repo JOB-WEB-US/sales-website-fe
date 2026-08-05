@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, ThumbsUp, CheckCircle2, Camera, Filter, Plus, ArrowLeft, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MOCK_PRODUCTS } from '@/lib/mock-data';
 
 interface Review {
   id: string;
@@ -80,14 +81,22 @@ export default function AllReviewsPage() {
   const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
   const [selectedFilter, setSelectedFilter] = useState<'all' | '5' | '4' | 'photos'>('all');
-  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
 
-  // Form State
-  const [newRating, setNewRating] = useState(5);
-  const [newName, setNewName] = useState('');
-  const [newTitle, setNewTitle] = useState('');
-  const [newComment, setNewComment] = useState('');
-  const [newProductTitle, setNewProductTitle] = useState('Custom Graphic Tee');
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const data = localStorage.getItem('velora_custom_reviews');
+        if (data) {
+          const custom = JSON.parse(data);
+          setReviews([...custom, ...INITIAL_REVIEWS]);
+        } else {
+          setReviews(INITIAL_REVIEWS);
+        }
+      } catch (e) {
+        setReviews(INITIAL_REVIEWS);
+      }
+    }
+  }, []);
 
   const filteredReviews = reviews.filter((r) => {
     if (selectedFilter === '5') return r.rating === 5;
@@ -100,30 +109,6 @@ export default function AllReviewsPage() {
     setReviews((prev) =>
       prev.map((r) => (r.id === reviewId ? { ...r, helpfulCount: r.helpfulCount + 1 } : r))
     );
-  };
-
-  const handleAddReview = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newName.trim() || !newComment.trim()) return;
-
-    const newRev: Review = {
-      id: `rev-${Date.now()}`,
-      name: newName,
-      location: 'Verified Buyer',
-      rating: newRating,
-      date: 'Just now',
-      productTitle: newProductTitle,
-      title: newTitle || 'Great Product!',
-      comment: newComment,
-      verified: true,
-      helpfulCount: 0,
-    };
-
-    setReviews([newRev, ...reviews]);
-    setIsWriteModalOpen(false);
-    setNewName('');
-    setNewTitle('');
-    setNewComment('');
   };
 
   return (
@@ -153,12 +138,12 @@ export default function AllReviewsPage() {
               </div>
               <p className="text-xs text-gray-400 font-semibold">Based on 1,482 verified customer reviews</p>
               
-              <button
-                onClick={() => setIsWriteModalOpen(true)}
-                className="mt-5 w-full py-3 px-4 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-2 shadow-md"
+              <Link
+                href="/account"
+                className="mt-5 w-full py-3 px-4 bg-[#1a1a1a] hover:bg-[#252525] text-white hover:text-[#ff7700] border border-[#2a2a2a] font-extrabold text-xs uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
               >
-                <Plus size={16} /> Write A Review
-              </button>
+                Go to Account to Review
+              </Link>
             </div>
 
             {/* Rating Bars Breakdown */}
@@ -285,88 +270,6 @@ export default function AllReviewsPage() {
             </div>
           ))}
         </div>
-
-        {/* WRITE REVIEW MODAL */}
-        <AnimatePresence>
-          {isWriteModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="relative w-full max-w-lg bg-[#141414] border border-[#2a2a2a] rounded-2xl p-6 text-white shadow-2xl"
-              >
-                <div className="flex items-center justify-between border-b border-[#262626] pb-3 mb-4">
-                  <h3 className="text-base font-bold">Write A Customer Review</h3>
-                  <button onClick={() => setIsWriteModalOpen(false)} className="text-gray-400 hover:text-white">
-                    <X size={18} />
-                  </button>
-                </div>
-
-                <form onSubmit={handleAddReview} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1">Overall Rating</label>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setNewRating(star)}
-                          className="p-1 text-amber-400 hover:scale-110 transition"
-                        >
-                          <Star size={24} fill={star <= newRating ? 'currentColor' : 'none'} />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1">Your Name *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Alex M."
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#1c1c1c] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1">Review Headline *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Awesome quality and fast shipping!"
-                      value={newTitle}
-                      onChange={(e) => setNewTitle(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#1c1c1c] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1">Your Review *</label>
-                    <textarea
-                      required
-                      rows={3}
-                      placeholder="Tell us what you liked about the fit, fabric, and print..."
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#1c1c1c] border border-[#333] rounded-lg text-xs text-white outline-none focus:ring-1 focus:ring-[#ff7700]"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-3 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-lg"
-                  >
-                    Submit Review
-                  </button>
-                </form>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
 
       </div>
     </div>

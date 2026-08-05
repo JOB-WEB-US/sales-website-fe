@@ -90,14 +90,50 @@ export function saveOrderToStorage(order: Order): void {
   }
 }
 
+export function getOrderTrackingStatus(order: Order): OrderStatus {
+  if (order.status === 'delivered') return 'delivered';
+  const elapsedMs = Date.now() - new Date(order.createdAt).getTime();
+  if (elapsedMs < 15 * 1000) return 'placed';
+  if (elapsedMs < 45 * 1000) return 'printing';
+  if (elapsedMs < 90 * 1000) return 'shipped';
+  return 'delivered';
+}
+
 export function getOrdersFromStorage(): Record<string, Order> {
-  if (typeof window === 'undefined') return MOCK_ORDERS;
+  if (typeof window === 'undefined') return {};
   try {
     const data = localStorage.getItem('velora_orders');
-    if (!data) return MOCK_ORDERS;
-    return { ...MOCK_ORDERS, ...JSON.parse(data) };
+    if (!data) return {};
+    const orders = JSON.parse(data);
+    
+    let updated = false;
+    Object.keys(orders).forEach((id) => {
+      const order = orders[id];
+      if (order.status !== 'delivered') {
+        const elapsedMs = Date.now() - new Date(order.createdAt).getTime();
+        let targetStatus = order.status;
+        
+        if (elapsedMs < 15 * 1000) {
+          targetStatus = 'placed';
+        } else if (elapsedMs < 45 * 1000) {
+          targetStatus = 'printing';
+        } else if (elapsedMs < 90 * 1000) {
+          targetStatus = 'shipped';
+        }
+        
+        if (order.status !== targetStatus) {
+          order.status = targetStatus;
+          updated = true;
+        }
+      }
+    });
+    
+    if (updated) {
+      localStorage.setItem('velora_orders', JSON.stringify(orders));
+    }
+    return orders;
   } catch (e) {
-    return MOCK_ORDERS;
+    return {};
   }
 }
 

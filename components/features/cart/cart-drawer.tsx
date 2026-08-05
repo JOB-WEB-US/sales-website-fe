@@ -18,6 +18,13 @@ export default function CartDrawer() {
 
   const handleCheckout = () => {
     closeCart();
+    if (typeof window !== 'undefined') {
+      const userProfile = localStorage.getItem('velora_user');
+      if (!userProfile) {
+        router.push("/account/login?redirect=/checkout");
+        return;
+      }
+    }
     router.push("/checkout");
   };
 
@@ -70,8 +77,11 @@ export default function CartDrawer() {
                     Your shopping cart is currently empty.
                   </p>
                   <button
-                    onClick={closeCart}
-                    className="mt-4 text-xs font-bold text-[#ff7700] hover:underline"
+                    onClick={() => {
+                      closeCart();
+                      router.push('/');
+                    }}
+                    className="mt-4 text-xs font-bold text-[#ff7700] hover:underline cursor-pointer"
                   >
                     Start Shopping Now
                   </button>

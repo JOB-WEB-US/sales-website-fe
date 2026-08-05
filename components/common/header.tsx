@@ -64,7 +64,7 @@ export default function Header() {
           </div>
           <div className="flex flex-col">
             <span className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white font-heading leading-none flex items-center gap-1">
-              ERI<span className="text-[#ff7700]">HOT</span>
+              VELORA
               <span className="text-[9px] bg-[#a80000] text-white px-1.5 py-0.5 rounded uppercase font-bold tracking-widest ml-1">
                 TEES
               </span>
@@ -149,7 +149,7 @@ export default function Header() {
 
       {/* 3. Header Navigation Menu (Layer 2) */}
       <nav className="hidden lg:block border-t border-[#1e1e1e] bg-[#0c0c0c]">
-        <div className="max-w-7xl mx-auto px-4 flex items-center gap-8 py-2 text-sm font-medium">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-8 py-2 text-sm font-medium">
           <Link href="/shop" className="text-gray-200 hover:text-[#ff7700] transition py-1">
             Shop All
           </Link>

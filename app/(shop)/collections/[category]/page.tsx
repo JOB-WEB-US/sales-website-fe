@@ -57,7 +57,9 @@ export default function CategoryCollectionPage({ params }: { params: { category:
   };
 
   const [selectedType, setSelectedType] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'rating'>('featured');
+  const [sortBy, setSortBy] = useState<
+    'featured' | 'newest' | 'oldest' | 'name-az' | 'name-za' | 'price-low' | 'price-high' | 'rating'
+  >('featured');
 
   // Filter products by category slug
   const categoryProducts = MOCK_PRODUCTS.filter((product) => {
@@ -72,10 +74,19 @@ export default function CategoryCollectionPage({ params }: { params: { category:
   });
 
   // Apply Sorting
+  const getProductIndex = (p: typeof MOCK_PRODUCTS[0]) => {
+    const num = parseInt(p.id.replace('prod-', ''), 10);
+    return isNaN(num) ? 0 : num;
+  };
+
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === 'price-low') return a.basePrice - b.basePrice;
     if (sortBy === 'price-high') return b.basePrice - a.basePrice;
     if (sortBy === 'rating') return b.rating - a.rating;
+    if (sortBy === 'newest') return getProductIndex(b) - getProductIndex(a);
+    if (sortBy === 'oldest') return getProductIndex(a) - getProductIndex(b);
+    if (sortBy === 'name-az') return a.title.localeCompare(b.title);
+    if (sortBy === 'name-za') return b.title.localeCompare(a.title);
     return 0; // featured default
   });
 
@@ -161,12 +172,16 @@ export default function CategoryCollectionPage({ params }: { params: { category:
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-[#1c1c1c] border border-[#333] text-white text-xs px-3 py-1.5 rounded-xl outline-none focus:ring-1 focus:ring-[#ff7700]"
+              className="bg-white dark:bg-[#1c1c1c] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white text-xs px-3 py-1.5 rounded-xl outline-none focus:ring-1 focus:ring-[#ff7700] cursor-pointer"
             >
-              <option value="featured">Featured First</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
+              <option value="featured" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Featured</option>
+              <option value="newest" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Newest</option>
+              <option value="oldest" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Oldest</option>
+              <option value="name-az" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Alphabetical: A-Z</option>
+              <option value="name-za" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Alphabetical: Z-A</option>
+              <option value="price-low" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Price: Low to High</option>
+              <option value="price-high" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Price: High to Low</option>
+              <option value="rating" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Highest Rated</option>
             </select>
           </div>
 

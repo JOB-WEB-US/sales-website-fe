@@ -23,7 +23,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'ERIHOT TEES | Trending Graphic Apparel & POD Merch',
+  title: 'VELORA TEES | Trending Graphic Apparel & POD Merch',
   description: 'Trending graphic printed t-shirts, horror movie apparel, halloween merchandise and custom printed tees.',
 };
 

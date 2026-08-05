@@ -59,7 +59,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-[#181818] py-6 px-4 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-        <p>&copy; 2026 ERIHOT TEES. All rights reserved. Premium POD Graphic Apparel & Merchandise.</p>
+        <p>&copy; 2026 VELORA TEES. All rights reserved. Premium POD Graphic Apparel & Merchandise.</p>
 
         {/* Seasonal Falling Particles Controls */}
         <ParticlesControlWidget />

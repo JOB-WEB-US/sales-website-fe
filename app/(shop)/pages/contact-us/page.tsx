@@ -14,6 +14,25 @@ export default function ContactUsPage() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setAttachedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFilePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleClearFile = () => {
+    setAttachedFile(null);
+    setFilePreview(null);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +73,7 @@ export default function ContactUsPage() {
               </div>
               <div>
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Email Us</h3>
-                <p className="text-sm font-bold text-white mt-0.5">support@velorastore.com</p>
+                <p className="text-sm font-bold text-white mt-0.5">support@veloratees.com</p>
                 <p className="text-xs text-gray-500 mt-1">Guaranteed response within 24 hours.</p>
               </div>
             </div>
@@ -76,7 +95,7 @@ export default function ContactUsPage() {
               </div>
               <div>
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">POD Printing Facility</h3>
-                <p className="text-sm font-bold text-white mt-0.5">Velora Fulfillment Center</p>
+                <p className="text-sm font-bold text-white mt-0.5">Velora Tees Fulfillment Center</p>
                 <p className="text-xs text-gray-500 mt-1">742 Evergreen Terrace, Springfield, IL 62704</p>
               </div>
             </div>
@@ -98,7 +117,18 @@ export default function ContactUsPage() {
                     <strong className="text-white">{formData.email}</strong> within 24 hours.
                   </p>
                   <button
-                    onClick={() => setSubmitted(false)}
+                    onClick={() => {
+                      setFormData({
+                        name: '',
+                        email: '',
+                        orderNumber: '',
+                        subject: 'General Inquiry',
+                        message: '',
+                      });
+                      setAttachedFile(null);
+                      setFilePreview(null);
+                      setSubmitted(false);
+                    }}
                     className="px-6 py-2.5 bg-[#222] hover:bg-[#333] text-white text-xs font-bold rounded-xl transition"
                   >
                     Send Another Message
@@ -171,9 +201,53 @@ export default function ContactUsPage() {
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 mb-1">Attachments (Optional)</label>
+                    <div className="relative border border-dashed border-[#333] hover:border-[#ff7700]/55 rounded-xl p-4 bg-[#1c1c1c] transition flex flex-col items-center justify-center text-center">
+                      {filePreview ? (
+                        <div className="flex items-center gap-4 w-full">
+                          <img
+                            src={filePreview}
+                            alt="Preview"
+                            className="w-16 h-16 object-cover rounded-lg border border-[#333]"
+                          />
+                          <div className="flex-1 text-left min-w-0">
+                            <p className="text-xs text-white font-semibold truncate">{attachedFile?.name}</p>
+                            <p className="text-[10px] text-gray-500">
+                              {attachedFile && attachedFile.size / 1024 > 1024 
+                                ? `${(attachedFile.size / (1024 * 1024)).toFixed(2)} MB` 
+                                : `${attachedFile ? (attachedFile.size / 1024).toFixed(0) : 0} KB`}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleClearFile}
+                            className="px-2.5 py-1.5 bg-red-950 text-red-500 text-[10px] font-bold rounded-lg border border-red-800 hover:bg-red-900 transition cursor-pointer"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="cursor-pointer flex flex-col items-center justify-center w-full py-2">
+                          <div className="flex items-center gap-2 text-xs font-bold text-gray-300 hover:text-[#ff7700] transition">
+                            <span className="bg-[#2a2a2a] px-3 py-1.5 rounded-lg border border-[#333]">Choose File</span>
+                            <span className="text-gray-500">or drag it here</span>
+                          </div>
+                          <span className="text-[10px] text-gray-500 mt-1.5">Supports PNG, JPG, JPEG (Max 5MB)</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+
                   <button
                     type="submit"
-                    className="w-full py-3.5 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-lg flex items-center justify-center gap-2"
+                    className="w-full py-3.5 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Send className="w-4 h-4" /> Send Message
                   </button>
