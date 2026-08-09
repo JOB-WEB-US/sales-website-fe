@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { ShoppingBag, Heart, User, Search, ChevronDown, Menu, X, Sun, Moon, Flame } from 'lucide-react';
@@ -7,10 +8,13 @@ import { useCartStore } from '@/store/useCartStore';
 import { useUIStore } from '@/store/useUIStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { useThemeStore } from '@/store/useThemeStore';
+import { getCategories, getAttributes, ApiCategory } from '@/lib/api';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [productTypes, setProductTypes] = useState<any[]>([]);
   
   const totalItems = useCartStore((state) => state.getTotalItems());
   const { openCart, openSearch } = useUIStore();
@@ -29,7 +33,30 @@ export default function Header() {
         document.documentElement.classList.remove('light-mode');
       }
     }
+    getCategories().then((cats) => {
+      if (cats && cats.length > 0) {
+        setCategories(cats);
+      }
+    });
+    getAttributes().then((attrs) => {
+      if (attrs && attrs.types && attrs.types.length > 0) {
+        setProductTypes(attrs.types);
+      }
+    });
   }, [theme]);
+
+  const getTypeIcon = (name: string) => {
+    const n = (name || '').toLowerCase();
+    if (n.includes('t-shirt') || n.includes('tee')) return '👕';
+    if (n.includes('zip') || n.includes('hoodie')) return '🧥';
+    if (n.includes('sweatshirt')) return '🧶';
+    if (n.includes('sleeve')) return '🥋';
+    if (n.includes('tank')) return '🎽';
+    if (n.includes('calendar')) return '📅';
+    if (n.includes('case') || n.includes('phone')) return '📱';
+    if (n.includes('cap') || n.includes('hat')) return '🧢';
+    return '🏷️';
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full bg-[#121212]/95 backdrop-blur border-b border-[#222]">
@@ -55,25 +82,30 @@ export default function Header() {
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        {/* Logo */}
+        {/* Brand Official Logo (Transparent, Black in Light Mode, White in Dark Mode) */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#a80000] via-[#ff7700] to-amber-400 p-0.5 shadow-md group-hover:scale-105 transition duration-300">
-            <div className="w-full h-full bg-[#121212] rounded-[10px] flex items-center justify-center">
-              <Flame className="w-5 h-5 text-[#ff7700] fill-[#ff7700]" />
-            </div>
+          <div className="relative h-12 w-auto flex items-center transition-all duration-300 group-hover:scale-105">
+            <Image
+              src="/images/velora-logo.png"
+              alt="VELORA TEES Official Logo"
+              width={140}
+              height={48}
+              priority
+              unoptimized
+              className="brand-logo-img object-contain h-11 w-auto"
+            />
           </div>
-          <div className="flex flex-col">
-            <span className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white font-heading leading-none flex items-center gap-1">
-              VELORA
-              <span className="text-[9px] bg-[#a80000] text-white px-1.5 py-0.5 rounded uppercase font-bold tracking-widest ml-1">
-                TEES
-              </span>
+          <div className="hidden sm:flex flex-col">
+            <span className="text-[10px] font-black text-[#ff7700] tracking-widest uppercase leading-tight">
+              OFFICIAL STORE
             </span>
-            <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase mt-0.5">
+            <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase">
               Trending Graphic Apparel
             </span>
           </div>
         </Link>
+
+
 
         {/* Search Bar Click Trigger */}
         <div 
@@ -149,80 +181,134 @@ export default function Header() {
 
       {/* 3. Header Navigation Menu (Layer 2) */}
       <nav className="hidden lg:block border-t border-[#1e1e1e] bg-[#0c0c0c]">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-8 py-2 text-sm font-medium">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-9 py-3 text-[14px] sm:text-[15px] font-bold tracking-wide">
           <Link href="/shop" className="text-gray-200 hover:text-[#ff7700] transition py-1">
             Shop All
           </Link>
           
-          <Link href="/collections/halloween" className="text-[#ff7700] font-bold hover:brightness-125 transition py-1 flex items-center gap-1">
-            🎃 Halloween 🎃
+          <Link href="/collections/halloween" className="text-[#ff7700] hover:brightness-125 transition py-1 flex items-center gap-1.5 font-extrabold">
+            {categories.find((c) => c.slug === 'halloween')?.name || '🎃 Halloween & Spooky'}
           </Link>
 
-          {/* Dropdown: Products */}
+          {/* Dropdown: Curated Collections */}
           <div className="relative group">
-            <button className="flex items-center gap-1 text-gray-200 hover:text-[#ff7700] py-1">
-              Products <ChevronDown size={14} />
+            <button className="flex items-center gap-1.5 text-gray-200 group-hover:text-[#ff7700] py-1 transition cursor-pointer font-bold">
+              Collections <ChevronDown size={15} className="group-hover:rotate-180 transition-transform duration-200" />
             </button>
-            <div className="absolute top-full left-0 hidden group-hover:block w-48 bg-[#181818] border border-gray-800 rounded-lg shadow-xl py-2 z-50">
-              <Link href="/shop?category=t-shirts" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#252525] hover:text-[#ff7700]">
-                T-Shirts
-              </Link>
-              <Link href="/shop?category=hoodies" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#252525] hover:text-[#ff7700]">
-                Hoodies & Sweatshirts
-              </Link>
-              <Link href="/shop?category=calendars" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#252525] hover:text-[#ff7700]">
-                Wall Calendars
-              </Link>
+            <div className="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block w-68 bg-[#141414] border border-[#2a2a2a] rounded-2xl shadow-2xl p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="py-1 space-y-1">
+                {categories.map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/collections/${cat.slug}`}
+                    className="block px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-200 hover:bg-[#202020] hover:text-[#ff7700] transition"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Dropdown: Collections */}
+          {/* Dropdown: Product Types */}
           <div className="relative group">
-            <button className="flex items-center gap-1 text-gray-200 hover:text-[#ff7700] py-1">
-              All Collections <ChevronDown size={14} />
+            <button className="flex items-center gap-1.5 text-gray-200 group-hover:text-[#ff7700] py-1 transition cursor-pointer font-bold">
+              Product Types <ChevronDown size={15} className="group-hover:rotate-180 transition-transform duration-200" />
             </button>
-            <div className="absolute top-full left-0 hidden group-hover:block w-48 bg-[#181818] border border-gray-800 rounded-lg shadow-xl py-2 z-50">
-              <Link href="/collections/halloween" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#252525] hover:text-[#ff7700]">
-                🎃 Halloween Specials
-              </Link>
-              <Link href="/collections/horror" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#252525] hover:text-[#ff7700]">
-                💀 Horror Movies
-              </Link>
-              <Link href="/collections/ella-langley" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#252525] hover:text-[#ff7700]">
-                🤠 Ella Langley
-              </Link>
-              <Link href="/collections/vintage" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#252525] hover:text-[#ff7700]">
-                📻 Vintage 80s/90s
-              </Link>
-              <Link href="/collections/trending" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#252525] hover:text-[#ff7700]">
-                🔥 Trending Now
-              </Link>
+            <div className="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block w-64 bg-[#141414] border border-[#2a2a2a] rounded-2xl shadow-2xl p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="py-1 space-y-1 max-h-80 overflow-y-auto">
+                {productTypes.length > 0 ? (
+                  productTypes.map((pt) => (
+                    <Link
+                      key={pt.id}
+                      href={`/shop?type=${encodeURIComponent(pt.name)}`}
+                      className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-200 hover:bg-[#202020] hover:text-[#ff7700] transition"
+                    >
+                      <span className="text-base">{getTypeIcon(pt.name)}</span>
+                      <span>{pt.name}</span>
+                    </Link>
+                  ))
+                ) : (
+                  <>
+                    <Link href="/shop?type=T-Shirt" className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-200 hover:bg-[#202020] hover:text-[#ff7700] transition">
+                      <span>👕</span> <span>T-Shirt</span>
+                    </Link>
+                    <Link href="/shop?type=Hoodie" className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-200 hover:bg-[#202020] hover:text-[#ff7700] transition">
+                      <span>🧥</span> <span>Hoodie</span>
+                    </Link>
+                    <Link href="/shop?type=Sweatshirt" className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-200 hover:bg-[#202020] hover:text-[#ff7700] transition">
+                      <span>🧶</span> <span>Sweatshirt</span>
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
-          <Link href="/contact" className="text-gray-200 hover:text-[#ff7700] transition py-1">
-            Contact Us
+          <Link href="/pages/order-tracking" className="text-gray-200 hover:text-[#ff7700] transition py-1">
+            Track Order
           </Link>
         </div>
       </nav>
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#121212] border-t border-gray-800 px-4 py-4 flex flex-col gap-3 text-sm">
-          <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="text-gray-200 hover:text-[#ff7700] py-1">
+        <div className="lg:hidden bg-[#121212] border-t border-gray-800 px-5 py-5 flex flex-col gap-3 text-base">
+          <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="text-gray-100 hover:text-[#ff7700] py-2 font-bold text-base">
             Shop All
           </Link>
-          <Link href="/collections/halloween" onClick={() => setMobileMenuOpen(false)} className="text-[#ff7700] font-bold py-1">
-            🎃 Halloween 🎃
+          <Link href="/collections/halloween" onClick={() => setMobileMenuOpen(false)} className="text-[#ff7700] font-extrabold py-2 text-base">
+            {categories.find((c) => c.slug === 'halloween')?.name || '🎃 Halloween & Spooky'}
           </Link>
-          <Link href="/collections/trending" onClick={() => setMobileMenuOpen(false)} className="text-gray-200 hover:text-[#ff7700] py-1">
-            Trending Now
-          </Link>
-          <Link href="/collections/horror" onClick={() => setMobileMenuOpen(false)} className="text-gray-200 hover:text-[#ff7700] py-1">
-            Horror Movies
-          </Link>
+
+          <div className="pt-3 border-t border-gray-800">
+            <span className="text-xs font-black text-gray-400 uppercase tracking-wider block mb-2">Collections</span>
+            <div className="space-y-1">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/collections/${cat.slug}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-gray-200 hover:text-[#ff7700] py-2 text-sm font-semibold"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-gray-800">
+            <span className="text-xs font-black text-gray-400 uppercase tracking-wider block mb-2">Product Types</span>
+            <div className="space-y-1">
+              {productTypes.map((pt) => (
+                <Link
+                  key={pt.id}
+                  href={`/shop?type=${encodeURIComponent(pt.name)}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 text-gray-200 hover:text-[#ff7700] py-2 text-sm font-semibold"
+                >
+                  <span className="text-base">{getTypeIcon(pt.name)}</span>
+                  <span>{pt.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-gray-800 flex flex-col gap-2 text-sm font-semibold">
+            <Link href="/pages/order-tracking" onClick={() => setMobileMenuOpen(false)} className="text-gray-200 hover:text-[#ff7700] py-1.5">
+              Track Order
+            </Link>
+          </div>
         </div>
       )}
+
+
+
+
+
     </header>
   );
 }
+
+
+

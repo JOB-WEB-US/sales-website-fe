@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Sparkles, Filter, ArrowUpDown } from 'lucide-react';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
+import { ArrowLeft, ArrowUpDown } from 'lucide-react';
 import ProductCard from '@/components/features/products/product-card';
-import { ProductType } from '@/types/product';
+import { getProducts, getCategories, mapApiProductToUI, ApiCategory } from '@/lib/api';
 
-const CATEGORY_NAMES: Record<string, { title: string; subtitle: string; icon: string }> = {
+const CATEGORY_META: Record<string, { title: string; subtitle: string; icon: string }> = {
   halloween: {
     title: 'Halloween Graphic Tees & Apparel',
     subtitle: 'Spooky season graphic t-shirts, horror movie merch, and spooky costumes.',
@@ -50,45 +49,76 @@ export default function CategoryCollectionPage({ params }: { params: { category:
   const router = useRouter();
   const rawCategory = params.category.toLowerCase();
   
-  const categoryInfo = CATEGORY_NAMES[rawCategory] || {
-    title: `${params.category.toUpperCase()} Collection`,
-    subtitle: 'Explore our latest custom graphic printed apparel and merchandise.',
-    icon: '✨',
-  };
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [selectedType, setSelectedType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<
     'featured' | 'newest' | 'oldest' | 'name-az' | 'name-za' | 'price-low' | 'price-high' | 'rating'
   >('featured');
 
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        const [rawProducts, rawCats] = await Promise.all([
+          getProducts(),
+          getCategories(),
+        ]);
+        const mapped = rawProducts.map(mapApiProductToUI).filter(Boolean);
+        setProducts(mapped);
+        setCategories(rawCats);
+      } catch (err) {
+        console.error('Failed to load collection products:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [rawCategory]);
+
+  const matchedCat = categories.find((c) => c.slug.toLowerCase() === rawCategory);
+  const categoryInfo = CATEGORY_META[rawCategory] || {
+    title: matchedCat ? matchedCat.name : `${params.category.toUpperCase()} Collection`,
+    subtitle: 'Explore our latest custom graphic printed apparel and merchandise.',
+    icon: '✨',
+  };
+
   // Filter products by category slug
-  const categoryProducts = MOCK_PRODUCTS.filter((product) => {
+  const categoryProducts = products.filter((product) => {
     if (rawCategory === 'trending') return true;
-    return product.category.toLowerCase() === rawCategory;
+    const cat = (product.category || '').toLowerCase();
+    const slug = (product.slug || '').toLowerCase();
+    return cat === rawCategory || slug.includes(rawCategory);
   });
 
   // Apply Type Filter
   const filteredProducts = categoryProducts.filter((product) => {
     if (selectedType === 'all') return true;
-    return product.variants.some((v) => v.productType.toLowerCase() === selectedType.toLowerCase());
+    return product.variants.some((v: any) => v.productType.toLowerCase() === selectedType.toLowerCase());
   });
 
   // Apply Sorting
-  const getProductIndex = (p: typeof MOCK_PRODUCTS[0]) => {
-    const num = parseInt(p.id.replace('prod-', ''), 10);
-    return isNaN(num) ? 0 : num;
-  };
-
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === 'price-low') return a.basePrice - b.basePrice;
     if (sortBy === 'price-high') return b.basePrice - a.basePrice;
-    if (sortBy === 'rating') return b.rating - a.rating;
-    if (sortBy === 'newest') return getProductIndex(b) - getProductIndex(a);
-    if (sortBy === 'oldest') return getProductIndex(a) - getProductIndex(b);
+    if (sortBy === 'rating') return (b.rating || 5) - (a.rating || 5);
     if (sortBy === 'name-az') return a.title.localeCompare(b.title);
     if (sortBy === 'name-za') return b.title.localeCompare(a.title);
-    return 0; // featured default
+    return 0;
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0d0d0d] flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-[#ff7700] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm font-semibold text-gray-400">Loading collection...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white py-10 md:py-16">
@@ -172,16 +202,14 @@ export default function CategoryCollectionPage({ params }: { params: { category:
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-white dark:bg-[#1c1c1c] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white text-xs px-3 py-1.5 rounded-xl outline-none focus:ring-1 focus:ring-[#ff7700] cursor-pointer"
+              className="bg-[#1c1c1c] border border-[#333] text-white text-xs px-3 py-1.5 rounded-xl outline-none focus:ring-1 focus:ring-[#ff7700] cursor-pointer"
             >
-              <option value="featured" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Featured</option>
-              <option value="newest" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Newest</option>
-              <option value="oldest" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Oldest</option>
-              <option value="name-az" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Alphabetical: A-Z</option>
-              <option value="name-za" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Alphabetical: Z-A</option>
-              <option value="price-low" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Price: Low to High</option>
-              <option value="price-high" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Price: High to Low</option>
-              <option value="rating" className="bg-white dark:bg-[#1c1c1c] text-gray-900 dark:text-white">Highest Rated</option>
+              <option value="featured">Featured</option>
+              <option value="name-az">Alphabetical: A-Z</option>
+              <option value="name-za">Alphabetical: Z-A</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="rating">Highest Rated</option>
             </select>
           </div>
 

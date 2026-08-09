@@ -230,29 +230,20 @@ export default function AccountDashboardPage() {
     setIsReviewModalOpen(true);
   };
 
-  const handleAddReview = (e: React.FormEvent) => {
+  const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewName.trim() || !reviewComment.trim() || !reviewProductId) return;
 
-    const newRev = {
-      id: `rev-${Date.now()}`,
-      name: reviewName,
-      location: 'Verified Buyer',
-      rating: reviewRating,
-      date: 'Just now',
-      productTitle: reviewProductTitle,
-      title: reviewTitle || 'Great Product!',
-      comment: reviewComment,
-      verified: true,
-      helpfulCount: 0,
-      image: filePreview || undefined,
-    };
-
     try {
-      const existingReviewsData = localStorage.getItem('velora_custom_reviews');
-      const existingReviews = existingReviewsData ? JSON.parse(existingReviewsData) : [];
-      localStorage.setItem('velora_custom_reviews', JSON.stringify([newRev, ...existingReviews]));
-    } catch (e) {}
+      const { createProductReview } = await import('@/lib/api');
+      await createProductReview(reviewProductId, {
+        userName: reviewName,
+        rating: reviewRating,
+        comment: reviewComment,
+      });
+    } catch (e) {
+      console.error('Error submitting review to backend:', e);
+    }
 
     try {
       const reviewedData = localStorage.getItem('velora_reviewed_products');
@@ -286,6 +277,7 @@ export default function AccountDashboardPage() {
     loadSortedOrders();
     setIsLoading(false);
   }, []);
+
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {

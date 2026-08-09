@@ -3,27 +3,24 @@
 import { useState } from 'react';
 import ProductCard from '../products/product-card';
 import { Product } from '@/types/product';
-
-const TABS = [
-  { id: 'all', label: 'All Trending' },
-  { id: 'ella-langley', label: 'Ella Langley' },
-  { id: 'car-truck', label: 'Car & Truck' },
-  { id: 'halloween', label: 'Halloween' },
-  { id: 'horror', label: 'Horror' },
-  { id: 'morgan-wallen', label: 'Morgan Wallen' },
-  { id: 'vintage', label: 'Vintage' },
-];
+import { ApiCategory } from '@/lib/api';
 
 interface TrendingTabsProps {
   products: Product[];
+  categories?: ApiCategory[];
 }
 
-export default function TrendingTabs({ products }: TrendingTabsProps) {
+export default function TrendingTabs({ products, categories = [] }: TrendingTabsProps) {
   const [activeTab, setActiveTab] = useState('all');
 
   const filteredProducts = activeTab === 'all'
     ? products
-    : products.filter((p) => p.category === activeTab);
+    : products.filter((p) => {
+        const cat = (p.category || '').toLowerCase();
+        const slug = (p.slug || '').toLowerCase();
+        const tab = activeTab.toLowerCase();
+        return cat === tab || cat.includes(tab) || slug.includes(tab);
+      });
 
   return (
     <section className="py-16 bg-[#111111] relative">
@@ -36,19 +33,30 @@ export default function TrendingTabs({ products }: TrendingTabsProps) {
           <p className="text-sm text-gray-400 mt-1">Discover What&apos;s Hot Right Now!</p>
         </div>
 
-        {/* Tab Buttons */}
+        {/* Dynamic Tab Buttons from Database */}
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {TABS.map((tab) => (
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`px-4 py-2 text-xs font-bold rounded-full transition duration-200 cursor-pointer ${
+              activeTab === 'all'
+                ? 'bg-[#a80000] text-white shadow-lg scale-105'
+                : 'bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] hover:text-white border border-[#2a2a2a]'
+            }`}
+          >
+            🔥 All Trending
+          </button>
+
+          {categories.map((cat) => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 text-xs font-bold rounded-full transition duration-200 ${
-                activeTab === tab.id
+              key={cat.id}
+              onClick={() => setActiveTab(cat.slug)}
+              className={`px-4 py-2 text-xs font-bold rounded-full transition duration-200 cursor-pointer ${
+                activeTab === cat.slug
                   ? 'bg-[#a80000] text-white shadow-lg scale-105'
                   : 'bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] hover:text-white border border-[#2a2a2a]'
               }`}
             >
-              {tab.label}
+              {cat.name}
             </button>
           ))}
         </div>
@@ -69,3 +77,4 @@ export default function TrendingTabs({ products }: TrendingTabsProps) {
     </section>
   );
 }
+

@@ -1,21 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MOCK_BLOGS, BlogPost } from '@/lib/mock-blogs';
-import { Newspaper, Clock, User, ArrowRight, ArrowLeft, Tag } from 'lucide-react';
+import { Newspaper, Clock, ArrowRight, ArrowLeft } from 'lucide-react';
+import { getBlogs, ApiBlog } from '@/lib/api';
 
 export default function BlogListingPage() {
   const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [blogs, setBlogs] = useState<ApiBlog[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const categories = ['All', 'Fashion & Styling', 'POD Inside Story', 'Pop Culture'];
 
-  const featuredPost = MOCK_BLOGS[0];
+  useEffect(() => {
+    setLoading(true);
+    getBlogs(activeCategory)
+      .then((data) => setBlogs(data))
+      .catch((e) => console.error('Failed to fetch blogs:', e))
+      .finally(() => setLoading(false));
+  }, [activeCategory]);
 
-  const filteredPosts = activeCategory === 'All'
-    ? MOCK_BLOGS
-    : MOCK_BLOGS.filter((b) => b.category === activeCategory);
+  const featuredPost = blogs[0];
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white py-12 md:py-16">
@@ -99,45 +105,51 @@ export default function BlogListingPage() {
         </div>
 
         {/* Blog Posts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {filteredPosts.map((post) => (
-            <Link
-              key={post.id}
-              href={`/blogs/news/${post.slug}`}
-              className="group bg-[#141414] rounded-2xl border border-[#222] overflow-hidden shadow-sm hover:border-[#ff7700]/50 transition duration-300 flex flex-col justify-between"
-            >
-              <div>
-                <div className="relative aspect-video bg-[#1a1a1a] overflow-hidden">
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <span className="absolute top-2.5 left-2.5 bg-black/70 backdrop-blur-md text-[#ff7700] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase border border-[#ff7700]/30">
-                    {post.category}
+        {loading ? (
+          <div className="py-16 text-center text-gray-400 text-xs">
+            Loading journal articles...
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {blogs.map((post) => (
+              <Link
+                key={post.id}
+                href={`/blogs/news/${post.slug}`}
+                className="group bg-[#141414] rounded-2xl border border-[#222] overflow-hidden shadow-sm hover:border-[#ff7700]/50 transition duration-300 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="relative aspect-video bg-[#1a1a1a] overflow-hidden">
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <span className="absolute top-2.5 left-2.5 bg-black/70 backdrop-blur-md text-[#ff7700] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase border border-[#ff7700]/30">
+                      {post.category}
+                    </span>
+                  </div>
+
+                  <div className="p-5">
+                    <h3 className="text-sm font-bold text-white group-hover:text-[#ff7700] transition line-clamp-2 mb-2 leading-snug">
+                      {post.title}
+                    </h3>
+                    <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-4">
+                      {post.excerpt}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="px-5 pb-5 pt-3 border-t border-[#222] flex items-center justify-between text-xs text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <Clock size={12} className="text-[#ff7700]" /> {post.readTime}
                   </span>
+                  <span className="text-[11px] font-semibold text-gray-400">{post.date}</span>
                 </div>
-
-                <div className="p-5">
-                  <h3 className="text-sm font-bold text-white group-hover:text-[#ff7700] transition line-clamp-2 mb-2 leading-snug">
-                    {post.title}
-                  </h3>
-                  <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-4">
-                    {post.excerpt}
-                  </p>
-                </div>
-              </div>
-
-              <div className="px-5 pb-5 pt-3 border-t border-[#222] flex items-center justify-between text-xs text-gray-500">
-                <span className="flex items-center gap-1">
-                  <Clock size={12} className="text-[#ff7700]" /> {post.readTime}
-                </span>
-                <span className="text-[11px] font-semibold text-gray-400">{post.date}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
 
       </div>
     </div>

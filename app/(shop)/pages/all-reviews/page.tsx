@@ -3,100 +3,30 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, ThumbsUp, CheckCircle2, Camera, Filter, Plus, ArrowLeft, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
 
-interface Review {
-  id: string;
-  name: string;
-  location: string;
-  rating: number;
-  date: string;
-  productTitle: string;
-  title: string;
-  comment: string;
-  verified: boolean;
-  helpfulCount: number;
-  image?: string;
-}
-
-const INITIAL_REVIEWS: Review[] = [
-  {
-    id: 'rev-1',
-    name: 'Marcus Vance',
-    location: 'Austin, TX',
-    rating: 5,
-    date: '2 days ago',
-    productTitle: 'Precious Dog Horror Movie, Silence Lambs T-Shirt',
-    title: 'Print quality is insane! Got tons of compliments.',
-    comment: 'The print on this tee is super crisp and vibrant. Wore it to a movie night and everyone asked where I got it. Fast shipping too!',
-    verified: true,
-    helpfulCount: 24,
-    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&q=80',
-  },
-  {
-    id: 'rev-2',
-    name: 'Sarah Jenkins',
-    location: 'Seattle, WA',
-    rating: 5,
-    date: '4 days ago',
-    productTitle: 'Ella Langley Country Music Retro Graphic Tee',
-    title: 'Fits true to size and ultra soft cotton!',
-    comment: 'Super soft 100% cotton fabric. Washed it twice already and zero shrinkage or fading on the graphic. Ordering another for my sister.',
-    verified: true,
-    helpfulCount: 18,
-    image: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=600&q=80',
-  },
-  {
-    id: 'rev-3',
-    name: 'David K.',
-    location: 'Chicago, IL',
-    rating: 5,
-    date: '1 week ago',
-    productTitle: 'Vintage Silence of the Lambs Shirt, Buffalo Bill',
-    title: 'Must have for horror movie fans!',
-    comment: 'Great vintage wash aesthetic. Looks like an authentic 90s tour shirt.',
-    verified: true,
-    helpfulCount: 12,
-  },
-  {
-    id: 'rev-4',
-    name: 'Amanda Perez',
-    location: 'Miami, FL',
-    rating: 4,
-    date: '2 weeks ago',
-    productTitle: 'Morgan Wallen One Thing At A Time Country Tour Tee',
-    title: 'Great quality hoodie, fast delivery!',
-    comment: 'Ordered the hoodie version and it is super thick and warm. Only taking 1 star off because USPS delayed delivery by 1 day, but product is 10/10.',
-    verified: true,
-    helpfulCount: 9,
-    image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80',
-  },
-];
-
+import { Star, ThumbsUp, CheckCircle2, Camera, ArrowLeft } from 'lucide-react';
+import { getAllReviews, ApiReview } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
 export default function AllReviewsPage() {
   const router = useRouter();
-  const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState<'all' | '5' | '4' | 'photos'>('all');
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const data = localStorage.getItem('velora_custom_reviews');
-        if (data) {
-          const custom = JSON.parse(data);
-          setReviews([...custom, ...INITIAL_REVIEWS]);
+    getAllReviews()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setReviews(data);
         } else {
-          setReviews(INITIAL_REVIEWS);
+          setReviews([]);
         }
-      } catch (e) {
-        setReviews(INITIAL_REVIEWS);
-      }
-    }
+      })
+      .catch((e) => console.error('Failed to load reviews:', e))
+      .finally(() => setLoading(false));
   }, []);
+
 
   const filteredReviews = reviews.filter((r) => {
     if (selectedFilter === '5') return r.rating === 5;
@@ -182,17 +112,23 @@ export default function AllReviewsPage() {
             <Camera className="w-4 h-4 text-[#ff7700]" /> Real Customer Photos
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {INITIAL_REVIEWS.filter((r) => r.image).map((r) => (
-              <div key={r.id} className="relative aspect-square rounded-xl overflow-hidden bg-[#181818] border border-[#262626] group">
-                <Image src={r.image!} alt={r.title} fill className="object-cover group-hover:scale-105 transition duration-300" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-3 flex flex-col justify-end">
-                  <p className="text-[11px] font-bold text-white line-clamp-1">{r.name}</p>
-                  <p className="text-[10px] text-gray-300 line-clamp-1">{r.productTitle}</p>
+            {reviews.filter((r) => r.image || r.userAvatar).map((r, idx) => {
+              const photo = r.image || r.userAvatar;
+              const author = r.userName || r.name || 'Verified Customer';
+              const pTitle = r.product?.title || r.productTitle || 'Graphic Apparel';
+              return (
+                <div key={r.id || idx} className="relative aspect-square rounded-xl overflow-hidden bg-[#181818] border border-[#262626] group">
+                  <Image src={photo} alt={r.title || author} fill className="object-cover group-hover:scale-105 transition duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-3 flex flex-col justify-end">
+                    <p className="text-[11px] font-bold text-white line-clamp-1">{author}</p>
+                    <p className="text-[10px] text-gray-300 line-clamp-1">{pTitle}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
+
 
         {/* Filters */}
         <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2">
@@ -224,54 +160,64 @@ export default function AllReviewsPage() {
 
         {/* Reviews List */}
         <div className="space-y-6">
-          {filteredReviews.map((rev) => (
-            <div key={rev.id} className="bg-[#141414] rounded-2xl border border-[#222] p-6 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#222] pb-4 mb-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-white">{rev.name}</span>
-                    {rev.verified && (
+          {filteredReviews.map((rev, idx) => {
+            const author = rev.userName || rev.name || 'Verified Customer';
+            const stars = rev.rating || 5;
+            const reviewComment = rev.comment || '';
+            const reviewTitle = rev.title || (stars === 5 ? 'Exceptional Quality & Design!' : 'Great Product');
+            const pTitle = rev.product?.title || rev.productTitle || 'Velora Graphic Apparel';
+            const revDate = rev.createdAt 
+              ? new Date(rev.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) 
+              : rev.date || 'Recently verified';
+            const img = rev.userAvatar || rev.image;
+
+            return (
+              <div key={rev.id || idx} className="bg-[#141414] rounded-2xl border border-[#222] p-6 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#222] pb-4 mb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm text-white">{author}</span>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-full">
                         <CheckCircle2 size={10} /> Verified Buyer
                       </span>
-                    )}
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-0.5">Purchased {pTitle}</p>
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-0.5">{rev.location} • Purchased {rev.productTitle}</p>
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex text-amber-400">
+                      {[...Array(stars)].map((_, i) => (
+                        <Star key={i} size={14} fill="currentColor" />
+                      ))}
+                    </div>
+                    <span className="text-xs text-gray-500">{revDate}</span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <div className="flex text-amber-400">
-                    {[...Array(rev.rating)].map((_, i) => (
-                      <Star key={i} size={14} fill="currentColor" />
-                    ))}
+                <h4 className="text-sm font-bold text-white mb-2">{reviewTitle}</h4>
+                <p className="text-xs text-gray-300 leading-relaxed mb-4">{reviewComment}</p>
+
+                {img && (
+                  <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-[#333] mb-4">
+                    <Image src={img} alt="Review attachment" fill className="object-cover" />
                   </div>
-                  <span className="text-xs text-gray-500">{rev.date}</span>
+                )}
+
+                <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-[#222]">
+                  <span>Was this review helpful?</span>
+                  <button
+                    onClick={() => handleHelpful(rev.id)}
+                    className="flex items-center gap-1.5 px-3 py-1 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 font-semibold rounded-lg transition cursor-pointer"
+                  >
+                    <ThumbsUp size={12} className="text-[#ff7700]" /> Helpful ({rev.helpfulCount || 12})
+                  </button>
                 </div>
               </div>
-
-              <h4 className="text-sm font-bold text-white mb-2">{rev.title}</h4>
-              <p className="text-xs text-gray-300 leading-relaxed mb-4">{rev.comment}</p>
-
-              {rev.image && (
-                <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-[#333] mb-4">
-                  <Image src={rev.image} alt="Review attachment" fill className="object-cover" />
-                </div>
-              )}
-
-              <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-[#222]">
-                <span>Was this review helpful?</span>
-                <button
-                  onClick={() => handleHelpful(rev.id)}
-                  className="flex items-center gap-1.5 px-3 py-1 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 font-semibold rounded-lg transition"
-                >
-                  <ThumbsUp size={12} className="text-[#ff7700]" /> Helpful ({rev.helpfulCount})
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
-
       </div>
     </div>
   );
 }
+

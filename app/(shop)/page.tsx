@@ -2,19 +2,28 @@ import HeroSlider from '@/components/features/home/hero-slider';
 import HalloweenShowcase from '@/components/features/home/halloween-showcase';
 import TrendingTabs from '@/components/features/home/trending-tabs';
 import ProductCard from '@/components/features/products/product-card';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
+import { getProducts, getCategories, mapApiProductToUI } from '@/lib/api';
 
-export default function HomePage() {
+export const revalidate = 0; // Dynamic data
+
+export default async function HomePage() {
+  const [apiProducts, categories] = await Promise.all([
+    getProducts(),
+    getCategories(),
+  ]);
+  const products = apiProducts.map(mapApiProductToUI).filter(Boolean);
+
   return (
     <div className="flex flex-col min-h-screen bg-[#0b0b0b]">
       {/* Hero Banner Slider */}
       <HeroSlider />
 
       {/* Seasonal Halloween Showcase */}
-      <HalloweenShowcase products={MOCK_PRODUCTS} />
+      <HalloweenShowcase products={products} />
 
       {/* Trending Tabs Filter Section */}
-      <TrendingTabs products={MOCK_PRODUCTS} />
+      <TrendingTabs products={products} categories={categories} />
+
 
       {/* All Products Section */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,7 +35,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {MOCK_PRODUCTS.map((product) => (
+          {products.map((product: any) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

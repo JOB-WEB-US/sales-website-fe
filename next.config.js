@@ -1,21 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'img.thesitebase.net',
-      },
-      {
-        protocol: 'https',
-        hostname: 'e-assets.beeketing.net',
+        hostname: '**',
       },
     ],
   },
 };
 
 module.exports = nextConfig;
+

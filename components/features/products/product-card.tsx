@@ -15,6 +15,9 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const fallbackImage = 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&q=80';
+  const [imgError, setImgError] = useState(false);
+
   const openVariantModal = useUIStore((state) => state.openVariantModal);
   
   const { toggleWishlist, isInWishlist } = useWishlistStore();
@@ -22,13 +25,18 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   // Price calculation
   const minPrice = product.basePrice;
-  const maxPrice = product.variants.length > 0
+  const maxPrice = product.variants && product.variants.length > 0
     ? Math.max(...product.variants.map((v) => v.price))
     : product.basePrice;
 
   const priceString = maxPrice > minPrice
     ? `${formatCurrency(minPrice)} - ${formatCurrency(maxPrice)}`
     : formatCurrency(minPrice);
+
+  const displayImage = imgError
+    ? fallbackImage
+    : (isHovered && product.backImage ? product.backImage : (product.frontImage || fallbackImage));
+
 
   return (
     <div className="group bg-[#141414] border border-[#333] hover:border-[#ff7700] rounded-xl overflow-hidden flex flex-col justify-between transition duration-300 shadow-lg hover:shadow-2xl hover:shadow-[#ff7700]/5">
@@ -39,11 +47,16 @@ export default function ProductCard({ product }: ProductCardProps) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* SALE Badge */}
+        {/* Dynamic SALE & Discount Badge */}
         {product.isSale && (
-          <span className="absolute top-2.5 left-2.5 bg-[#a80000] text-white font-extrabold text-[10px] uppercase px-2 py-0.5 rounded shadow z-10">
-            SALE
-          </span>
+          <div className="absolute top-2.5 left-2.5 bg-[#a80000] text-white font-black text-[10px] uppercase px-2 py-0.5 rounded shadow-lg z-10 flex items-center gap-1">
+            <span>SALE</span>
+            {product.discountPercent && product.discountPercent > 0 ? (
+              <span className="bg-black/50 px-1 py-0.2 rounded text-[9px] font-bold text-amber-300">
+                -{product.discountPercent}%
+              </span>
+            ) : null}
+          </div>
         )}
 
         {/* Wishlist Button */}
@@ -63,27 +76,31 @@ export default function ProductCard({ product }: ProductCardProps) {
           <Heart size={16} className={isSaved ? 'fill-red-500 text-red-500' : ''} />
         </button>
 
-        {/* Front & Back Images */}
+        {/* Front & Back Images with Error Fallback */}
         <Image
-          src={isHovered && product.backImage ? product.backImage : product.frontImage}
+          src={displayImage}
           alt={product.title}
           fill
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={() => setImgError(true)}
+          unoptimized
         />
+
       </Link>
 
       {/* Product Info */}
       <div className="p-4 flex flex-col flex-1 justify-between">
         <div>
           {/* Rating */}
-          <div className="flex items-center gap-1 mb-1.5">
+          <div className="flex items-center gap-1.5 mb-1.5">
             <div className="flex text-amber-400">
-              {[...Array(5)].map((_, i) => (
+              {[...Array(Math.floor(product.rating || 5))].map((_, i) => (
                 <Star key={i} size={12} fill="currentColor" />
               ))}
             </div>
-            <span className="text-[11px] text-gray-400">({product.reviewCount})</span>
+            <span className="text-[11px] font-bold text-gray-300">{Number(product.rating || 5.0).toFixed(1)}</span>
+            <span className="text-[11px] text-gray-500">({product.reviewCount || 0})</span>
           </div>
 
           {/* Title */}
@@ -108,11 +125,12 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <button
             onClick={() => openVariantModal(product)}
-            className="bg-[#a80000] hover:bg-[#7a0000] text-white p-2 rounded-lg transition flex items-center justify-center"
+            className="bg-[#a80000] hover:bg-[#7a0000] text-white p-2 rounded-lg transition flex items-center justify-center cursor-pointer"
             title="Select Size & Add to Cart"
           >
             <ShoppingCart size={16} />
           </button>
+
         </div>
       </div>
     </div>

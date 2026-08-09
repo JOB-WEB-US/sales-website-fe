@@ -1,4 +1,4 @@
-export type ProductType = 'T-Shirt' | 'Hoodie' | 'Sweatshirt' | 'Wall Calendar';
+export type ProductType = 'T-Shirt' | 'Hoodie' | 'Sweatshirt' | 'Wall Calendar' | 'Phonecase' | string;
 
 export interface ProductVariant {
   id: string;
@@ -7,27 +7,30 @@ export interface ProductVariant {
   color: string; // Black, Navy, White, Dark Heather
   productType: ProductType;
   price: number;
-  originalPrice?: number;
-  imageUrl?: string;
+  originalPrice?: number | null;
+  imageUrl?: string | null;
   stock: number;
+  isActive?: boolean;
 }
 
 export interface Product {
   id: string;
   title: string;
   slug: string;
-  category: 'halloween' | 'horror' | 'vintage' | 'trending' | 'ella-langley' | 'car-truck' | 'tombstone' | 'ozzy' | 'bts' | 'morgan-wallen' | 'keith-whitley';
-  categoryLabel: string;
+  category: string;
+  categoryLabel?: string;
   basePrice: number;
-  originalPrice?: number;
+  originalPrice?: number | null;
   frontImage: string;
-  backImage: string;
+  backImage?: string | null;
   isSale: boolean;
   isFeatured?: boolean;
+  isActive?: boolean;
   rating: number;
   reviewCount: number;
   variants: ProductVariant[];
-  description?: string;
+  description?: string | null;
+  reviews?: any[];
 }
 
 export interface CategoryItem {
@@ -36,3 +39,4 @@ export interface CategoryItem {
   slug: string;
   icon?: string;
 }
+

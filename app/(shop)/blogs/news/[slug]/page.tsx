@@ -1,15 +1,45 @@
 'use client';
 
-import { use } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { MOCK_BLOGS } from '@/lib/mock-blogs';
-import { Clock, User, ArrowLeft, Tag, Share2, ShoppingBag } from 'lucide-react';
+import { getBlogBySlug, ApiBlog } from '@/lib/api';
+import { Clock, ArrowLeft, Tag, Share2, ShoppingBag } from 'lucide-react';
 
 export default function BlogDetailPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
-  const post = MOCK_BLOGS.find((b) => b.slug === params.slug) || MOCK_BLOGS[0];
+  const [post, setPost] = useState<ApiBlog | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getBlogBySlug(params.slug)
+      .then((data) => setPost(data))
+      .catch((e) => console.error('Failed to load blog:', e))
+      .finally(() => setLoading(false));
+  }, [params.slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0d0d0d] flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-[#ff7700] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm font-semibold text-gray-400">Loading story...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <div className="min-h-screen bg-[#0d0d0d] flex flex-col items-center justify-center text-white px-4">
+        <h2 className="text-2xl font-bold mb-4">Article Not Found</h2>
+        <Link href="/blogs/news" className="px-6 py-2.5 bg-[#a80000] text-white font-bold rounded-xl">
+          Back to Journal
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white py-12 md:py-16">
@@ -37,7 +67,12 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
         <div className="flex items-center justify-between border-b border-[#222] pb-6 mb-8 text-xs text-gray-400">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-full overflow-hidden border border-[#333]">
-              <Image src={post.authorAvatar} alt={post.author} fill className="object-cover" />
+              <Image 
+                src={post.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80'} 
+                alt={post.author} 
+                fill 
+                className="object-cover" 
+              />
             </div>
             <div>
               <p className="font-bold text-white text-sm">{post.author}</p>
@@ -57,22 +92,24 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
 
         {/* Article Body */}
         <div className="prose prose-invert max-w-none space-y-6 text-gray-300 leading-relaxed text-sm md:text-base">
-          {post.content.map((paragraph, idx) => (
+          {post.content && post.content.map((paragraph, idx) => (
             <p key={idx}>{paragraph}</p>
           ))}
         </div>
 
         {/* Tags */}
-        <div className="flex flex-wrap items-center gap-2 mt-10 pt-6 border-t border-[#222]">
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
-            <Tag size={12} className="text-[#ff7700]" /> Tags:
-          </span>
-          {post.tags.map((tag) => (
-            <span key={tag} className="px-3 py-1 bg-[#181818] border border-[#2a2a2a] text-gray-300 text-xs rounded-full">
-              #{tag}
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mt-10 pt-6 border-t border-[#222]">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+              <Tag size={12} className="text-[#ff7700]" /> Tags:
             </span>
-          ))}
-        </div>
+            {post.tags.map((tag) => (
+              <span key={tag} className="px-3 py-1 bg-[#181818] border border-[#2a2a2a] text-gray-300 text-xs rounded-full">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Related Products CTA Banner */}
         <div className="mt-12 p-8 bg-gradient-to-r from-red-950 to-[#141414] rounded-3xl border border-red-900/50 flex flex-col sm:flex-row items-center justify-between gap-6">

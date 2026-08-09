@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+
 import { Search, X, TrendingUp, Star, ArrowRight, Tag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUIStore } from '@/store/useUIStore';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
+import { getProducts, mapApiProductToUI } from '@/lib/api';
 import { formatCurrency } from '@/lib/formatters';
 
 const TRENDING_TAGS = [
@@ -15,12 +16,14 @@ const TRENDING_TAGS = [
   'Horror',
   'Ella Langley',
   'Morgan Wallen',
-  'Car & Truck',
+  'Vintage',
 ];
 
 export default function SearchModal() {
   const { isSearchOpen, closeSearch, openVariantModal } = useUIStore();
   const [searchTerm, setSearchTerm] = useState('');
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Close on ESC key
   useEffect(() => {
@@ -33,16 +36,32 @@ export default function SearchModal() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isSearchOpen, closeSearch]);
 
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    let active = true;
+    setLoading(true);
+
+    getProducts({ search: searchTerm || undefined })
+      .then((raw) => {
+        if (active) {
+          const mapped = raw.map(mapApiProductToUI).filter(Boolean);
+          setProducts(mapped);
+        }
+      })
+      .catch((err) => console.error('Search API error:', err))
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [searchTerm, isSearchOpen]);
+
   if (!isSearchOpen) return null;
 
-  const filteredProducts = searchTerm.trim()
-    ? MOCK_PRODUCTS.filter(
-        (p) =>
-          p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.categoryLabel.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : MOCK_PRODUCTS.slice(0, 4); // Default trending items
+  const filteredProducts = products.slice(0, 6);
+
 
   return (
     <AnimatePresence>

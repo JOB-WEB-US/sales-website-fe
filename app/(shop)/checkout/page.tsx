@@ -8,10 +8,11 @@ import { useCartStore } from '@/store/useCartStore';
 import { formatCurrency } from '@/lib/formatters';
 import { SHIPPING_METHODS, saveOrderToStorage } from '@/lib/mock-orders';
 import { Order, ShippingAddress } from '@/types/orders';
+import { createOrder } from '@/lib/api';
+import dynamic from 'next/dynamic';
+const PayPalButton = dynamic(() => import('@/components/features/checkout/paypal-button'), { ssr: false });
 import { 
   ShieldCheck, 
-  Lock, 
-  CreditCard, 
   Truck, 
   CheckCircle2, 
   ArrowLeft, 
@@ -102,18 +103,12 @@ export default function CheckoutPage() {
   }, []);
 
   const [selectedShipping, setSelectedShipping] = useState(SHIPPING_METHODS[0]);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal' | 'cod'>('card');
   
   // Coupon State
   const [couponCode, setCouponCode] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
-
-  // Credit Card Form State
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvc, setCardCvc] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -142,46 +137,66 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleSubmitOrder = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePayPalSuccess = async (details: { orderId: string; payerName?: string; payerEmail?: string }) => {
     if (cart.length === 0) return;
-
     setIsSubmitting(true);
 
-    const randomNum = Math.floor(10000 + Math.random() * 90000);
-    const orderId = `VELORA-${randomNum}`;
+    try {
+      let loggedUser: any = null;
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('velora_user');
+        if (stored) {
+          try {
+            loggedUser = JSON.parse(stored);
+          } catch (e) {}
+        }
+      }
 
-    const newOrder: Order = {
-      id: orderId,
-      createdAt: new Date().toISOString(),
-      status: 'placed',
-      items: [...cart],
-      shippingAddress: address,
-      shippingMethod: isFreeShipping ? { ...selectedShipping, price: 0, name: 'Free Standard Shipping' } : selectedShipping,
-      paymentMethod: paymentMethod === 'card' 
-        ? `Credit Card (ending in ${cardNumber.slice(-4) || '4242'})` 
-        : paymentMethod === 'paypal' ? 'PayPal Express' : 'Cash on Delivery (COD)',
-      subtotal,
-      discount: appliedDiscount,
-      shippingFee,
-      tax,
-      totalPrice: grandTotal,
-      estimatedDeliveryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 4).toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'short',
-        day: 'numeric',
-      }),
-      trackingNumber: `US${Math.floor(10000000000 + Math.random() * 90000000000)}`,
-      carrier: 'USPS Priority Mail',
-    };
+      const orderPayload = {
+        userId: loggedUser?.id || undefined,
+        items: cart.map((item) => ({
+          productId: item.productId || item.id,
+          variantId: item.variantId || undefined,
+          productType: item.productType || 'T-Shirt',
+          size: item.size || 'M',
+          color: item.color || 'Black',
+          quantity: item.quantity || 1,
+          price: item.price || 0,
+        })),
+        shippingAddress: {
+          firstName: address.firstName || (details.payerName ? details.payerName.split(' ')[0] : 'Valued'),
+          lastName: address.lastName || (details.payerName ? details.payerName.split(' ').slice(1).join(' ') : 'Customer'),
+          email: address.email || details.payerEmail || 'customer@example.com',
+          phone: address.phone || '555-0199',
+          address: address.address || '123 Order Delivery Way',
+          apartment: address.apartment,
+          city: address.city || 'Los Angeles',
+          state: address.state || 'CA',
+          zipCode: address.zipCode || '90001',
+          country: address.country || 'United States',
+        },
+        paymentMethod: `PayPal Express (Txn: ${details.orderId})`,
+        subtotal,
+        discount: appliedDiscount,
+        tax,
+        totalPrice: grandTotal,
+      };
 
-    saveOrderToStorage(newOrder);
-
-    setTimeout(() => {
+      const result = await createOrder(orderPayload);
       clearCart();
-      router.push(`/checkout/thank-you?orderId=${orderId}`);
-    }, 1000);
+      const targetOrderId = result?.orderNumber || result?.invoiceNumber || details.orderId;
+      router.push(`/checkout/thank-you?orderId=${encodeURIComponent(targetOrderId)}&paypalTxn=${encodeURIComponent(details.orderId)}`);
+    } catch (err) {
+      console.error('Error placing PayPal order:', err);
+      clearCart();
+      router.push(`/checkout/thank-you?orderId=${encodeURIComponent(details.orderId)}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+
+
 
   if (cart.length === 0 && !isSubmitting) {
     return (
@@ -228,7 +243,7 @@ export default function CheckoutPage() {
           {/* LEFT COLUMN: Shipping & Payment Form */}
           <div className="lg:col-span-7 space-y-8">
             
-            <form id="checkout-form" onSubmit={handleSubmitOrder} className="space-y-8">
+            <form id="checkout-form" className="space-y-8">
               
               {/* 1. Contact Information */}
               <div className="bg-[#141414] p-6 rounded-xl border border-[#222] shadow-sm space-y-4">
@@ -502,139 +517,35 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* 4. Payment Method */}
+              {/* 4. Payment Method - PayPal */}
               <div className="bg-[#141414] p-6 rounded-xl border border-[#222] shadow-sm space-y-4">
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-[#a80000] text-white text-xs font-extrabold flex items-center justify-center">4</span>
                   Payment Method
                 </h2>
 
-                <div className="space-y-3">
-                  <div
-                    className={`rounded-xl border transition-all ${
-                      paymentMethod === 'card'
-                        ? 'border-[#ff7700] bg-[#ff7700]/10 ring-1 ring-[#ff7700]'
-                        : 'border-[#2a2a2a] bg-[#1c1c1c]'
-                    }`}
-                  >
-                    <label
-                      onClick={() => setPaymentMethod('card')}
-                      className="flex items-center justify-between p-4 cursor-pointer"
-                    >
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          checked={paymentMethod === 'card'}
-                          onChange={() => setPaymentMethod('card')}
-                          className="w-4 h-4 text-[#ff7700] focus:ring-[#ff7700]"
-                        />
-                        <span className="text-sm font-semibold text-white flex items-center gap-2">
-                          <CreditCard className="w-4 h-4 text-gray-400" /> Credit or Debit Card
-                        </span>
-                      </div>
-                    </label>
-
-                    {paymentMethod === 'card' && (
-                      <div className="p-4 pt-0 border-t border-[#2a2a2a] mt-2 space-y-3">
-                        <div>
-                          <label className="block text-[11px] font-semibold text-gray-400 mb-1">Card Number</label>
-                          <input
-                            type="text"
-                            required={paymentMethod === 'card'}
-                            placeholder="4242 •••• •••• 4242"
-                            value={cardNumber}
-                            onChange={(e) => setCardNumber(e.target.value)}
-                            className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-sm text-white focus:ring-2 focus:ring-[#ff7700] outline-none"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-[11px] font-semibold text-gray-400 mb-1">Expiration (MM/YY)</label>
-                            <input
-                              type="text"
-                              required={paymentMethod === 'card'}
-                              placeholder="12/28"
-                              value={cardExpiry}
-                              onChange={(e) => setCardExpiry(e.target.value)}
-                              className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-sm text-white focus:ring-2 focus:ring-[#ff7700] outline-none"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-semibold text-gray-400 mb-1">CVC Code</label>
-                            <input
-                              type="text"
-                              required={paymentMethod === 'card'}
-                              placeholder="123"
-                              value={cardCvc}
-                              onChange={(e) => setCardCvc(e.target.value)}
-                              className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-sm text-white focus:ring-2 focus:ring-[#ff7700] outline-none"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                <div className="rounded-xl border border-[#ff7700] bg-[#ff7700]/10 ring-1 ring-[#ff7700]">
+                  <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center gap-3">
+                      <ShieldCheck className="w-5 h-5 text-[#ff7700]" />
+                      <span className="text-sm font-semibold text-white">PayPal Checkout</span>
+                    </div>
+                    <span className="italic font-black text-blue-400 text-sm tracking-tight bg-blue-950/60 border border-blue-800/60 px-2 py-0.5 rounded">
+                      PayPal
+                    </span>
                   </div>
 
-                  <label
-                    onClick={() => setPaymentMethod('paypal')}
-                    className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
-                      paymentMethod === 'paypal'
-                        ? 'border-[#ff7700] bg-[#ff7700]/10 ring-1 ring-[#ff7700]'
-                        : 'border-[#2a2a2a] bg-[#1c1c1c]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        checked={paymentMethod === 'paypal'}
-                        onChange={() => setPaymentMethod('paypal')}
-                        className="w-4 h-4 text-[#ff7700] focus:ring-[#ff7700]"
-                      />
-                      <span className="text-sm font-semibold text-white">PayPal Express Checkout</span>
-                    </div>
-                    <span className="italic font-extrabold text-blue-400 text-sm">PayPal</span>
-                  </label>
-
-                  <label
-                    onClick={() => setPaymentMethod('cod')}
-                    className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
-                      paymentMethod === 'cod'
-                        ? 'border-[#ff7700] bg-[#ff7700]/10 ring-1 ring-[#ff7700]'
-                        : 'border-[#2a2a2a] bg-[#1c1c1c]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        checked={paymentMethod === 'cod'}
-                        onChange={() => setPaymentMethod('cod')}
-                        className="w-4 h-4 text-[#ff7700] focus:ring-[#ff7700]"
-                      />
-                      <span className="text-sm font-semibold text-white">Cash on Delivery (COD)</span>
-                    </div>
-                    <Truck className="w-4 h-4 text-gray-400" />
-                  </label>
+                  <div className="p-4 pt-1 border-t border-[#2a2a2a]">
+                    <p className="text-[11px] text-gray-400 mb-3">Pay securely with your PayPal account or Credit / Debit Card via PayPal.</p>
+                    <PayPalButton
+                      amount={grandTotal}
+                      currency="USD"
+                      disabled={isSubmitting}
+                      onSuccess={handlePayPalSuccess}
+                      onError={(err) => console.error('PayPal Checkout error:', err)}
+                    />
+                  </div>
                 </div>
-              </div>
-
-              {/* Mobile Submit Button */}
-              <div className="lg:hidden">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-4 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-base rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <span>Processing Order...</span>
-                  ) : (
-                    <>
-                      <Lock className="w-4 h-4" /> Place Order ({formatCurrency(grandTotal)})
-                    </>
-                  )}
-                </button>
               </div>
 
             </form>
@@ -747,22 +658,11 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Desktop Submit Button */}
+              {/* Desktop PayPal hint */}
               <div className="hidden lg:block pt-2">
-                <button
-                  type="submit"
-                  form="checkout-form"
-                  disabled={isSubmitting}
-                  className="w-full py-4 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-base rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                >
-                  {isSubmitting ? (
-                    <span>Processing Order...</span>
-                  ) : (
-                    <>
-                      <Lock className="w-4 h-4" /> Place Order ({formatCurrency(grandTotal)})
-                    </>
-                  )}
-                </button>
+                <div className="w-full py-3 bg-[#1c1c1c] border border-[#2a2a2a] text-gray-400 font-semibold text-xs rounded-xl text-center">
+                  ← Complete payment using the PayPal button on the left
+                </div>
               </div>
 
               {/* Guarantees Badges */}

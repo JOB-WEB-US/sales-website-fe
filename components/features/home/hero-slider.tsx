@@ -61,8 +61,10 @@ export default function HeroSlider() {
             alt={SLIDES[current].title}
             fill
             priority
+            unoptimized
             className="object-cover brightness-125 contrast-105 dark:brightness-50 transition-all duration-500"
           />
+
 
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-black/10 dark:bg-gradient-to-t dark:from-black/80 dark:to-black/30 transition-all duration-500">
             <motion.h1

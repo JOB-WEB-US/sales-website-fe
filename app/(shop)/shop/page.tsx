@@ -1,65 +1,75 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/features/products/product-card';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
 import { Sparkles, ArrowUpDown, Search } from 'lucide-react';
+import { getProducts, getCategories, mapApiProductToUI, ApiCategory } from '@/lib/api';
 
 function ShopContent() {
   const searchParams = useSearchParams();
-  const typeQuery = searchParams ? searchParams.get('category') : null;
+
+  const [products, setProducts] = useState<any[]>([]);
+
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
   const [sortBy, setSortBy] = useState<
-    'featured' | 'newest' | 'oldest' | 'name-az' | 'name-za' | 'price-low' | 'price-high' | 'rating'
+    'featured' | 'newest' | 'name-az' | 'name-za' | 'price-low' | 'price-high' | 'rating'
   >('featured');
 
-  // Determine if we are filtering by a specific product type from the URL query
-  const isTypeFiltered = typeQuery === 't-shirts' || typeQuery === 'hoodies' || typeQuery === 'calendars';
-
-  // Filter products
-  const filteredProducts = MOCK_PRODUCTS.filter((p) => {
-    // 1. Keyword search filter
-    const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase());
-
-    // 2. Category / Type filter
-    if (isTypeFiltered) {
-      if (typeQuery === 't-shirts') {
-        return matchesSearch && p.variants.some((v) => v.productType === 'T-Shirt');
-      }
-      if (typeQuery === 'hoodies') {
-        return matchesSearch && p.variants.some((v) => v.productType === 'Hoodie' || v.productType === 'Sweatshirt');
-      }
-      if (typeQuery === 'calendars') {
-        return matchesSearch && p.variants.some((v) => v.productType === 'Wall Calendar');
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        const [rawProducts, rawCategories] = await Promise.all([
+          getProducts(),
+          getCategories(),
+        ]);
+        const mapped = rawProducts.map(mapApiProductToUI).filter(Boolean);
+        setProducts(mapped);
+        setCategories(rawCategories);
+      } catch (err) {
+        console.error('Failed to load shop catalog:', err);
+      } finally {
+        setLoading(false);
       }
     }
+    load();
+  }, []);
 
-    // Default shop page category filter
-    const matchesCategory = category === 'all' || p.category === category;
+  const rawTypeQuery = searchParams ? (searchParams.get('type') || searchParams.get('category')) : null;
+  const typeQuery = rawTypeQuery ? rawTypeQuery.toLowerCase() : null;
+  const isTypeFiltered = Boolean(typeQuery);
+
+  // Filter products
+
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase());
+
+    if (typeQuery) {
+      const matchesType = p.variants.some((v: any) => (v.productType || '').toLowerCase().includes(typeQuery)) ||
+                          (p.title || '').toLowerCase().includes(typeQuery);
+      if (!matchesType) return false;
+    }
+
+    const matchesCategory = category === 'all' || p.category === category || (p.slug || '').includes(category);
     return matchesSearch && matchesCategory;
   });
 
-  const getProductIndex = (p: typeof MOCK_PRODUCTS[0]) => {
-    const num = parseInt(p.id.replace('prod-', ''), 10);
-    return isNaN(num) ? 0 : num;
-  };
 
   // Sort products
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === 'price-low') return a.basePrice - b.basePrice;
     if (sortBy === 'price-high') return b.basePrice - a.basePrice;
-    if (sortBy === 'rating') return b.rating - a.rating;
-    if (sortBy === 'newest') return getProductIndex(b) - getProductIndex(a);
-    if (sortBy === 'oldest') return getProductIndex(a) - getProductIndex(b);
+    if (sortBy === 'rating') return (b.rating || 5) - (a.rating || 5);
     if (sortBy === 'name-az') return a.title.localeCompare(b.title);
     if (sortBy === 'name-za') return b.title.localeCompare(a.title);
-    return 0; // featured default
+    return 0;
   });
 
-  // Dynamic Custom Header Configs for specific types
   const getHeaderConfig = () => {
     if (typeQuery === 't-shirts') {
       return {
@@ -92,7 +102,7 @@ function ShopContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* 1. Dynamic Hero Header Section */}
+      {/* Dynamic Hero Header Section */}
       {headerConfig ? (
         <div className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br ${headerConfig.themeClass} p-8 md:p-12 mb-10 shadow-2xl transition duration-500`}>
           <div className="relative z-10 max-w-2xl">
@@ -107,11 +117,9 @@ function ShopContent() {
               {headerConfig.subtitle}
             </p>
           </div>
-          <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-5 pointer-events-none hidden md:block bg-gradient-to-l from-white to-transparent" />
         </div>
       ) : (
         <div className="mb-12 relative overflow-hidden rounded-3xl border border-[#222] bg-[#141414] p-8 md:p-12 shadow-2xl">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#ff7700]/5 rounded-full blur-[120px] pointer-events-none" />
           <div className="relative z-10 max-w-3xl">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-950/60 text-[#ff7700] border border-red-800/40 text-[10px] font-black rounded-full mb-4 uppercase tracking-widest shadow">
               🔥 Official Apparel Store
@@ -133,39 +141,39 @@ function ShopContent() {
         </div>
       )}
 
-      {/* 2. Visual Category Pills Filter Bar */}
+      {/* Visual Category Pills Filter Bar */}
       {!isTypeFiltered && (
         <div className="mb-8 overflow-x-auto pb-2 scrollbar-none">
           <div className="flex items-center gap-2.5 min-w-max">
-            {[
-              { id: 'all', label: 'All Items 🛍️' },
-              { id: 'halloween', label: 'Halloween 🎃' },
-              { id: 'horror', label: 'Horror 💀' },
-              { id: 'ella-langley', label: 'Ella Langley 🤠' },
-              { id: 'car-truck', label: 'Car & Truck 🛻' },
-              { id: 'morgan-wallen', label: 'Morgan Wallen 🎸' },
-              { id: 'vintage', label: 'Vintage 📻' }
-            ].map((cat) => (
+            <button
+              onClick={() => setCategory('all')}
+              className={`px-4 py-2.5 text-xs font-bold rounded-xl border transition-all duration-200 cursor-pointer ${
+                category === 'all'
+                  ? 'bg-[#ff7700] text-black border-[#ff7700] shadow-md shadow-[#ff7700]/10 scale-[1.02]'
+                  : 'bg-[#141414] text-gray-400 border-[#222] hover:text-white hover:border-[#444]'
+              }`}
+            >
+              All Items 🛍️
+            </button>
+            {categories.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setCategory(cat.id)}
+                onClick={() => setCategory(cat.slug)}
                 className={`px-4 py-2.5 text-xs font-bold rounded-xl border transition-all duration-200 cursor-pointer ${
-                  category === cat.id
+                  category === cat.slug
                     ? 'bg-[#ff7700] text-black border-[#ff7700] shadow-md shadow-[#ff7700]/10 scale-[1.02]'
                     : 'bg-[#141414] text-gray-400 border-[#222] hover:text-white hover:border-[#444]'
                 }`}
               >
-                {cat.label}
+                {cat.name}
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {/* 3. Filter/Search & Sort Toolbar */}
+      {/* Filter/Search & Sort Toolbar */}
       <div className="flex flex-col md:flex-row items-center gap-4 mb-8 bg-gray-100 dark:bg-[#141414] p-4 rounded-2xl border border-gray-200 dark:border-[#222] shadow">
-        
-        {/* Keyword Search Input */}
         <div className="relative flex-1 w-full">
           <input
             type="text"
@@ -177,7 +185,6 @@ function ShopContent() {
           <Search className="absolute left-3.5 top-3.5 text-gray-500 w-4 h-4" />
         </div>
 
-        {/* Sort Selection dropdown */}
         <div className="w-full md:w-auto flex-1 md:flex-initial min-w-[170px] flex items-center gap-2 bg-white dark:bg-[#1e1e1e] border border-gray-300 dark:border-gray-800 px-3.5 py-2 rounded-xl">
           <ArrowUpDown size={14} className="text-[#ff7700]" />
           <select
@@ -185,30 +192,29 @@ function ShopContent() {
             onChange={(e) => setSortBy(e.target.value as any)}
             className="bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white text-xs py-1 w-full outline-none cursor-pointer border-none font-medium"
           >
-            <option value="featured" className="bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white">Featured</option>
-            <option value="newest" className="bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white">Newest</option>
-            <option value="oldest" className="bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white">Oldest</option>
-            <option value="name-az" className="bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white">Alphabetical: A-Z</option>
-            <option value="name-za" className="bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white">Alphabetical: Z-A</option>
-            <option value="price-low" className="bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white">Price: Low to High</option>
-            <option value="price-high" className="bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white">Price: High to Low</option>
-            <option value="rating" className="bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white">Highest Rated</option>
+            <option value="featured">Featured</option>
+            <option value="name-az">Alphabetical: A-Z</option>
+            <option value="name-za">Alphabetical: Z-A</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="rating">Highest Rated</option>
           </select>
         </div>
-
       </div>
 
-      {/* 4. Product Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-        {sortedProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {sortedProducts.length === 0 && (
+      {loading ? (
+        <div className="py-20 text-center text-gray-400 text-sm">
+          Loading products catalog...
+        </div>
+      ) : sortedProducts.length === 0 ? (
         <div className="text-center py-20 bg-[#141414] rounded-3xl border border-[#222] text-gray-400 text-sm mt-8">
           No products matched your filter criteria.
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {sortedProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       )}
     </div>

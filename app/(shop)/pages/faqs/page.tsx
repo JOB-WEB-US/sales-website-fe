@@ -62,7 +62,7 @@ const ALL_FAQS: FAQItem[] = [
   {
     category: 'payment',
     question: 'What payment methods do you accept?',
-    answer: 'We accept Visa, MasterCard, American Express, PayPal, Apple Pay, and Cash on Delivery (COD). All transactions are encrypted via 256-bit SSL security.',
+    answer: 'We accept Visa, MasterCard, American Express, Discover, PayPal Express, and Apple Pay. All transactions are encrypted via 256-bit SSL security.',
   },
   {
     category: 'payment',
