@@ -10,6 +10,7 @@ import SearchModal from '@/components/features/search/search-modal';
 import SizeGuideModal from '@/components/features/products/size-guide-modal';
 import WishlistDrawer from '@/components/features/wishlist/wishlist-drawer';
 import GlobalParticlesWrapper from '@/components/common/global-particles-wrapper';
+import LiveSalesToast from '@/components/common/live-sales-toast';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -45,6 +46,7 @@ export default function RootLayout({
           <SizeGuideModal />
           <WishlistDrawer />
           <GlobalParticlesWrapper />
+          <LiveSalesToast />
         </QueryProvider>
       </body>
     </html>

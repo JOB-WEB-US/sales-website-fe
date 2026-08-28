@@ -1,6 +1,7 @@
 import HeroSlider from '@/components/features/home/hero-slider';
 import HalloweenShowcase from '@/components/features/home/halloween-showcase';
 import TrendingTabs from '@/components/features/home/trending-tabs';
+import CommunityShowcase from '@/components/features/home/community-showcase';
 import ProductCard from '@/components/features/products/product-card';
 import { getProducts, getCategories, mapApiProductToUI } from '@/lib/api';
 
@@ -24,6 +25,8 @@ export default async function HomePage() {
       {/* Trending Tabs Filter Section */}
       <TrendingTabs products={products} categories={categories} />
 
+      {/* Community Social Proof Wall */}
+      <CommunityShowcase />
 
       {/* All Products Section */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

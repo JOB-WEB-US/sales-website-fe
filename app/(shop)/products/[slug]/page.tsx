@@ -29,6 +29,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useUIStore } from '@/store/useUIStore';
 import { ProductVariant } from '@/types/product';
 import ProductCard from '@/components/features/products/product-card';
+import ProductLiveActivity from '@/components/features/products/product-live-activity';
 import { getProductBySlug, getProducts, createProductReview, mapApiProductToUI, ApiProduct } from '@/lib/api';
 
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
@@ -395,6 +396,9 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               </div>
 
             </div>
+
+            {/* Live Social Proof Activity Counters */}
+            <ProductLiveActivity productId={product.id} />
 
             {/* Urgency Stock Banner */}
             <div className={`p-4 bg-gradient-to-r from-red-950/80 to-[#181818] border rounded-2xl space-y-2 ${isOutOfStock ? 'border-gray-700' : 'border-red-900/50'}`}>
