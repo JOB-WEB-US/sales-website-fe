@@ -91,12 +91,12 @@ export default function Header() {
       {/* 1. Top Announcement Marquee Bar */}
       <div className="bg-[#a80000] text-white py-1.5 text-xs font-semibold overflow-hidden" style={{ color: '#ffffff' }}>
         <div className="flex whitespace-nowrap animate-marquee" style={{ color: '#ffffff' }}>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🔥 10% OFF ON ALL PRODUCTS WITH CODE: DBZFCBDX43</span>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>⭐ HIGH QUALITY APPAREL & GRAPHIC TEES</span>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🚚 FREE SHIPPING ON ORDERS OVER $60</span>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🔥 10% OFF ON ALL PRODUCTS WITH CODE: DBZFCBDX43</span>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>⭐ HIGH QUALITY APPAREL & GRAPHIC TEES</span>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🚚 FREE SHIPPING ON ORDERS OVER $60</span>
+          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🔥 10% OFF YOUR ENTIRE ORDER — USE CODE: VELORA10</span>
+          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>⭐ PREMIUM GRAPHIC TEES & HOODIES</span>
+          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🚚 FREE EXPRESS US SHIPPING ON ORDERS OVER $75</span>
+          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🔥 10% OFF YOUR ENTIRE ORDER — USE CODE: VELORA10</span>
+          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>⭐ PREMIUM GRAPHIC TEES & HOODIES</span>
+          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🚚 FREE EXPRESS US SHIPPING ON ORDERS OVER $75</span>
         </div>
       </div>
 
