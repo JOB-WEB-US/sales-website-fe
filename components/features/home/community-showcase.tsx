@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
@@ -50,25 +50,25 @@ const UGC_POSTS = [
 
 export default function CommunityShowcase() {
   return (
-    <section className="py-16 bg-[#0e0e0e] border-t border-[#1f1f1f] overflow-hidden">
+    <section className="py-16 bg-white dark:bg-[#0e0e0e] border-t border-gray-100 dark:border-[#1f1f1f] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ff7700]/10 border border-[#ff7700]/30 text-[#ff7700] text-xs font-black uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ff7700]/10 border border-[#ff7700]/30 text-[#ea580c] dark:text-[#ff7700] text-xs font-black uppercase tracking-wider mb-2">
               <Instagram size={13} /> #SpottedInVelora
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
               Loved by 50,000+ Fans Across the US
             </h2>
-            <p className="text-gray-400 text-xs sm:text-sm mt-1">
-              Real customers, real street style. Tag <strong className="text-white">@VeloraTees</strong> to be featured!
+            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mt-1">
+              Real customers, real street style. Tag <strong className="text-gray-900 dark:text-white">@VeloraTees</strong> to be featured!
             </p>
           </div>
 
           <Link
             href="/shop"
-            className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#ff7700] hover:text-white transition group self-start md:self-auto"
+            className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#ea580c] dark:text-[#ff7700] hover:text-black dark:hover:text-white transition group self-start md:self-auto"
           >
             Explore Customer Favorites <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </Link>
@@ -79,21 +79,21 @@ export default function CommunityShowcase() {
           {UGC_POSTS.map((post) => (
             <div
               key={post.id}
-              className="bg-[#141414] border border-[#242424] hover:border-[#ff7700]/50 rounded-3xl overflow-hidden group transition-all duration-300 flex flex-col shadow-lg"
+              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#242424] hover:border-[#ff7700] dark:hover:border-[#ff7700]/50 rounded-3xl overflow-hidden group transition-all duration-300 flex flex-col shadow-sm hover:shadow-md"
             >
               {/* Photo Container */}
-              <div className="relative aspect-square w-full bg-[#1e1e1e] overflow-hidden">
+              <div className="relative aspect-square w-full bg-gray-100 dark:bg-[#1e1e1e] overflow-hidden">
                 <Image
                   src={post.image}
                   alt={post.user}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-1 border border-white/10">
-                  <Instagram size={11} className="text-[#ff7700]" /> {post.user}
+                <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold !text-white flex items-center gap-1.5 border border-white/20 shadow-md">
+                  <Instagram size={12} className="text-[#ff7700]" /> <span className="!text-white font-extrabold">{post.user}</span>
                 </div>
-                <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-bold text-pink-400 flex items-center gap-1 border border-white/10">
-                  <Heart size={10} fill="currentColor" /> {post.likes}
+                <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-bold !text-pink-400 flex items-center gap-1 border border-white/20 shadow-md">
+                  <Heart size={10} fill="currentColor" /> <span className="!text-pink-400 font-bold">{post.likes}</span>
                 </div>
               </div>
 
@@ -104,19 +104,19 @@ export default function CommunityShowcase() {
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} size={11} fill="currentColor" />
                     ))}
-                    <span className="text-[10px] text-gray-400 ml-1 font-bold">Verified Buyer</span>
+                    <span className="text-[10px] text-gray-500 dark:text-gray-400 ml-1 font-bold">Verified Buyer</span>
                   </div>
-                  <p className="text-xs text-gray-300 italic line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-gray-700 dark:text-gray-300 italic line-clamp-2 leading-relaxed font-medium">
                     "{post.quote}"
                   </p>
                 </div>
 
                 <Link
                   href="/shop"
-                  className="pt-2 border-t border-[#222] flex items-center justify-between text-xs font-bold text-gray-300 group-hover:text-[#ff7700] transition"
+                  className="pt-2.5 border-t border-gray-100 dark:border-[#222] flex items-center justify-between text-xs font-bold text-gray-800 dark:text-gray-300 group-hover:text-[#ea580c] dark:group-hover:text-[#ff7700] transition"
                 >
                   <span className="truncate text-[11px]">{post.productName}</span>
-                  <ShoppingBag size={13} className="shrink-0 ml-1 text-[#ff7700]" />
+                  <ShoppingBag size={13} className="shrink-0 ml-1 text-[#ea580c] dark:text-[#ff7700]" />
                 </Link>
               </div>
             </div>
