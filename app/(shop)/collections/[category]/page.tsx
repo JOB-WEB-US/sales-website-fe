@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowUpDown } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import ProductCard from '@/components/features/products/product-card';
+import AdvancedProductFilter, { FilterState, INITIAL_FILTER_STATE } from '@/components/features/products/advanced-product-filter';
 import { getProducts, getCategories, mapApiProductToUI, ApiCategory } from '@/lib/api';
 
 const CATEGORY_META: Record<string, { title: string; subtitle: string; icon: string }> = {
@@ -53,10 +54,10 @@ export default function CategoryCollectionPage({ params }: { params: { category:
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<
-    'featured' | 'newest' | 'oldest' | 'name-az' | 'name-za' | 'price-low' | 'price-high' | 'rating'
-  >('featured');
+  const [filters, setFilters] = useState<FilterState>({
+    ...INITIAL_FILTER_STATE,
+    category: rawCategory,
+  });
 
   useEffect(() => {
     async function load() {
@@ -85,7 +86,7 @@ export default function CategoryCollectionPage({ params }: { params: { category:
     icon: matchedCat?.icon || '✨',
   };
 
-  // Filter products by category slug or categoryId
+  // 1. Filter products belonging to this category
   const categoryProducts = products.filter((product) => {
     if (rawCategory === 'trending') return true;
     const cat = (product.category || '').toLowerCase();
@@ -98,19 +99,61 @@ export default function CategoryCollectionPage({ params }: { params: { category:
     );
   });
 
-  // Apply Type Filter
-  const filteredProducts = categoryProducts.filter((product) => {
-    if (selectedType === 'all') return true;
-    return product.variants.some((v: any) => v.productType.toLowerCase() === selectedType.toLowerCase());
+  // 2. Apply Multi-faceted filters (Type, Price, Color, Size, Sale, Rating, Search)
+  const filteredProducts = categoryProducts.filter((p) => {
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
+      const matches = p.title.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q);
+      if (!matches) return false;
+    }
+
+    if (filters.productType !== 'all') {
+      const pt = filters.productType.toLowerCase();
+      const matchesType = p.variants?.some((v: any) => (v.productType || '').toLowerCase().includes(pt)) ||
+                          (p.title || '').toLowerCase().includes(pt);
+      if (!matchesType) return false;
+    }
+
+    if (filters.priceRange !== 'all') {
+      const price = p.basePrice;
+      if (filters.priceRange === 'under-25' && price >= 25) return false;
+      if (filters.priceRange === '25-35' && (price < 25 || price > 35)) return false;
+      if (filters.priceRange === '35-50' && (price < 35 || price > 50)) return false;
+      if (filters.priceRange === 'over-50' && price <= 50) return false;
+    }
+
+    if (filters.color !== 'all') {
+      const col = filters.color.toLowerCase();
+      const matchesColor = p.variants?.some((v: any) => (v.color || '').toLowerCase().includes(col));
+      if (!matchesColor) return false;
+    }
+
+    if (filters.size !== 'all') {
+      const sz = filters.size.toLowerCase();
+      const matchesSize = p.variants?.some((v: any) => (v.size || '').toLowerCase() === sz);
+      if (!matchesSize) return false;
+    }
+
+    if (filters.onlySale) {
+      const isSale = p.isSale || (p.originalPrice && p.originalPrice > p.basePrice);
+      if (!isSale) return false;
+    }
+
+    if (filters.minRating > 0) {
+      const rating = p.rating || 5;
+      if (rating < filters.minRating) return false;
+    }
+
+    return true;
   });
 
-  // Apply Sorting
+  // 3. Sorting
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === 'price-low') return a.basePrice - b.basePrice;
-    if (sortBy === 'price-high') return b.basePrice - a.basePrice;
-    if (sortBy === 'rating') return (b.rating || 5) - (a.rating || 5);
-    if (sortBy === 'name-az') return a.title.localeCompare(b.title);
-    if (sortBy === 'name-za') return b.title.localeCompare(a.title);
+    if (filters.sortBy === 'price-low') return a.basePrice - b.basePrice;
+    if (filters.sortBy === 'price-high') return b.basePrice - a.basePrice;
+    if (filters.sortBy === 'rating') return (b.rating || 5) - (a.rating || 5);
+    if (filters.sortBy === 'name-az') return a.title.localeCompare(b.title);
+    if (filters.sortBy === 'name-za') return b.title.localeCompare(a.title);
     return 0;
   });
 
@@ -156,79 +199,30 @@ export default function CategoryCollectionPage({ params }: { params: { category:
               {categoryInfo.subtitle}
             </p>
             <span className="inline-block px-3 py-1 bg-red-950/60 text-[#ff7700] border border-red-800/40 text-xs font-bold rounded-full">
-              {sortedProducts.length} Items Available
+              {categoryProducts.length} Items Available
             </span>
           </div>
         </div>
 
-        {/* Controls Bar: Type Filter & Sorting */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 bg-[#141414] p-4 rounded-2xl border border-[#222]">
-          
-          {/* Apparel Type Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-            <button
-              onClick={() => setSelectedType('all')}
-              className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition ${
-                selectedType === 'all' ? 'bg-[#ff7700] text-black shadow' : 'bg-[#1a1a1a] text-gray-400 hover:text-white border border-[#262626]'
-              }`}
-            >
-              All Types
-            </button>
-            <button
-              onClick={() => setSelectedType('T-Shirt')}
-              className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition ${
-                selectedType === 'T-Shirt' ? 'bg-[#ff7700] text-black shadow' : 'bg-[#1a1a1a] text-gray-400 hover:text-white border border-[#262626]'
-              }`}
-            >
-              T-Shirts
-            </button>
-            <button
-              onClick={() => setSelectedType('Hoodie')}
-              className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition ${
-                selectedType === 'Hoodie' ? 'bg-[#ff7700] text-black shadow' : 'bg-[#1a1a1a] text-gray-400 hover:text-white border border-[#262626]'
-              }`}
-            >
-              Hoodies
-            </button>
-            <button
-              onClick={() => setSelectedType('Sweatshirt')}
-              className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition ${
-                selectedType === 'Sweatshirt' ? 'bg-[#ff7700] text-black shadow' : 'bg-[#1a1a1a] text-gray-400 hover:text-white border border-[#262626]'
-              }`}
-            >
-              Sweatshirts
-            </button>
-          </div>
-
-          {/* Sort Selector */}
-          <div className="flex items-center gap-2 text-xs text-gray-400 self-end sm:self-auto">
-            <ArrowUpDown size={14} className="text-[#ff7700]" />
-            <span>Sort By:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-[#1c1c1c] border border-[#333] text-white text-xs px-3 py-1.5 rounded-xl outline-none focus:ring-1 focus:ring-[#ff7700] cursor-pointer"
-            >
-              <option value="featured">Featured</option>
-              <option value="name-az">Alphabetical: A-Z</option>
-              <option value="name-za">Alphabetical: Z-A</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-            </select>
-          </div>
-
-        </div>
+        {/* Advanced Multi-faceted Filter Bar */}
+        <AdvancedProductFilter
+          filters={filters}
+          onFilterChange={setFilters}
+          categories={categories}
+          showCategoryPills={false}
+          totalProductsCount={categoryProducts.length}
+          filteredCount={sortedProducts.length}
+        />
 
         {/* Product Grid */}
         {sortedProducts.length === 0 ? (
-          <div className="py-20 text-center bg-[#141414] rounded-3xl border border-[#222]">
-            <p className="text-gray-400 text-sm mb-4">No items currently available in this category filter.</p>
+          <div className="py-20 text-center bg-[#141414] rounded-3xl border border-[#222] p-8">
+            <p className="text-gray-400 text-sm mb-4">No items currently match your filter criteria in this collection.</p>
             <button
-              onClick={() => { setSelectedType('all'); setSortBy('featured'); }}
-              className="px-6 py-2.5 bg-[#ff7700] text-black text-xs font-bold uppercase rounded-xl"
+              onClick={() => setFilters({ ...INITIAL_FILTER_STATE, category: rawCategory })}
+              className="px-6 py-2.5 bg-[#ff7700] text-black text-xs font-bold uppercase rounded-xl cursor-pointer"
             >
-              Reset Filters
+              Reset Filters ✕
             </button>
           </div>
         ) : (
