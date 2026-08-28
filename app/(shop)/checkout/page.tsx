@@ -103,39 +103,75 @@ export default function CheckoutPage() {
     }
   }, []);
 
+  const { appliedCoupon, setAppliedCoupon, removeCoupon } = useCartStore();
   const [selectedShipping, setSelectedShipping] = useState(SHIPPING_METHODS[0]);
   
   // Coupon State
-  const [couponCode, setCouponCode] = useState('');
-  const [appliedDiscount, setAppliedDiscount] = useState(0);
+  const [couponCode, setCouponCode] = useState(appliedCoupon ? appliedCoupon.code : '');
   const [couponError, setCouponError] = useState('');
-  const [couponSuccess, setCouponSuccess] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState(appliedCoupon ? `Applied: ${appliedCoupon.code} (${appliedCoupon.description})` : '');
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const subtotal = getTotalPrice();
-  const isFreeShipping = subtotal >= 75;
+  const isFreeShipping = subtotal >= 75 || appliedCoupon?.discountType === 'shipping';
   const shippingFee = isFreeShipping ? 0 : selectedShipping.price;
-  const tax = Math.round((subtotal - appliedDiscount) * 0.08 * 100) / 100;
-  const grandTotal = Math.max(0, subtotal - appliedDiscount + shippingFee + tax);
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  // Calculate applied discount amount
+  const appliedDiscount = (() => {
+    if (!appliedCoupon) return 0;
+    if (appliedCoupon.discountType === 'percentage') {
+      return Math.round(((subtotal * appliedCoupon.discountValue) / 100) * 100) / 100;
+    }
+    if (appliedCoupon.discountType === 'fixed') {
+      return Math.min(appliedCoupon.discountValue, subtotal);
+    }
+    if (appliedCoupon.discountType === 'shipping') {
+      return selectedShipping.price;
+    }
+    return 0;
+  })();
+
+  const tax = Math.round((subtotal - (appliedCoupon?.discountType !== 'shipping' ? appliedDiscount : 0)) * 0.08 * 100) / 100;
+  const grandTotal = Math.max(0, subtotal - (appliedCoupon?.discountType !== 'shipping' ? appliedDiscount : 0) + shippingFee + tax);
+
+  const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     setCouponError('');
     setCouponSuccess('');
 
-    if (!couponCode.trim()) return;
+    const code = couponCode.trim().toUpperCase();
+    if (!code) return;
 
-    if (couponCode.trim().toUpperCase() === 'VELORA10' || couponCode.trim().toUpperCase() === 'VELORATEES10') {
-      const discountVal = subtotal * 0.10;
-      setAppliedDiscount(discountVal);
-      setCouponSuccess('10% Discount applied successfully!');
-    } else if (couponCode.trim().toUpperCase() === 'FREESHIP') {
-      setAppliedDiscount(shippingFee);
-      setCouponSuccess('Free Shipping coupon applied!');
-    } else {
-      setCouponError('Invalid promo code. Try "VELORA10"');
+    setValidatingCoupon(true);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/v1/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal, shippingFee: selectedShipping.price }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || `Promo code "${code}" is invalid.`);
+      }
+
+      setAppliedCoupon(data.data);
+      setCouponSuccess(`Coupon "${data.data.code}" applied successfully!`);
+    } catch (err: any) {
+      setCouponError(err.message || 'Invalid promo code. Try "VELORA10"');
+    } finally {
+      setValidatingCoupon(false);
     }
+  };
+
+  const handleRemoveCoupon = () => {
+    removeCoupon();
+    setCouponCode('');
+    setCouponSuccess('');
+    setCouponError('');
   };
 
   const handlePayPalSuccess = async (details: { orderId: string; payerName?: string; payerEmail?: string }) => {
@@ -603,22 +639,34 @@ export default function CheckoutPage() {
 
               {/* Promo Code Form */}
               <form onSubmit={handleApplyCoupon} className="pt-2 border-t border-[#222]">
-                <label className="block text-xs font-semibold text-gray-300 mb-1.5 flex items-center gap-1">
-                  <Tag className="w-3.5 h-3.5 text-[#ff7700]" /> Discount Code / Promo
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1">
+                    <Tag className="w-3.5 h-3.5 text-[#ff7700]" /> Discount Code / Promo
+                  </span>
+                  {appliedCoupon && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      className="text-[11px] text-gray-400 hover:text-red-400 font-bold underline cursor-pointer"
+                    >
+                      Remove Code
+                    </button>
+                  )}
                 </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Try VELORA10"
+                    placeholder="e.g. VELORA10"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-[#1c1c1c] border border-[#333] rounded-lg text-xs font-medium text-white uppercase outline-none focus:ring-1 focus:ring-[#ff7700]"
+                    className="flex-1 px-3 py-2 bg-[#1c1c1c] border border-[#333] rounded-lg text-xs font-mono font-bold text-white uppercase outline-none focus:ring-1 focus:ring-[#ff7700]"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-[#2a2a2a] hover:bg-[#333] text-white text-xs font-bold rounded-lg transition-colors"
+                    disabled={validatingCoupon || !couponCode.trim()}
+                    className="px-4 py-2 bg-[#2a2a2a] hover:bg-[#ff7700] hover:text-black text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                   >
-                    Apply
+                    {validatingCoupon ? "..." : "Apply"}
                   </button>
                 </div>
                 {couponSuccess && <p className="text-xs text-emerald-400 font-semibold mt-1.5">{couponSuccess}</p>}
