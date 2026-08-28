@@ -107,7 +107,7 @@ export default function ProductDetailsSizingPage() {
 
             {/* Unit Selector */}
             <div className="flex items-center gap-2 text-xs font-bold text-gray-400 self-end sm:self-auto">
-              <span>Đơn vị:</span>
+              <span>Unit:</span>
               <div className="flex bg-[#1e1e1e] p-0.5 rounded-lg border border-[#2a2a2a]">
                 <button
                   onClick={() => setUnit('inches')}
@@ -123,7 +123,7 @@ export default function ProductDetailsSizingPage() {
                     unit === 'cm' ? 'bg-[#ff7700] text-black' : 'text-gray-400 hover:text-white'
                   }`}
                 >
-                  Centimet (cm)
+                  Centimeters (cm)
                 </button>
               </div>
             </div>
@@ -133,7 +133,7 @@ export default function ProductDetailsSizingPage() {
           <div className="mb-6 p-3 bg-[#191919] rounded-2xl border border-[#262626] flex items-center justify-between flex-wrap gap-2">
             <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5">
               <Sparkles size={14} className="text-[#ff7700]" />
-              Chọn Size để xem kích thước minh họa:
+              Select Size to view live dimensions:
             </span>
             <div className="flex items-center gap-1.5 flex-wrap">
               {currentData.map((row) => (
@@ -171,9 +171,9 @@ export default function ProductDetailsSizingPage() {
                   <thead className="bg-[#1c1c1c] text-gray-400 uppercase text-[10px] font-black border-b border-[#262626]">
                     <tr>
                       <th className="py-3 px-3">Size</th>
-                      <th className="py-3 px-3">A: Rộng ngực ({unit === 'inches' ? 'in' : 'cm'})</th>
-                      <th className="py-3 px-3">B: Dài áo ({unit === 'inches' ? 'in' : 'cm'})</th>
-                      <th className="py-3 px-3">Gợi ý Chiều cao / Cân nặng</th>
+                      <th className="py-3 px-3">A: Chest Width ({unit === 'inches' ? 'in' : 'cm'})</th>
+                      <th className="py-3 px-3">B: Body Length ({unit === 'inches' ? 'in' : 'cm'})</th>
+                      <th className="py-3 px-3">Height / Weight Fit</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#222]">
@@ -213,14 +213,14 @@ export default function ProductDetailsSizingPage() {
               {/* How to Measure Step-by-Step */}
               <div className="p-3.5 bg-[#181818] border border-[#262626] rounded-xl text-xs space-y-1.5 text-gray-300">
                 <div className="font-extrabold text-white flex items-center gap-1.5 text-xs">
-                  <HelpCircle size={14} className="text-[#ff7700]" /> Hướng dẫn tự đo tại nhà (2 bước đơn giản):
+                  <HelpCircle size={14} className="text-[#ff7700]" /> How to Measure at Home (2 Simple Steps):
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-gray-400 pt-1">
                   <div>
-                    <strong className="text-cyan-400">1. Rộng ngực (A):</strong> Trải phẳng áo bạn đang mặc vừa lên bàn, đo khoảng cách ngang từ nách trái sang nách phải.
+                    <strong className="text-cyan-400">1. Chest Width (A):</strong> Lay your favorite shirt flat on a surface and measure across the chest from armpit to armpit.
                   </div>
                   <div>
-                    <strong className="text-pink-400">2. Chiều dài (B):</strong> Đo thẳng từ điểm cao nhất cạnh cổ áo xuống hết mép gấu dưới của áo.
+                    <strong className="text-pink-400">2. Body Length (B):</strong> Measure straight from the highest point of the shoulder down to the bottom hem.
                   </div>
                 </div>
               </div>
@@ -231,9 +231,9 @@ export default function ProductDetailsSizingPage() {
           <div className="p-4 bg-[#191919] border border-[#262626] rounded-2xl flex items-start gap-3 text-xs text-gray-400">
             <UserCheck className="w-5 h-5 text-[#ff7700] shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <strong className="text-white font-bold block">💡 Lời khuyên chọn form dáng:</strong>
+              <strong className="text-white font-bold block">💡 Sizing Advice & Recommendations:</strong>
               <p className="leading-relaxed">
-                Áo được may theo form <strong>US Unisex Classic Fit</strong> tiêu chuẩn Mỹ. Nếu bạn thích mặc vừa vặn thoải mái hãy chọn đúng size theo bảng gợi ý. Nếu bạn theo đuổi phong cách <strong>Oversized / Streetwear rộng rãi</strong>, hãy tăng lên 1 size!
+                Our apparel follows standard <strong>US Unisex Classic Fit</strong> sizing. If you prefer a comfortable regular fit, choose your usual size according to the chart. For a modern <strong>Oversized / Streetwear baggy look</strong>, we recommend sizing up by one size!
               </p>
             </div>
           </div>

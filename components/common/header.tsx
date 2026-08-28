@@ -198,8 +198,8 @@ export default function Header() {
             }`}
             title={
               particlesEnabled
-                ? '✨ Hiệu ứng hạt theo mùa: ĐANG BẬT (Bấm để Tắt)'
-                : '✨ Hiệu ứng hạt theo mùa: ĐÃ TẮT (Bấm để Bật)'
+                ? '✨ Seasonal Particle Effects: ON (Click to Turn Off)'
+                : '✨ Seasonal Particle Effects: OFF (Click to Turn On)'
             }
           >
             <Sparkles size={20} className={particlesEnabled ? 'animate-pulse text-[#ff7700]' : ''} />

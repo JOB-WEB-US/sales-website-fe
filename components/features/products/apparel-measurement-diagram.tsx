@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 
@@ -127,11 +127,11 @@ export default function ApparelMeasurementDiagram({
       <div className="w-full grid grid-cols-2 gap-2 pt-2 border-t border-[#262626] text-[11px]">
         <div className="flex items-center gap-1.5 justify-center font-bold text-cyan-400">
           <span className="w-2.5 h-2.5 rounded-full bg-[#00e5ff]"></span>
-          <span>A: Rộng ngực ({width})</span>
+          <span>A: Chest Width ({width})</span>
         </div>
         <div className="flex items-center gap-1.5 justify-center font-bold text-pink-400">
           <span className="w-2.5 h-2.5 rounded-full bg-[#ff0055]"></span>
-          <span>B: Dài áo ({length})</span>
+          <span>B: Body Length ({length})</span>
         </div>
       </div>
     </div>
