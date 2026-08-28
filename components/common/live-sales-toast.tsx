@@ -1,13 +1,14 @@
-﻿'use client';
+'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, X, ShoppingBag } from 'lucide-react';
+import { CheckCircle, X, ShoppingBag, Sparkles } from 'lucide-react';
 import { getProducts, mapApiProductToUI } from '@/lib/api';
 
 interface PurchaseNotification {
+  id: string;
   customerName: string;
   location: string;
   productTitle: string;
@@ -16,53 +17,120 @@ interface PurchaseNotification {
   timeAgo: string;
 }
 
-const SAMPLE_CUSTOMERS = [
-  { name: 'Sarah M.', location: 'Austin, TX' },
-  { name: 'Marcus B.', location: 'Miami, FL' },
-  { name: 'Emily R.', location: 'Seattle, WA' },
-  { name: 'Jason T.', location: 'Chicago, IL' },
-  { name: 'Chloe D.', location: 'New York, NY' },
-  { name: 'Tyler K.', location: 'Denver, CO' },
-  { name: 'Hannah P.', location: 'Nashville, TN' },
-  { name: 'David L.', location: 'San Diego, CA' },
+// 100+ Popular US First Names
+const US_FIRST_NAMES = [
+  'James', 'Emma', 'Liam', 'Olivia', 'Noah', 'Sophia', 'Ethan', 'Isabella', 'Lucas', 'Mia',
+  'Mason', 'Harper', 'Evelyn', 'Alexander', 'Charlotte', 'Oliver', 'Amelia', 'Benjamin', 'Ella', 'William',
+  'Ava', 'Henry', 'Scarlett', 'Sebastian', 'Grace', 'Jack', 'Chloe', 'Daniel', 'Victoria', 'Matthew',
+  'Riley', 'Samuel', 'Zoey', 'David', 'Penelope', 'Joseph', 'Layla', 'Jackson', 'Nora', 'Logan',
+  'Lily', 'Gabriel', 'Eleanor', 'Carter', 'Hannah', 'Anthony', 'Lillian', 'John', 'Addison', 'Dylan',
+  'Aubrey', 'Luke', 'Ellie', 'Andrew', 'Stella', 'Isaac', 'Natalie', 'Christopher', 'Zoe', 'Joshua',
+  'Leah', 'Max', 'Hazel', 'Julian', 'Violet', 'Caleb', 'Aurora', 'Ryan', 'Savannah', 'Nathan',
+  'Audrey', 'Hunter', 'Brooklyn', 'Christian', 'Bella', 'Isaiah', 'Claire', 'Thomas', 'Skylar', 'Aaron',
+  'Lucy', 'Lincoln', 'Paisley', 'Charles', 'Everly', 'Eli', 'Anna', 'Connor', 'Caroline', 'Jeremiah',
+  'Nova', 'Cameron', 'Genesis', 'Josiah', 'Emilia', 'Adrian', 'Kennedy', 'Colton', 'Samantha', 'Jordan',
+  'Maya', 'Brayden', 'Willow', 'Austin', 'Kinsley', 'Robert', 'Naomi', 'Angel', 'Aaliyah', 'Nicholas',
 ];
 
-const TIME_AGOS = ['2 minutes ago', '4 minutes ago', '6 minutes ago', '11 minutes ago', '18 minutes ago'];
+// Surname Initials
+const SURNAME_INITIALS = ['A.', 'B.', 'C.', 'D.', 'E.', 'F.', 'G.', 'H.', 'J.', 'K.', 'L.', 'M.', 'N.', 'P.', 'R.', 'S.', 'T.', 'V.', 'W.', 'Y.'];
+
+// 60+ Realistic US Cities & States
+const US_LOCATIONS = [
+  'Austin, TX', 'Miami, FL', 'Seattle, WA', 'Nashville, TN', 'Chicago, IL', 'Denver, CO',
+  'San Diego, CA', 'Charlotte, NC', 'Atlanta, GA', 'Boston, MA', 'Dallas, TX', 'Portland, OR',
+  'Las Vegas, NV', 'Phoenix, AZ', 'Orlando, FL', 'Columbus, OH', 'Indianapolis, IN', 'Tampa, FL',
+  'Minneapolis, MN', 'Kansas City, MO', 'Raleigh, NC', 'Salt Lake City, UT', 'Pittsburgh, PA',
+  'San Antonio, TX', 'Sacramento, CA', 'Cleveland, OH', 'Houston, TX', 'Detroit, MI', 'Louisville, KY',
+  'Memphis, TN', 'Baltimore, MD', 'Milwaukee, WI', 'Albuquerque, NM', 'Tucson, AZ', 'Fresno, CA',
+  'Mesa, AZ', 'Omaha, NE', 'Colorado Springs, CO', 'Virginia Beach, VA', 'Oakland, CA', 'Tulsa, OK',
+  'Arlington, TX', 'New Orleans, LA', 'Wichita, KS', 'Bakersfield, CA', 'Honolulu, HI', 'Anaheim, CA',
+  'Santa Ana, CA', 'Corpus Christi, TX', 'Riverside, CA', 'Lexington, KY', 'Stockton, CA', 'Saint Paul, MN',
+  'Cincinnati, OH', 'Greensboro, NC', 'Plano, TX', 'Newark, NJ', 'Lincoln, NE', 'Boise, ID', 'Richmond, VA'
+];
+
+const TIME_AGOS = [
+  '1 minute ago', '2 minutes ago', '3 minutes ago', '5 minutes ago',
+  '7 minutes ago', '9 minutes ago', '12 minutes ago', '15 minutes ago', '18 minutes ago'
+];
 
 export default function LiveSalesToast() {
   const [currentNotice, setCurrentNotice] = useState<PurchaseNotification | null>(null);
   const [isDismissed, setIsDismissed] = useState(false);
   const [catalog, setCatalog] = useState<any[]>([]);
+  
+  // Track seen customer combinations in this session to guarantee ZERO duplication
+  const seenSignaturesRef = useRef<Set<string>>(new Set());
+  const productQueueRef = useRef<any[]>([]);
 
   // Fetch products once for notification feed
   useEffect(() => {
-    getProducts({ limit: 15 })
+    getProducts({ limit: 30 })
       .then((raw) => {
         const mapped = raw.map(mapApiProductToUI).filter(Boolean);
         setCatalog(mapped);
+        // Shuffle products into queue
+        productQueueRef.current = [...mapped].sort(() => Math.random() - 0.5);
       })
       .catch(() => {});
   }, []);
 
-  // Popup cycle interval
+  // Popup cycle interval with anti-duplicate logic
   useEffect(() => {
     if (isDismissed || catalog.length === 0) return;
 
     let timeoutId: NodeJS.Timeout;
     let hideTimeoutId: NodeJS.Timeout;
 
-    const showRandomNotification = () => {
-      const randomCustomer = SAMPLE_CUSTOMERS[Math.floor(Math.random() * SAMPLE_CUSTOMERS.length)];
-      const randomProduct = catalog[Math.floor(Math.random() * catalog.length)];
+    const generateUniqueCustomer = () => {
+      let attempts = 0;
+      let firstName = '';
+      let initial = '';
+      let location = '';
+      let signature = '';
+
+      // Find an unused signature up to 50 attempts
+      do {
+        firstName = US_FIRST_NAMES[Math.floor(Math.random() * US_FIRST_NAMES.length)];
+        initial = SURNAME_INITIALS[Math.floor(Math.random() * SURNAME_INITIALS.length)];
+        location = US_LOCATIONS[Math.floor(Math.random() * US_LOCATIONS.length)];
+        signature = `${firstName} ${initial}|${location}`;
+        attempts++;
+      } while (seenSignaturesRef.current.has(signature) && attempts < 50);
+
+      seenSignaturesRef.current.add(signature);
+
+      // If set gets too big, clear oldest half
+      if (seenSignaturesRef.current.size > 200) {
+        seenSignaturesRef.current.clear();
+      }
+
+      return {
+        customerName: `${firstName} ${initial}`,
+        location,
+      };
+    };
+
+    const getNextProduct = () => {
+      if (productQueueRef.current.length === 0) {
+        productQueueRef.current = [...catalog].sort(() => Math.random() - 0.5);
+      }
+      return productQueueRef.current.pop() || catalog[0];
+    };
+
+    const showNotification = () => {
+      const customer = generateUniqueCustomer();
+      const product = getNextProduct();
       const randomTime = TIME_AGOS[Math.floor(Math.random() * TIME_AGOS.length)];
 
-      if (randomProduct) {
+      if (product) {
         setCurrentNotice({
-          customerName: randomCustomer.name,
-          location: randomCustomer.location,
-          productTitle: randomProduct.title,
-          productImage: randomProduct.frontImage,
-          productSlug: randomProduct.slug || randomProduct.id,
+          id: `${Date.now()}-${Math.random()}`,
+          customerName: customer.customerName,
+          location: customer.location,
+          productTitle: product.title,
+          productImage: product.frontImage,
+          productSlug: product.slug || product.id,
           timeAgo: randomTime,
         });
 
@@ -73,14 +141,14 @@ export default function LiveSalesToast() {
       }
     };
 
-    // First trigger after 4 seconds
+    // First trigger after 3.5 seconds
     const initialTimer = setTimeout(() => {
-      showRandomNotification();
-    }, 4000);
+      showNotification();
+    }, 3500);
 
-    // Repeat every 18 seconds
+    // Dynamic interval between 16s - 22s for natural feel
     const interval = setInterval(() => {
-      showRandomNotification();
+      showNotification();
     }, 18000);
 
     return () => {
@@ -94,14 +162,15 @@ export default function LiveSalesToast() {
 
   return (
     <div className="fixed bottom-5 left-5 z-40 max-w-xs sm:max-w-sm pointer-events-auto">
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {currentNotice && (
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.92 }}
+            key={currentNotice.id}
+            initial={{ opacity: 0, y: 35, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ type: 'spring', damping: 22, stiffness: 320 }}
-            className="bg-[#181818]/95 backdrop-blur-md border border-[#2a2a2a] hover:border-[#ff7700]/50 rounded-2xl p-3 shadow-2xl flex items-center gap-3 relative group"
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            transition={{ type: 'spring', damping: 24, stiffness: 320 }}
+            className="bg-[#161616]/95 backdrop-blur-md border border-[#2b2b2b] hover:border-[#ff7700]/50 rounded-2xl p-3 shadow-2xl flex items-center gap-3 relative group"
           >
             {/* Close Button */}
             <button
@@ -109,7 +178,7 @@ export default function LiveSalesToast() {
                 e.stopPropagation();
                 setIsDismissed(true);
               }}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#252525] border border-[#3a3a3a] rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-900/60 transition cursor-pointer"
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#252525] border border-[#3a3a3a] rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-900/80 transition cursor-pointer z-10"
               title="Dismiss notifications"
             >
               <X size={10} />
@@ -118,7 +187,7 @@ export default function LiveSalesToast() {
             {/* Thumbnail */}
             <Link
               href={`/products/${currentNotice.productSlug}`}
-              className="relative w-13 h-13 rounded-xl overflow-hidden bg-[#242424] border border-[#333] shrink-0 block group-hover:scale-105 transition-transform"
+              className="relative w-13 h-13 rounded-xl overflow-hidden bg-[#222] border border-[#333] shrink-0 block group-hover:scale-105 transition-transform"
             >
               <Image
                 src={currentNotice.productImage}
@@ -131,7 +200,7 @@ export default function LiveSalesToast() {
             {/* Notification Content */}
             <div className="flex-1 min-w-0 pr-1">
               <div className="flex items-center gap-1.5 text-[11px] text-gray-300">
-                <span className="font-bold text-white truncate">
+                <span className="font-extrabold text-white truncate">
                   {currentNotice.customerName}
                 </span>
                 <span className="text-gray-400 text-[10px]">in {currentNotice.location}</span>
