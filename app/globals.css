@@ -385,7 +385,49 @@ html.light-mode div[class*="from-red-950"] strong {
   color: #e11d48 !important;
 }
 
-/* 17. SHOP HERO BANNER & CATALOG HEADER IN LIGHT MODE */
+/* 17. SHOP & COLLECTION HERO BANNER (DARK & LIGHT MODES) */
+.shop-hero-banner {
+  background: linear-gradient(135deg, #181818 0%, #121212 50%, #0d0d0d 100%) !important;
+  border: 1px solid #262626 !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6) !important;
+}
+
+.shop-hero-title,
+.shop-hero-title * {
+  color: #ffffff !important;
+}
+
+.shop-hero-title span {
+  color: #ff7700 !important;
+}
+
+.shop-hero-badge {
+  background-color: rgba(255, 119, 0, 0.12) !important;
+  color: #ff7700 !important;
+  border: 1px solid rgba(255, 119, 0, 0.35) !important;
+}
+
+.shop-hero-desc {
+  color: #9ca3af !important;
+}
+
+.shop-hero-specs {
+  border-color: #262626 !important;
+}
+
+.shop-hero-specs span {
+  color: #d1d5db !important;
+}
+
+.shop-items-available-badge {
+  background-color: rgba(255, 119, 0, 0.12) !important;
+  border: 1px solid rgba(255, 119, 0, 0.4) !important;
+  color: #ff7700 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 14px rgba(255, 119, 0, 0.2) !important;
+}
+
+/* Light Mode Overrides for Hero Banner & Badges */
 html.light-mode .shop-hero-banner {
   background: linear-gradient(135deg, #fff7ed 0%, #ffffff 50%, #fef3c7 100%) !important;
   border: 1.5px solid #fed7aa !important;
@@ -417,6 +459,14 @@ html.light-mode .shop-hero-specs {
 
 html.light-mode .shop-hero-specs span {
   color: #334155 !important;
+}
+
+html.light-mode .shop-items-available-badge {
+  background-color: #fff7ed !important;
+  border: 1.5px solid #fdba74 !important;
+  color: #c2410c !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.12) !important;
 }
 
 /* 18. ADVANCED PRODUCT FILTER IN LIGHT MODE */
@@ -494,15 +544,6 @@ html.light-mode .color-swatch-green {
 html.light-mode .color-swatch-sand {
   background-color: #d4b996 !important;
   border-color: #c5a882 !important;
-}
-
-/* 20. COLLECTION ITEMS AVAILABLE BADGE IN LIGHT MODE */
-html.light-mode .shop-items-available-badge {
-  background-color: #fff7ed !important;
-  border: 1.5px solid #fdba74 !important;
-  color: #c2410c !important;
-  font-weight: 800 !important;
-  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.12) !important;
 }
 
 

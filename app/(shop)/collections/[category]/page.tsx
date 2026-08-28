@@ -189,16 +189,16 @@ export default function CategoryCollectionPage({ params }: { params: { category:
         </div>
 
         {/* Category Hero Header */}
-        <div className="shop-hero-banner bg-gradient-to-br from-amber-500/10 via-orange-50/50 to-white dark:bg-[#141414] rounded-3xl border border-orange-200/70 dark:border-[#222] p-8 md:p-12 mb-10 text-center relative overflow-hidden shadow-xl">
+        <div className="shop-hero-banner rounded-3xl p-8 md:p-12 mb-10 text-center relative overflow-hidden">
           <div className="relative z-10 max-w-2xl mx-auto">
             <span className="text-4xl md:text-5xl block mb-3">{categoryInfo.icon}</span>
-            <h1 className="shop-hero-title text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white font-heading tracking-tight mb-3">
+            <h1 className="shop-hero-title text-3xl sm:text-4xl md:text-5xl font-extrabold font-heading tracking-tight mb-3">
               {categoryInfo.title}
             </h1>
-            <p className="shop-hero-desc text-slate-600 dark:text-gray-400 text-xs md:text-sm leading-relaxed mb-4">
+            <p className="shop-hero-desc text-xs md:text-sm leading-relaxed mb-4">
               {categoryInfo.subtitle}
             </p>
-            <span className="shop-items-available-badge inline-block px-4 py-1.5 bg-orange-100 text-[#c2410c] dark:bg-red-950/60 dark:text-[#ff7700] border border-orange-300 dark:border-red-800/40 text-xs font-extrabold rounded-full shadow-sm">
+            <span className="shop-items-available-badge inline-block px-4 py-1.5 text-xs font-extrabold rounded-full">
               {categoryProducts.length} Items Available
             </span>
           </div>

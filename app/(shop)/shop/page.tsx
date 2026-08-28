@@ -131,23 +131,23 @@ function ShopContent() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
       {/* Visual Shop Hero Banner */}
-      <div className="shop-hero-banner mb-10 relative overflow-hidden rounded-3xl border border-gray-200 dark:border-[#222] bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-transparent dark:bg-[#141414] p-8 md:p-12 shadow-xl">
+      <div className="shop-hero-banner mb-10 relative overflow-hidden rounded-3xl p-8 md:p-12">
         <div className="relative z-10 max-w-3xl">
-          <span className="shop-hero-badge inline-flex items-center gap-1.5 px-3 py-1 bg-[#ff7700]/10 text-[#c2410c] dark:text-[#ff7700] border border-[#ff7700]/30 text-[10px] font-black rounded-full mb-4 uppercase tracking-widest shadow-sm">
+          <span className="shop-hero-badge inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-black rounded-full mb-4 uppercase tracking-widest shadow-sm">
             <Sparkles size={13} /> Official POD Apparel Catalog
           </span>
-          <h1 className="shop-hero-title text-3xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tight font-heading leading-tight mb-4">
+          <h1 className="shop-hero-title text-3xl sm:text-5xl font-black tracking-tight font-heading leading-tight mb-4">
             DISCOVER ALL <span className="text-[#ff7700]">APPAREL & MERCH</span>
           </h1>
-          <p className="shop-hero-desc text-gray-600 dark:text-gray-400 text-xs sm:text-sm leading-relaxed mb-6 max-w-2xl">
+          <p className="shop-hero-desc text-xs sm:text-sm leading-relaxed mb-6 max-w-2xl">
             Explore hundreds of premium graphic t-shirts, cozy heavyweight hoodies, vintage sweatshirts, and trending collections tailored for comfort and durability.
           </p>
-          <div className="shop-hero-specs flex flex-wrap gap-4 text-[10px] sm:text-xs text-gray-500 font-semibold border-t border-gray-200 dark:border-[#222] pt-4">
-            <span className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">⚡ 100% Combed Ring-Spun Cotton</span>
-            <span className="text-gray-300 dark:text-[#333] hidden sm:inline">•</span>
-            <span className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">🚚 Free Shipping On Orders $75+</span>
-            <span className="text-gray-300 dark:text-[#333] hidden sm:inline">•</span>
-            <span className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">🛡️ 30-Day Hassle-Free Exchange</span>
+          <div className="shop-hero-specs flex flex-wrap gap-4 text-[10px] sm:text-xs font-semibold border-t pt-4">
+            <span className="flex items-center gap-1.5">⚡ 100% Combed Ring-Spun Cotton</span>
+            <span className="opacity-40 hidden sm:inline">•</span>
+            <span className="flex items-center gap-1.5">🚚 Free Shipping On Orders $75+</span>
+            <span className="opacity-40 hidden sm:inline">•</span>
+            <span className="flex items-center gap-1.5">🛡️ 30-Day Hassle-Free Exchange</span>
           </div>
         </div>
       </div>
