@@ -167,10 +167,10 @@ export default function SearchModal() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.98 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-3xl bg-[#141414] border border-[#2a2a2a] rounded-3xl shadow-2xl overflow-hidden text-white z-10 my-4 max-h-[90vh] flex flex-col"
+          className="relative w-full max-w-3xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2a2a2a] rounded-3xl shadow-2xl overflow-hidden text-gray-900 dark:text-white z-10 my-4 max-h-[90vh] flex flex-col"
         >
           {/* Search Header Input */}
-          <div className="p-4 sm:p-5 border-b border-[#262626] flex items-center gap-3 bg-[#181818]">
+          <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-[#262626] flex items-center gap-3 bg-gray-50 dark:bg-[#181818]">
             <Search className="w-5 h-5 text-[#ff7700] flex-shrink-0" />
             <input
               type="text"
@@ -183,19 +183,19 @@ export default function SearchModal() {
                   handleViewAllResults();
                 }
               }}
-              className="flex-1 bg-transparent text-white placeholder-gray-500 text-sm sm:text-base font-semibold outline-none"
+              className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm sm:text-base font-semibold outline-none"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="text-gray-400 hover:text-white p-1 text-xs font-bold uppercase transition"
+                className="text-gray-400 hover:text-gray-700 dark:hover:text-white p-1 text-xs font-bold uppercase transition"
               >
                 Clear
               </button>
             )}
             <button
               onClick={closeSearch}
-              className="p-2 rounded-xl bg-[#222] hover:bg-[#333] text-gray-300 hover:text-white transition ml-1 cursor-pointer"
+              className="p-2 rounded-xl bg-white dark:bg-[#222] hover:bg-gray-100 dark:hover:bg-[#333] text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition ml-1 cursor-pointer border border-gray-200 dark:border-transparent shadow-sm"
             >
               <X size={18} />
             </button>
@@ -210,12 +210,12 @@ export default function SearchModal() {
             {recentSearches.length > 0 && !searchTerm && (
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Clock size={13} className="text-blue-400" /> Recent Searches
+                  <span className="text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Clock size={13} className="text-blue-500 dark:text-blue-400" /> Recent Searches
                   </span>
                   <button
                     onClick={handleClearAllRecent}
-                    className="text-[11px] text-gray-500 hover:text-red-400 transition font-medium"
+                    className="text-[11px] text-gray-400 hover:text-red-500 transition font-medium"
                   >
                     Clear History
                   </button>
@@ -225,13 +225,13 @@ export default function SearchModal() {
                     <button
                       key={rec}
                       onClick={() => handleSelectKeyword(rec)}
-                      className="px-3 py-1.5 bg-[#1e1e1e] hover:bg-[#282828] border border-[#2a2a2a] text-gray-200 text-xs font-semibold rounded-xl transition flex items-center gap-2 group cursor-pointer"
+                      className="px-3 py-1.5 bg-gray-100 dark:bg-[#1e1e1e] hover:bg-gray-200 dark:hover:bg-[#282828] border border-gray-200 dark:border-[#2a2a2a] text-gray-800 dark:text-gray-200 text-xs font-semibold rounded-xl transition flex items-center gap-2 group cursor-pointer shadow-sm"
                     >
-                      <Clock size={11} className="text-gray-500 group-hover:text-blue-400" />
+                      <Clock size={11} className="text-gray-400 dark:text-gray-500 group-hover:text-blue-500" />
                       <span>{rec}</span>
                       <span
                         onClick={(e) => handleRemoveRecent(e, rec)}
-                        className="text-gray-500 hover:text-red-400 p-0.5 rounded-full"
+                        className="text-gray-400 hover:text-red-500 p-0.5 rounded-full"
                         title="Remove"
                       >
                         <X size={11} />
@@ -245,7 +245,7 @@ export default function SearchModal() {
             {/* 2. Trending Topics & Seasonal Collections */}
             {!searchTerm && (
               <div className="space-y-2.5">
-                <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                   <Flame size={13} className="text-[#ff7700]" /> Trending Topics & Hot Collections
                 </span>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -253,11 +253,11 @@ export default function SearchModal() {
                     <button
                       key={t.keyword}
                       onClick={() => handleSelectKeyword(t.keyword)}
-                      className="p-2.5 bg-[#1a1a1a] hover:bg-[#ff7700]/10 border border-[#282828] hover:border-[#ff7700]/40 rounded-xl transition text-left flex items-center justify-between group cursor-pointer"
+                      className="p-2.5 bg-gray-50 dark:bg-[#1a1a1a] hover:bg-orange-50/70 dark:hover:bg-[#ff7700]/10 border border-gray-200 dark:border-[#282828] hover:border-orange-300 dark:hover:border-[#ff7700]/40 rounded-xl transition text-left flex items-center justify-between group cursor-pointer shadow-sm"
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="text-base shrink-0">{t.icon}</span>
-                        <span className="text-xs font-bold text-gray-200 group-hover:text-[#ff7700] truncate">
+                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-[#c2410c] dark:group-hover:text-[#ff7700] truncate">
                           {t.keyword}
                         </span>
                       </div>
@@ -275,15 +275,15 @@ export default function SearchModal() {
             {/* 3. Popular Keyword Tags Pills */}
             {!searchTerm && (
               <div className="space-y-2.5">
-                <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Tag size={13} className="text-emerald-400" /> Popular Keywords
+                <span className="text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Tag size={13} className="text-emerald-500 dark:text-emerald-400" /> Popular Keywords
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {HOT_KEYWORDS.map((kw) => (
                     <button
                       key={kw}
                       onClick={() => handleSelectKeyword(kw)}
-                      className="px-3 py-1.5 bg-[#1c1c1c] hover:bg-[#ff7700] hover:text-black border border-[#282828] text-gray-300 text-xs font-bold rounded-xl transition cursor-pointer"
+                      className="px-3.5 py-1.5 bg-gray-100 hover:bg-[#ff7700] hover:text-black dark:bg-[#1c1c1c] dark:hover:bg-[#ff7700] dark:hover:text-black border border-gray-200 dark:border-[#282828] hover:border-[#ff7700] text-gray-800 dark:text-gray-300 text-xs font-bold rounded-xl transition cursor-pointer shadow-sm"
                     >
                       #{kw}
                     </button>
@@ -297,8 +297,8 @@ export default function SearchModal() {
                 ========================================================================= */}
             <div className="space-y-3 pt-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles size={13} className="text-amber-400" />
+                <span className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles size={13} className="text-amber-500 dark:text-amber-400" />
                   {searchTerm ? `Matching Products (${products.length})` : 'Featured Products For You'}
                 </span>
                 {searchTerm && products.length > 6 && (
@@ -317,9 +317,9 @@ export default function SearchModal() {
                   <span>Searching catalog...</span>
                 </div>
               ) : filteredProducts.length === 0 ? (
-                <div className="py-10 text-center text-gray-500 bg-[#181818] rounded-2xl border border-[#262626] p-6">
+                <div className="py-10 text-center bg-gray-50 dark:bg-[#181818] rounded-2xl border border-gray-200 dark:border-[#262626] p-6">
                   <Search size={36} className="mx-auto mb-2 opacity-30 text-[#ff7700]" />
-                  <p className="text-sm font-bold text-gray-300">No products found for "{searchTerm}"</p>
+                  <p className="text-sm font-bold text-gray-800 dark:text-gray-300">No products found for "{searchTerm}"</p>
                   <p className="text-xs text-gray-500 mt-1">
                     Try searching for "Halloween", "Vintage", "Hoodie" or explore trending tags above.
                   </p>
@@ -334,9 +334,9 @@ export default function SearchModal() {
                         closeSearch();
                         openVariantModal(product);
                       }}
-                      className="flex gap-3 bg-[#1a1a1a] hover:bg-[#202020] border border-[#282828] hover:border-[#ff7700] p-3 rounded-2xl cursor-pointer transition group shadow-sm"
+                      className="flex gap-3 bg-white dark:bg-[#1a1a1a] hover:bg-orange-50/40 dark:hover:bg-[#202020] border border-gray-200 dark:border-[#282828] hover:border-orange-300 dark:hover:border-[#ff7700] p-3 rounded-2xl cursor-pointer transition group shadow-sm"
                     >
-                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#242424] flex-shrink-0">
+                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gray-100 dark:bg-[#242424] flex-shrink-0">
                         <Image
                           src={product.frontImage}
                           alt={product.title}
@@ -349,24 +349,24 @@ export default function SearchModal() {
                           <span className="text-[10px] font-black text-[#ff7700] uppercase tracking-wider block">
                             {product.categoryLabel || product.category}
                           </span>
-                          <h4 className="text-xs font-bold text-white line-clamp-1 group-hover:text-[#ff7700] transition">
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white line-clamp-1 group-hover:text-[#ff7700] transition">
                             {product.title}
                           </h4>
                         </div>
                         <div className="flex items-center justify-between pt-1">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-black text-white">
+                            <span className="text-xs font-black text-gray-900 dark:text-white">
                               {formatCurrency(product.basePrice)}
                             </span>
                             {product.originalPrice && product.originalPrice > product.basePrice && (
-                              <span className="text-[10px] text-gray-500 line-through">
+                              <span className="text-[10px] text-gray-400 line-through">
                                 {formatCurrency(product.originalPrice)}
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center text-amber-400 text-[10px] bg-[#242424] px-1.5 py-0.5 rounded font-bold">
+                          <div className="flex items-center text-amber-500 text-[10px] bg-gray-100 dark:bg-[#242424] px-1.5 py-0.5 rounded font-bold">
                             <Star size={10} fill="currentColor" />
-                            <span className="ml-1 text-gray-200">{product.rating || 5}</span>
+                            <span className="ml-1 text-gray-700 dark:text-gray-200">{product.rating || 5}</span>
                           </div>
                         </div>
                       </div>
@@ -379,8 +379,8 @@ export default function SearchModal() {
           </div>
 
           {/* Footer View All Link */}
-          <div className="p-3.5 sm:p-4 border-t border-[#262626] bg-[#121212] flex items-center justify-between text-xs">
-            <span className="text-gray-500">Press <kbd className="px-1.5 py-0.5 bg-[#222] border border-[#333] rounded font-mono text-[10px] text-gray-300">ESC</kbd> to close</span>
+          <div className="p-3.5 sm:p-4 border-t border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#121212] flex items-center justify-between text-xs">
+            <span className="text-gray-500">Press <kbd className="px-1.5 py-0.5 bg-white dark:bg-[#222] border border-gray-200 dark:border-[#333] rounded font-mono text-[10px] text-gray-700 dark:text-gray-300 shadow-xs">ESC</kbd> to close</span>
             <button
               onClick={handleViewAllResults}
               className="font-bold text-[#ff7700] hover:underline flex items-center gap-1 cursor-pointer"
