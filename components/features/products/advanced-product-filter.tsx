@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { 
@@ -157,7 +157,7 @@ export default function AdvancedProductFilter({
       )}
 
       {/* Main Search & Control Bar */}
-      <div className="bg-white dark:bg-[#141414] p-3 sm:p-4 rounded-2xl border border-gray-200 dark:border-[#222] shadow-sm space-y-3">
+      <div className="shop-filter-bar bg-white dark:bg-[#141414] p-3 sm:p-4 rounded-2xl border border-gray-200 dark:border-[#222] shadow-sm space-y-3">
         <div className="flex flex-col md:flex-row items-center gap-3">
           {/* Search Input */}
           <div className="relative flex-1 w-full">
@@ -228,7 +228,7 @@ export default function AdvancedProductFilter({
             EXPANDED MULTI-FACETED FILTER PANEL
             ========================================================================= */}
         {isExpanded && (
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-800/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-xs animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="shop-filter-panel pt-4 border-t border-gray-200 dark:border-gray-800/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-xs animate-in fade-in slide-in-from-top-2 duration-200">
             
             {/* 1. Apparel Type */}
             <div className="space-y-2">

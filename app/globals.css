@@ -385,6 +385,71 @@ html.light-mode div[class*="from-red-950"] strong {
   color: #e11d48 !important;
 }
 
+/* 17. SHOP HERO BANNER & CATALOG HEADER IN LIGHT MODE */
+html.light-mode .shop-hero-banner {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffffff 50%, #fef3c7 100%) !important;
+  border: 1.5px solid #fed7aa !important;
+  box-shadow: 0 10px 30px -5px rgba(251, 146, 60, 0.12) !important;
+}
+
+html.light-mode .shop-hero-title,
+html.light-mode .shop-hero-title * {
+  color: #0f172a !important;
+}
+
+html.light-mode .shop-hero-title span {
+  color: #ea580c !important;
+}
+
+html.light-mode .shop-hero-badge {
+  background-color: #ffedd5 !important;
+  color: #c2410c !important;
+  border-color: #fdba74 !important;
+}
+
+html.light-mode .shop-hero-desc {
+  color: #475569 !important;
+}
+
+html.light-mode .shop-hero-specs {
+  border-color: #fed7aa !important;
+}
+
+html.light-mode .shop-hero-specs span {
+  color: #334155 !important;
+}
+
+/* 18. ADVANCED PRODUCT FILTER IN LIGHT MODE */
+html.light-mode .shop-filter-bar {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light-mode .shop-filter-panel {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  border-radius: 1rem !important;
+  padding: 1.25rem !important;
+  margin-top: 0.75rem !important;
+}
+
+html.light-mode .shop-filter-panel label {
+  color: #0f172a !important;
+}
+
+html.light-mode .shop-filter-panel button:not(.bg-\[\#ff7700\]) {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html.light-mode .shop-filter-panel button:not(.bg-\[\#ff7700\]):hover {
+  background-color: #fff7ed !important;
+  border-color: #fdba74 !important;
+  color: #c2410c !important;
+}
+
 
 
 

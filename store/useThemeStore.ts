@@ -21,8 +21,10 @@ export const useThemeStore = create<ThemeState>()(
         if (typeof document !== 'undefined') {
           if (nextTheme === 'light') {
             document.documentElement.classList.add('light-mode');
+            document.documentElement.classList.remove('dark');
           } else {
             document.documentElement.classList.remove('light-mode');
+            document.documentElement.classList.add('dark');
           }
         }
       },
@@ -31,8 +33,10 @@ export const useThemeStore = create<ThemeState>()(
         if (typeof document !== 'undefined') {
           if (theme === 'light') {
             document.documentElement.classList.add('light-mode');
+            document.documentElement.classList.remove('dark');
           } else {
             document.documentElement.classList.remove('light-mode');
+            document.documentElement.classList.add('dark');
           }
         }
       },
