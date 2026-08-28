@@ -101,10 +101,21 @@ export default function CheckoutPage() {
         } catch (e) {}
       }
     }
+
+    // Fetch dynamic shipping threshold
+    fetch("http://localhost:5000/api/v1/settings/shipping")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.freeShippingThreshold) {
+          setFreeShippingThreshold(Number(data.data.freeShippingThreshold));
+        }
+      })
+      .catch((err) => console.warn("Checkout shipping threshold load error:", err));
   }, []);
 
   const { appliedCoupon, setAppliedCoupon, removeCoupon } = useCartStore();
   const [selectedShipping, setSelectedShipping] = useState(SHIPPING_METHODS[0]);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(75);
   
   // Coupon State
   const [couponCode, setCouponCode] = useState(appliedCoupon ? appliedCoupon.code : '');
@@ -115,7 +126,7 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const subtotal = getTotalPrice();
-  const isFreeShipping = subtotal >= 75 || appliedCoupon?.discountType === 'shipping';
+  const isFreeShipping = subtotal >= freeShippingThreshold || appliedCoupon?.discountType === 'shipping';
   const shippingFee = isFreeShipping ? 0 : selectedShipping.price;
 
   // Calculate applied discount amount

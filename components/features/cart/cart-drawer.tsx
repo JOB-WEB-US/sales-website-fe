@@ -51,16 +51,19 @@ export default function CartDrawer() {
   const [couponSuccess, setCouponSuccess] = useState("");
   const [validating, setValidating] = useState(false);
   const [publicCoupons, setPublicCoupons] = useState<PublicCoupon[]>([]);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(75);
+  const [shippingBarEnabled, setShippingBarEnabled] = useState(true);
 
   const subtotal = getTotalPrice();
   const discountAmount = getDiscountAmount();
   const finalTotal = getFinalTotal();
-  const freeShippingProgress = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
-  const amountToFreeShip = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const freeShippingProgress = Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100));
+  const amountToFreeShip = Math.max(0, freeShippingThreshold - subtotal);
 
-  // Fetch available public coupons
+  // Fetch available public coupons & shipping settings
   useEffect(() => {
     if (isCartOpen) {
+      // 1. Fetch coupons
       fetch("http://localhost:5000/api/v1/coupons")
         .then((res) => res.json())
         .then((data) => {
@@ -69,13 +72,23 @@ export default function CartDrawer() {
           }
         })
         .catch(() => {
-          // Fallback static list if API unavailable
           setPublicCoupons([
             { id: "1", code: "VELORA10", description: "10% OFF", discountType: "percentage", discountValue: 10, minOrderAmount: 0 },
             { id: "2", code: "FREESHIP", description: "Free Ship", discountType: "shipping", discountValue: 100, minOrderAmount: 35 },
             { id: "3", code: "HALLOWEEN15", description: "15% OFF ($50+)", discountType: "percentage", discountValue: 15, minOrderAmount: 50 },
           ]);
         });
+
+      // 2. Fetch shipping config
+      fetch("http://localhost:5000/api/v1/settings/shipping")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.data) {
+            if (data.data.freeShippingThreshold) setFreeShippingThreshold(Number(data.data.freeShippingThreshold));
+            if (data.data.enabled !== undefined) setShippingBarEnabled(Boolean(data.data.enabled));
+          }
+        })
+        .catch((err) => console.warn("Could not load shipping config:", err));
     }
   }, [isCartOpen]);
 
@@ -161,7 +174,7 @@ export default function CartDrawer() {
             </div>
 
             {/* Free Shipping Progress Bar */}
-            {cart.length > 0 && (
+            {shippingBarEnabled && cart.length > 0 && (
               <div className="bg-[#181818] px-4 py-2.5 border-b border-[#222]">
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="flex items-center gap-1 font-bold text-gray-300">
