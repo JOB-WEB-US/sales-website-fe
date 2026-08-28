@@ -30,6 +30,7 @@ import { useUIStore } from '@/store/useUIStore';
 import { ProductVariant } from '@/types/product';
 import ProductCard from '@/components/features/products/product-card';
 import ProductLiveActivity from '@/components/features/products/product-live-activity';
+import BundleSaveWidget from '@/components/features/products/bundle-save-widget';
 import { getProductBySlug, getProducts, createProductReview, mapApiProductToUI, ApiProduct } from '@/lib/api';
 
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
@@ -519,48 +520,57 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                 </div>
               </div>
 
-              {/* Quantity */}
-              <div className="flex items-center gap-4">
-                <span className="text-xs font-bold uppercase text-gray-400">Quantity:</span>
-                <div className="flex items-center bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl">
+              {/* BUNDLE & SAVE VOLUME TIERS WIDGET */}
+              {selectedVariant && (
+                <div className="pt-2">
+                  <BundleSaveWidget product={product} selectedVariant={selectedVariant} />
+                </div>
+              )}
+
+              {/* Single item quantity and quick CTA */}
+              <div className="pt-4 border-t border-[#262626] space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase text-gray-400">Or Buy Single Piece:</span>
+                  <div className="flex items-center bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="px-3.5 py-1.5 text-gray-300 hover:text-white font-bold cursor-pointer"
+                    >
+                      -
+                    </button>
+                    <span className="px-3.5 py-1.5 text-xs font-extrabold">{quantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
+                      disabled={isOutOfStock || quantity >= currentStock}
+                      className="px-3.5 py-1.5 text-gray-300 hover:text-white font-bold disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* DUAL CTA BUTTONS */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3.5 py-1.5 text-gray-300 hover:text-white font-bold"
+                    onClick={handleAddToCart}
+                    disabled={isOutOfStock}
+                    className="w-full py-3.5 bg-[#262626] hover:bg-[#333] text-white font-bold text-xs uppercase tracking-wider rounded-xl border border-[#383838] transition flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed"
                   >
-                    -
+                    <ShoppingBag size={15} /> {isOutOfStock ? 'Out of Stock' : `Add 1 Item • ${formatCurrency(currentPrice * quantity)}`}
                   </button>
-                  <span className="px-3.5 py-1.5 text-xs font-extrabold">{quantity}</span>
+
                   <button
                     type="button"
-                    onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
-                    disabled={isOutOfStock || quantity >= currentStock}
-                    className="px-3.5 py-1.5 text-gray-300 hover:text-white font-bold disabled:opacity-40 disabled:cursor-not-allowed"
+                    onClick={handleBuyNow}
+                    disabled={isOutOfStock}
+                    className="w-full py-3.5 bg-[#a80000] hover:bg-[#850000] text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed"
                   >
-                    +
+                    <Lock size={15} /> Instant Buy 1 Item
                   </button>
                 </div>
-              </div>
-
-              {/* DUAL CTA BUTTONS */}
-              <div className="space-y-3 pt-2">
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  disabled={isOutOfStock}
-                  className="w-full py-4 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-sm uppercase tracking-wider rounded-xl shadow-xl transition flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed"
-                >
-                  <ShoppingBag size={18} /> {isOutOfStock ? 'Out of Stock' : `Add To Cart • ${formatCurrency(currentPrice * quantity)}`}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleBuyNow}
-                  disabled={isOutOfStock}
-                  className="w-full py-4 bg-[#ff7700] hover:bg-[#e06800] text-black font-extrabold text-sm uppercase tracking-wider rounded-xl shadow-xl transition flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed"
-                >
-                  <Lock size={18} /> Buy It Now (Fast Checkout)
-                </button>
               </div>
 
             </div>
