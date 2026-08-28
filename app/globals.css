@@ -165,15 +165,15 @@ html.light-mode div.bg-\[\#262626\],
 html.light-mode div.bg-\[\#282828\],
 html.light-mode div.bg-\[\#2a2a2a\],
 html.light-mode span.bg-\[\#2a2a2a\],
-html.light-mode button.bg-\[\#1e1e1e\],
-html.light-mode button.bg-\[\#1a1a1a\],
-html.light-mode button.bg-\[\#181818\],
-html.light-mode button.bg-\[\#141414\],
-html.light-mode button.bg-\[\#202020\],
-html.light-mode button.bg-\[\#222\],
-html.light-mode button.bg-\[\#242424\],
-html.light-mode button.bg-\[\#282828\],
-html.light-mode button.bg-white {
+html.light-mode button.bg-\[\#1e1e1e\]:not(.color-swatch-pill),
+html.light-mode button.bg-\[\#1a1a1a\]:not(.color-swatch-pill),
+html.light-mode button.bg-\[\#181818\]:not(.color-swatch-pill),
+html.light-mode button.bg-\[\#141414\]:not(.color-swatch-pill),
+html.light-mode button.bg-\[\#202020\]:not(.color-swatch-pill),
+html.light-mode button.bg-\[\#222\]:not(.color-swatch-pill),
+html.light-mode button.bg-\[\#242424\]:not(.color-swatch-pill),
+html.light-mode button.bg-\[\#282828\]:not(.color-swatch-pill),
+html.light-mode button.bg-white:not(.color-swatch-pill) {
   background-color: #f1f5f9 !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
@@ -438,16 +438,71 @@ html.light-mode .shop-filter-panel label {
   color: #0f172a !important;
 }
 
-html.light-mode .shop-filter-panel button:not(.bg-\[\#ff7700\]) {
+html.light-mode .shop-filter-panel button:not(.bg-\[\#ff7700\]):not(.color-swatch-pill) {
   background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
 
-html.light-mode .shop-filter-panel button:not(.bg-\[\#ff7700\]):hover {
+html.light-mode .shop-filter-panel button:not(.bg-\[\#ff7700\]):not(.color-swatch-pill):hover {
   background-color: #fff7ed !important;
   border-color: #fdba74 !important;
   color: #c2410c !important;
+}
+
+/* 19. COLOR SWATCHES IN BOTH LIGHT & DARK MODES */
+.color-swatch-pill {
+  border-width: 1.5px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+}
+
+html.light-mode .color-swatch-pill,
+.color-swatch-pill {
+  border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+html.light-mode .color-swatch-black {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+}
+
+html.light-mode .color-swatch-white {
+  background-color: #ffffff !important;
+  border-color: #94a3b8 !important;
+}
+
+html.light-mode .color-swatch-navy {
+  background-color: #1e3a8a !important;
+  border-color: #1e3a8a !important;
+}
+
+html.light-mode .color-swatch-heather {
+  background-color: #4b5563 !important;
+  border-color: #4b5563 !important;
+}
+
+html.light-mode .color-swatch-red {
+  background-color: #991b1b !important;
+  border-color: #991b1b !important;
+}
+
+html.light-mode .color-swatch-green {
+  background-color: #14532d !important;
+  border-color: #14532d !important;
+}
+
+html.light-mode .color-swatch-sand {
+  background-color: #d4b996 !important;
+  border-color: #c5a882 !important;
+}
+
+/* 20. COLLECTION ITEMS AVAILABLE BADGE IN LIGHT MODE */
+html.light-mode .shop-items-available-badge {
+  background-color: #fff7ed !important;
+  border: 1.5px solid #fdba74 !important;
+  color: #c2410c !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.12) !important;
 }
 
 

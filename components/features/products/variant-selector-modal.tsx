@@ -146,7 +146,7 @@ export default function VariantSelectorModal() {
                         if (firstVariant) setSelectedSize(firstVariant.size);
                         setQuantity(1);
                       }}
-                      className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition ${
+                      className={`color-swatch-pill w-9 h-9 rounded-full border-2 flex items-center justify-center transition ${
                         selectedColor === colorName ? 'border-[#ff7700] scale-110' : 'border-transparent'
                       }`}
                       style={{ backgroundColor: colorHex || undefined }}

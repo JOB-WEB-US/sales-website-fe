@@ -308,7 +308,7 @@ export default function AdvancedProductFilter({
                     <button
                       key={c.value}
                       onClick={() => update({ color: isSel ? 'all' : c.value })}
-                      className={`w-7 h-7 rounded-full transition-all flex items-center justify-center relative cursor-pointer ${
+                      className={`color-swatch-pill color-swatch-${c.value} w-7 h-7 rounded-full transition-all flex items-center justify-center relative cursor-pointer ${
                         isSel
                           ? 'ring-2 ring-offset-2 ring-[#ff7700] scale-110'
                           : 'hover:scale-105 opacity-85 hover:opacity-100'

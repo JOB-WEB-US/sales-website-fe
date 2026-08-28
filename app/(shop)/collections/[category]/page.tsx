@@ -173,11 +173,11 @@ export default function CategoryCollectionPage({ params }: { params: { category:
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Breadcrumb Navigation Stack */}
-        <div className="flex items-center gap-2 text-xs text-gray-400 mb-8">
+        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-gray-400 mb-8 font-medium">
           <button
             type="button"
             onClick={() => router.back()}
-            className="hover:text-[#ff7700] flex items-center gap-1 cursor-pointer transition font-semibold text-gray-300"
+            className="hover:text-[#ff7700] flex items-center gap-1 cursor-pointer transition font-semibold text-slate-700 dark:text-gray-300"
             title="Go back to previous page"
           >
             <ArrowLeft size={14} /> Back
@@ -189,16 +189,16 @@ export default function CategoryCollectionPage({ params }: { params: { category:
         </div>
 
         {/* Category Hero Header */}
-        <div className="bg-[#141414] rounded-3xl border border-[#222] p-8 md:p-12 mb-10 text-center relative overflow-hidden shadow-2xl">
+        <div className="shop-hero-banner bg-gradient-to-br from-amber-500/10 via-orange-50/50 to-white dark:bg-[#141414] rounded-3xl border border-orange-200/70 dark:border-[#222] p-8 md:p-12 mb-10 text-center relative overflow-hidden shadow-xl">
           <div className="relative z-10 max-w-2xl mx-auto">
             <span className="text-4xl md:text-5xl block mb-3">{categoryInfo.icon}</span>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white font-heading tracking-tight mb-3">
+            <h1 className="shop-hero-title text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white font-heading tracking-tight mb-3">
               {categoryInfo.title}
             </h1>
-            <p className="text-gray-400 text-xs md:text-sm leading-relaxed mb-4">
+            <p className="shop-hero-desc text-slate-600 dark:text-gray-400 text-xs md:text-sm leading-relaxed mb-4">
               {categoryInfo.subtitle}
             </p>
-            <span className="inline-block px-3 py-1 bg-red-950/60 text-[#ff7700] border border-red-800/40 text-xs font-bold rounded-full">
+            <span className="shop-items-available-badge inline-block px-4 py-1.5 bg-orange-100 text-[#c2410c] dark:bg-red-950/60 dark:text-[#ff7700] border border-orange-300 dark:border-red-800/40 text-xs font-extrabold rounded-full shadow-sm">
               {categoryProducts.length} Items Available
             </span>
           </div>
@@ -216,8 +216,8 @@ export default function CategoryCollectionPage({ params }: { params: { category:
 
         {/* Product Grid */}
         {sortedProducts.length === 0 ? (
-          <div className="py-20 text-center bg-[#141414] rounded-3xl border border-[#222] p-8">
-            <p className="text-gray-400 text-sm mb-4">No items currently match your filter criteria in this collection.</p>
+          <div className="py-20 text-center bg-white dark:bg-[#141414] rounded-3xl border border-slate-200 dark:border-[#222] p-8">
+            <p className="text-slate-500 dark:text-gray-400 text-sm mb-4">No items currently match your filter criteria in this collection.</p>
             <button
               onClick={() => setFilters({ ...INITIAL_FILTER_STATE, category: rawCategory })}
               className="px-6 py-2.5 bg-[#ff7700] text-black text-xs font-bold uppercase rounded-xl cursor-pointer"

@@ -468,7 +468,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                           setSelectedSize(firstVariant?.size || '');
                           setQuantity(1);
                         }}
-                        className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition shadow-sm ${
+                        className={`color-swatch-pill w-10 h-10 rounded-full border-2 flex items-center justify-center transition shadow-sm ${
                           selectedColor === colorName 
                             ? 'border-[#ff7700] ring-2 ring-[#ff7700]/30 scale-110' 
                             : 'border-gray-700 hover:scale-105'
