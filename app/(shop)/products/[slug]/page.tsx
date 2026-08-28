@@ -638,25 +638,25 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
         <div id="reviews" className="mt-16 pt-12 border-t border-[#222]">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-              <h2 className="text-xl font-bold font-heading text-white">Customer Reviews</h2>
+              <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Customer Reviews</h2>
               <div className="flex items-center gap-2 mt-1">
                 <div className="flex text-amber-400">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} fill={i < Math.round(displayedRating) ? 'currentColor' : 'none'} />
                   ))}
                 </div>
-                <span className="text-sm font-bold text-white">{displayedRating.toFixed(1)} out of 5.0</span>
-                <span className="text-xs text-gray-400">({displayedReviewCount} reviews)</span>
+                <span className="text-sm font-bold text-gray-900 dark:text-white">{displayedRating.toFixed(1)} out of 5.0</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">({displayedReviewCount} reviews)</span>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 bg-[#181818] p-1 rounded-xl border border-[#2a2a2a]">
+              <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-[#181818] p-1 rounded-xl border border-gray-200 dark:border-[#2a2a2a]">
                 <button
                   type="button"
                   onClick={() => setReviewPage((prev) => Math.max(0, prev - 1))}
                   disabled={reviewPage === 0}
-                  className="p-2 rounded-lg bg-[#222] hover:bg-[#333] disabled:opacity-40 disabled:cursor-not-allowed text-white transition"
+                  className="p-2 rounded-lg bg-white dark:bg-[#222] hover:bg-gray-50 dark:hover:bg-[#333] disabled:opacity-40 disabled:cursor-not-allowed text-gray-800 dark:text-white transition shadow-sm"
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -664,7 +664,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                   type="button"
                   onClick={() => setReviewPage((prev) => Math.min(Math.floor((reviews.length - 1) / 2), prev + 1))}
                   disabled={reviewPage >= Math.floor((reviews.length - 1) / 2)}
-                  className="p-2 rounded-lg bg-[#222] hover:bg-[#333] disabled:opacity-40 disabled:cursor-not-allowed text-white transition"
+                  className="p-2 rounded-lg bg-white dark:bg-[#222] hover:bg-gray-50 dark:hover:bg-[#333] disabled:opacity-40 disabled:cursor-not-allowed text-gray-800 dark:text-white transition shadow-sm"
                 >
                   <ChevronRight size={16} />
                 </button>
@@ -672,7 +672,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
 
               <Link
                 href="/pages/all-reviews"
-                className="px-4 py-2 bg-[#1c1c1c] hover:bg-[#282828] text-white text-xs font-bold rounded-xl border border-[#333] transition"
+                className="px-4 py-2 bg-white dark:bg-[#1c1c1c] hover:bg-gray-50 dark:hover:bg-[#282828] text-gray-900 dark:text-white text-xs font-bold rounded-xl border border-gray-200 dark:border-[#333] transition shadow-sm"
               >
                 All Reviews →
               </Link>
@@ -680,26 +680,26 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           </div>
 
           {/* Review form is always visible for direct submission */}
-            <form onSubmit={handleReviewSubmit} className="w-full bg-[#141414] p-6 rounded-2xl border border-[#333] mb-8 space-y-4">
-              <h3 className="font-bold text-sm text-white">Write a Review for {product.title}</h3>
+            <form onSubmit={handleReviewSubmit} className="w-full bg-white dark:bg-[#141414] p-6 rounded-2xl border border-gray-200 dark:border-[#333] mb-8 space-y-4 shadow-sm">
+              <h3 className="font-bold text-sm text-gray-900 dark:text-white">Write a Review for {product.title}</h3>
               {reviewSuccess && (
-                <div className="p-3 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded-xl text-xs">
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-bold">
                   ✅ Thank you! Your review has been submitted.
                 </div>
               )}
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Your Name</label>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-400 mb-1">Your Name</label>
                 <input
                   type="text"
                   value={reviewName}
                   onChange={(e) => setReviewName(e.target.value)}
                   placeholder="e.g. John Doe"
                   required
-                  className="w-full bg-[#1e1e1e] border border-[#333] rounded-xl px-3.5 py-2 text-xs text-white focus:border-[#ff7700] outline-none"
+                  className="w-full bg-gray-50 dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#333] rounded-xl px-3.5 py-2.5 text-xs text-gray-900 dark:text-white focus:border-[#ff7700] focus:bg-white outline-none font-medium"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Rating</label>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-400 mb-1">Rating</label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -714,30 +714,30 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Your Review</label>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-400 mb-1">Your Review</label>
                 <textarea
                   value={reviewComment}
                   onChange={(e) => setReviewComment(e.target.value)}
                   rows={3}
                   placeholder="Tell us what you think about the print quality, cotton fabric, and fit..."
                   required
-                  className="w-full bg-[#1e1e1e] border border-[#333] rounded-xl px-3.5 py-2 text-xs text-white focus:border-[#ff7700] outline-none"
+                  className="w-full bg-gray-50 dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#333] rounded-xl px-3.5 py-2.5 text-xs text-gray-900 dark:text-white focus:border-[#ff7700] focus:bg-white outline-none font-medium"
                 ></textarea>
               </div>
 
               {/* Photo Upload Attachment */}
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5 flex items-center gap-1.5 font-bold">
+                <label className="block text-xs text-gray-700 dark:text-gray-400 mb-1.5 flex items-center gap-1.5 font-bold">
                   <Camera size={14} className="text-[#ff7700]" /> Attach Product Photo (Optional)
                 </label>
 
                 {!reviewImage ? (
-                  <label className="border-2 border-dashed border-[#333] hover:border-[#ff7700] rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer bg-[#181818]/60 hover:bg-[#181818] transition group">
-                    <div className="w-10 h-10 rounded-full bg-[#222] group-hover:bg-[#ff7700]/20 flex items-center justify-center text-gray-400 group-hover:text-[#ff7700] transition">
+                  <label className="border-2 border-dashed border-gray-200 dark:border-[#333] hover:border-[#ff7700] rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer bg-gray-50 dark:bg-[#181818]/60 hover:bg-orange-50/50 dark:hover:bg-[#181818] transition group">
+                    <div className="w-10 h-10 rounded-full bg-white dark:bg-[#222] group-hover:bg-[#ff7700]/20 flex items-center justify-center text-gray-500 dark:text-gray-400 group-hover:text-[#ff7700] transition shadow-sm">
                       <Camera size={20} />
                     </div>
                     <div className="text-center">
-                      <p className="text-xs font-semibold text-gray-200">
+                      <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
                         Click or drag to upload customer photo
                       </p>
                       <p className="text-[10px] text-gray-500 mt-0.5">PNG, JPG, WEBP up to 5MB</p>
@@ -750,7 +750,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                     />
                   </label>
                 ) : (
-                  <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-[#181818] border-2 border-[#ff7700] group">
+                  <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-gray-100 dark:bg-[#181818] border-2 border-[#ff7700] group">
                     <Image
                       src={reviewImage}
                       alt="Customer review preview"
@@ -776,7 +776,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                 <button
                   type="submit"
                   disabled={submittingReview}
-                  className="px-5 py-2.5 bg-[#a80000] hover:bg-[#800000] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition cursor-pointer"
+                  className="px-5 py-2.5 bg-[#a80000] hover:bg-[#800000] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition cursor-pointer shadow-md"
                 >
                   <Send size={14} /> {submittingReview ? 'Submitting...' : 'Submit Review'}
                 </button>
@@ -787,11 +787,11 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             {reviews.length > 0 ? (
               reviews.slice(reviewPage * 2, reviewPage * 2 + 2).map((rev, idx) => (
-                <div key={idx} className="bg-[#141414] rounded-2xl border border-[#222] p-5 space-y-3 shadow-sm">
+                <div key={idx} className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-5 space-y-3 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-xs text-white">{rev.userName || rev.name}</span>
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-full">
+                      <span className="font-bold text-xs text-gray-900 dark:text-white">{rev.userName || rev.name}</span>
+                      <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/40 px-2 py-0.5 rounded-full">
                         ✓ Verified Buyer
                       </span>
                     </div>
@@ -801,12 +801,12 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                       ))}
                     </div>
                   </div>
-                  <p className="text-xs text-gray-300 leading-relaxed">{rev.comment}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{rev.comment}</p>
 
                   {/* Review Photo Attachment */}
                   {(rev.userAvatar || rev.image) && (
                     <div className="pt-2">
-                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-[#1c1c1c] border border-[#2a2a2a] group cursor-pointer hover:border-[#ff7700] transition">
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-gray-100 dark:bg-[#1c1c1c] border border-gray-200 dark:border-[#2a2a2a] group cursor-pointer hover:border-[#ff7700] transition">
                         <Image
                           src={rev.userAvatar || rev.image}
                           alt={`${rev.userName || 'Customer'} review photo`}
