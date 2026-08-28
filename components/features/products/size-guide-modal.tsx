@@ -16,6 +16,8 @@ const SIZE_DATA: Record<ApparelType, { size: string; widthIn: number; lengthIn: 
     { size: 'XL', widthIn: 24, lengthIn: 31, widthCm: 61, lengthCm: 79 },
     { size: '2XL', widthIn: 26, lengthIn: 32, widthCm: 66, lengthCm: 81 },
     { size: '3XL', widthIn: 28, lengthIn: 33, widthCm: 71, lengthCm: 84 },
+    { size: '4XL', widthIn: 30, lengthIn: 34, widthCm: 76, lengthCm: 86 },
+    { size: '5XL', widthIn: 32, lengthIn: 35, widthCm: 81, lengthCm: 89 },
   ],
   hoodie: [
     { size: 'S', widthIn: 20, lengthIn: 27, widthCm: 51, lengthCm: 69 },
@@ -24,6 +26,8 @@ const SIZE_DATA: Record<ApparelType, { size: string; widthIn: number; lengthIn: 
     { size: 'XL', widthIn: 26, lengthIn: 30, widthCm: 66, lengthCm: 76 },
     { size: '2XL', widthIn: 28, lengthIn: 31, widthCm: 71, lengthCm: 79 },
     { size: '3XL', widthIn: 30, lengthIn: 32, widthCm: 76, lengthCm: 81 },
+    { size: '4XL', widthIn: 32, lengthIn: 33, widthCm: 81, lengthCm: 84 },
+    { size: '5XL', widthIn: 34, lengthIn: 34, widthCm: 86, lengthCm: 86 },
   ],
   sweatshirt: [
     { size: 'S', widthIn: 20, lengthIn: 26, widthCm: 51, lengthCm: 66 },
@@ -32,6 +36,8 @@ const SIZE_DATA: Record<ApparelType, { size: string; widthIn: number; lengthIn: 
     { size: 'XL', widthIn: 26, lengthIn: 29, widthCm: 66, lengthCm: 74 },
     { size: '2XL', widthIn: 28, lengthIn: 30, widthCm: 71, lengthCm: 76 },
     { size: '3XL', widthIn: 30, lengthIn: 31, widthCm: 76, lengthCm: 79 },
+    { size: '4XL', widthIn: 32, lengthIn: 32, widthCm: 81, lengthCm: 81 },
+    { size: '5XL', widthIn: 34, lengthIn: 33, widthCm: 86, lengthCm: 84 },
   ],
 };
 
@@ -58,7 +64,7 @@ export default function SizeGuideModal() {
             <div className="flex items-center gap-2.5">
               <Ruler className="w-5 h-5 text-[#ff7700]" />
               <h3 className="text-lg font-bold font-heading uppercase tracking-wider">
-                Official Size & Fitting Guide
+                US Unisex Size & Fitting Guide
               </h3>
             </div>
             <button
@@ -129,7 +135,7 @@ export default function SizeGuideModal() {
               <thead className="bg-[#1c1c1c] text-gray-400 uppercase text-[11px] font-bold border-b border-[#262626]">
                 <tr>
                   <th className="py-3 px-4">Size</th>
-                  <th className="py-3 px-4">Chest Width ({unit === 'inches' ? 'in' : 'cm'})</th>
+                  <th className="py-3 px-4">Garment Width ({unit === 'inches' ? 'in' : 'cm'})</th>
                   <th className="py-3 px-4">Body Length ({unit === 'inches' ? 'in' : 'cm'})</th>
                 </tr>
               </thead>
@@ -153,8 +159,8 @@ export default function SizeGuideModal() {
           <div className="p-3.5 bg-[#191919] border border-[#262626] rounded-xl flex items-start gap-3 text-xs text-gray-400">
             <Info className="w-4 h-4 text-[#ff7700] flex-shrink-0 mt-0.5" />
             <div>
-              <strong className="text-white font-semibold block mb-0.5">Fit Recommendation:</strong>
-              All tees are standard unisex retail fit. For an oversized streetwear look, we recommend ordering 1 size up!
+              <strong className="text-white font-semibold block mb-0.5">US Unisex Fit:</strong>
+              These are finished-garment measurements for a standard US adult unisex classic fit. Width is measured flat from armpit to armpit. Compare with a garment you own; choose one size up for an oversized fit. Manufacturing tolerance is approximately ±1 inch.
             </div>
           </div>
         </motion.div>

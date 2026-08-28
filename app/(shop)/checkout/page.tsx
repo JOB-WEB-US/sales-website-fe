@@ -18,7 +18,8 @@ import {
   ArrowLeft, 
   Tag, 
   ShoppingBag,
-  HelpCircle
+  HelpCircle,
+  Lock
 } from 'lucide-react';
 
 export default function CheckoutPage() {

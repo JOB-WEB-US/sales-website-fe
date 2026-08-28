@@ -41,6 +41,14 @@ export default function AllReviewsPage() {
     );
   };
 
+  const reviewCount = reviews.length;
+  const averageRating = reviewCount > 0
+    ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviewCount
+    : 0;
+  const ratingPercentage = (rating: number) => reviewCount > 0
+    ? Math.round((reviews.filter((review) => Number(review.rating) === rating).length / reviewCount) * 100)
+    : 0;
+
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white py-12 md:py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -60,13 +68,13 @@ export default function AllReviewsPage() {
             
             {/* Overall Score */}
             <div className="md:col-span-4 text-center md:border-r border-[#262626] md:pr-8">
-              <span className="text-5xl md:text-6xl font-black text-white font-heading">4.9</span>
+              <span className="text-5xl md:text-6xl font-black text-white font-heading">{averageRating.toFixed(1)}</span>
               <div className="flex justify-center text-amber-400 my-2">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={20} fill="currentColor" />
+                  <Star key={i} size={20} fill={i < Math.round(averageRating) ? 'currentColor' : 'none'} />
                 ))}
               </div>
-              <p className="text-xs text-gray-400 font-semibold">Based on 1,482 verified customer reviews</p>
+              <p className="text-xs text-gray-400 font-semibold">Based on {reviewCount} verified customer reviews</p>
               
               <Link
                 href="/account"
@@ -81,25 +89,25 @@ export default function AllReviewsPage() {
               <div className="flex items-center gap-3 text-xs">
                 <span className="w-12 font-bold text-gray-300">5 Stars</span>
                 <div className="flex-1 h-3 bg-[#222] rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-400 rounded-full" style={{ width: '92%' }}></div>
+                  <div className="h-full bg-amber-400 rounded-full" style={{ width: `${ratingPercentage(5)}%` }}></div>
                 </div>
-                <span className="w-10 text-right text-gray-400 font-semibold">92%</span>
+                <span className="w-10 text-right text-gray-400 font-semibold">{ratingPercentage(5)}%</span>
               </div>
 
               <div className="flex items-center gap-3 text-xs">
                 <span className="w-12 font-bold text-gray-300">4 Stars</span>
                 <div className="flex-1 h-3 bg-[#222] rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-400 rounded-full" style={{ width: '6%' }}></div>
+                  <div className="h-full bg-amber-400 rounded-full" style={{ width: `${ratingPercentage(4)}%` }}></div>
                 </div>
-                <span className="w-10 text-right text-gray-400 font-semibold">6%</span>
+                <span className="w-10 text-right text-gray-400 font-semibold">{ratingPercentage(4)}%</span>
               </div>
 
               <div className="flex items-center gap-3 text-xs">
                 <span className="w-12 font-bold text-gray-300">3 Stars</span>
                 <div className="flex-1 h-3 bg-[#222] rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-400 rounded-full" style={{ width: '2%' }}></div>
+                  <div className="h-full bg-amber-400 rounded-full" style={{ width: `${ratingPercentage(3)}%` }}></div>
                 </div>
-                <span className="w-10 text-right text-gray-400 font-semibold">2%</span>
+                <span className="w-10 text-right text-gray-400 font-semibold">{ratingPercentage(3)}%</span>
               </div>
             </div>
 
@@ -220,4 +228,3 @@ export default function AllReviewsPage() {
     </div>
   );
 }
-

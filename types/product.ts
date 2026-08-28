@@ -5,6 +5,7 @@ export interface ProductVariant {
   sku: string;
   size: string; // S, M, L, XL, 2XL, 3XL
   color: string; // Black, Navy, White, Dark Heather
+  colorHex?: string | null;
   productType: ProductType;
   price: number;
   originalPrice?: number | null;
@@ -24,6 +25,7 @@ export interface Product {
   frontImage: string;
   backImage?: string | null;
   isSale: boolean;
+  discountPercent?: number;
   isFeatured?: boolean;
   isActive?: boolean;
   rating: number;
@@ -39,4 +41,3 @@ export interface CategoryItem {
   slug: string;
   icon?: string;
 }
-

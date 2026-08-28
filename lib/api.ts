@@ -173,13 +173,19 @@ export async function getProducts(params?: { category?: string; search?: string 
 
   const queryString = query.toString() ? `?${query.toString()}` : '';
   const response = await fetchApi<{ success: boolean; count: number; data: ApiProduct[] }>(`/products${queryString}`);
-  return response.data || [];
+  return (response.data || []).filter(
+    (product) => product.isActive !== false && product.category?.isHidden !== true
+  );
 }
 
 export async function getProductBySlug(slug: string): Promise<ApiProduct | null> {
   try {
     const response = await fetchApi<{ success: boolean; data: ApiProduct }>(`/products/${slug}`);
-    return response.data || null;
+    const product = response.data || null;
+    if (!product || product.isActive === false || product.category?.isHidden === true) {
+      return null;
+    }
+    return product;
   } catch (error) {
     return null;
   }
@@ -211,7 +217,7 @@ export async function createProductReview(
 export async function getCategories(): Promise<ApiCategory[]> {
   try {
     const response = await fetchApi<{ success: boolean; count: number; data: ApiCategory[] }>('/categories');
-    return response.data || [];
+    return (response.data || []).filter((category) => category.isHidden !== true);
   } catch (error) {
     return [];
   }
@@ -227,7 +233,12 @@ export async function getAttributes(): Promise<{
 }> {
   try {
     const response = await fetchApi<{ success: boolean; data: any }>('/attributes');
-    return response.data || { types: [], colors: [], sizes: [] };
+    const data = response.data || { types: [], colors: [], sizes: [] };
+    return {
+      types: (data.types || []).filter((type: any) => type.isActive !== false),
+      colors: (data.colors || []).filter((color: any) => color.isActive !== false),
+      sizes: (data.sizes || []).filter((size: any) => size.isActive !== false),
+    };
   } catch (error) {
     return { types: [], colors: [], sizes: [] };
   }
@@ -385,9 +396,10 @@ export function mapApiProductToUI(p: ApiProduct): any {
       return {
         id: v.id,
         sku: v.sku,
-        size: v.size || 'M',
-        color: v.color || 'Black',
-        productType: v.productType || 'T-Shirt',
+        size: v.size || '',
+        color: v.color || '',
+        colorHex: v.colorRel?.hexCode || null,
+        productType: v.productType || '',
         price: vPrice,
         originalPrice: vOriginal,
         discountPercent: vDiscount,
@@ -400,6 +412,3 @@ export function mapApiProductToUI(p: ApiProduct): any {
     reviews: p.reviews || [],
   };
 }
-
-
-

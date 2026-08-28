@@ -35,7 +35,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         color: selectedVariant.color,
         productType: selectedVariant.productType,
         price: selectedVariant.price,
-        originalPrice: selectedVariant.originalPrice,
+        originalPrice: selectedVariant.originalPrice ?? undefined,
         image: selectedVariant.imageUrl || product.frontImage,
         quantity,
       };

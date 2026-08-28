@@ -10,6 +10,10 @@ import { useWishlistStore } from '@/store/useWishlistStore';
 import { useThemeStore } from '@/store/useThemeStore';
 import { getCategories, getAttributes, ApiCategory } from '@/lib/api';
 
+const headerDropdownClass = 'absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block w-72 bg-[#141414] border border-[#2a2a2a] rounded-2xl shadow-2xl p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150';
+const headerDropdownListClass = 'py-1 space-y-1 max-h-80 overflow-y-auto';
+const headerDropdownItemClass = 'flex items-center gap-2.5 whitespace-nowrap px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-200 hover:bg-[#202020] hover:text-[#ff7700] transition';
+
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -56,6 +60,17 @@ export default function Header() {
     if (n.includes('case') || n.includes('phone')) return '📱';
     if (n.includes('cap') || n.includes('hat')) return '🧢';
     return '🏷️';
+  };
+
+  const getCategoryDisplay = (name: string) => {
+    const parts = name.trim().split(/\s+/);
+    const possibleIcon = parts[0] || '';
+
+    if (possibleIcon.length <= 4 && parts.length > 1) {
+      return { icon: possibleIcon, label: parts.slice(1).join(' ') };
+    }
+
+    return { icon: '✨', label: name };
   };
 
   return (
@@ -191,53 +206,60 @@ export default function Header() {
           </Link>
 
           {/* Dropdown: Curated Collections */}
-          <div className="relative group">
-            <button className="flex items-center gap-1.5 text-gray-200 group-hover:text-[#ff7700] py-1 transition cursor-pointer font-bold">
-              Collections <ChevronDown size={15} className="group-hover:rotate-180 transition-transform duration-200" />
+          <div className="relative group shrink-0">
+            <button className="inline-flex items-center gap-1.5 whitespace-nowrap text-gray-200 group-hover:text-[#ff7700] py-1 transition cursor-pointer font-bold">
+              <span>Collections</span>
+              <ChevronDown size={15} className="shrink-0 group-hover:rotate-180 transition-transform duration-200" />
             </button>
-            <div className="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block w-68 bg-[#141414] border border-[#2a2a2a] rounded-2xl shadow-2xl p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-              <div className="py-1 space-y-1">
-                {categories.map((cat) => (
-                  <Link
-                    key={cat.id}
-                    href={`/collections/${cat.slug}`}
-                    className="block px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-200 hover:bg-[#202020] hover:text-[#ff7700] transition"
-                  >
-                    {cat.name}
-                  </Link>
-                ))}
+            <div className={headerDropdownClass}>
+              <div className={headerDropdownListClass}>
+                {categories.map((cat) => {
+                  const { icon, label } = getCategoryDisplay(cat.name);
+
+                  return (
+                    <Link
+                      key={cat.id}
+                      href={`/collections/${cat.slug}`}
+                      className={headerDropdownItemClass}
+                    >
+                      <span className="w-5 shrink-0 text-center text-base">{icon}</span>
+                      <span>{label}</span>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </div>
 
           {/* Dropdown: Product Types */}
-          <div className="relative group">
-            <button className="flex items-center gap-1.5 text-gray-200 group-hover:text-[#ff7700] py-1 transition cursor-pointer font-bold">
-              Product Types <ChevronDown size={15} className="group-hover:rotate-180 transition-transform duration-200" />
+          <div className="relative group shrink-0">
+            <button className="inline-flex items-center gap-1.5 whitespace-nowrap text-gray-200 group-hover:text-[#ff7700] py-1 transition cursor-pointer font-bold">
+              <span>Product Types</span>
+              <ChevronDown size={15} className="shrink-0 group-hover:rotate-180 transition-transform duration-200" />
             </button>
-            <div className="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block w-64 bg-[#141414] border border-[#2a2a2a] rounded-2xl shadow-2xl p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-              <div className="py-1 space-y-1 max-h-80 overflow-y-auto">
+            <div className={headerDropdownClass}>
+              <div className={headerDropdownListClass}>
                 {productTypes.length > 0 ? (
                   productTypes.map((pt) => (
                     <Link
                       key={pt.id}
                       href={`/shop?type=${encodeURIComponent(pt.name)}`}
-                      className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-200 hover:bg-[#202020] hover:text-[#ff7700] transition"
+                      className={headerDropdownItemClass}
                     >
-                      <span className="text-base">{getTypeIcon(pt.name)}</span>
+                      <span className="w-5 shrink-0 text-center text-base">{getTypeIcon(pt.name)}</span>
                       <span>{pt.name}</span>
                     </Link>
                   ))
                 ) : (
                   <>
-                    <Link href="/shop?type=T-Shirt" className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-200 hover:bg-[#202020] hover:text-[#ff7700] transition">
-                      <span>👕</span> <span>T-Shirt</span>
+                    <Link href="/shop?type=T-Shirt" className={headerDropdownItemClass}>
+                      <span className="w-5 shrink-0 text-center text-base">👕</span> <span>T-Shirt</span>
                     </Link>
-                    <Link href="/shop?type=Hoodie" className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-200 hover:bg-[#202020] hover:text-[#ff7700] transition">
-                      <span>🧥</span> <span>Hoodie</span>
+                    <Link href="/shop?type=Hoodie" className={headerDropdownItemClass}>
+                      <span className="w-5 shrink-0 text-center text-base">🧥</span> <span>Hoodie</span>
                     </Link>
-                    <Link href="/shop?type=Sweatshirt" className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-200 hover:bg-[#202020] hover:text-[#ff7700] transition">
-                      <span>🧶</span> <span>Sweatshirt</span>
+                    <Link href="/shop?type=Sweatshirt" className={headerDropdownItemClass}>
+                      <span className="w-5 shrink-0 text-center text-base">🧶</span> <span>Sweatshirt</span>
                     </Link>
                   </>
                 )}
@@ -309,6 +331,3 @@ export default function Header() {
     </header>
   );
 }
-
-
-

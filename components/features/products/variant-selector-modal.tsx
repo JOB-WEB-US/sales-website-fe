@@ -5,33 +5,25 @@ import { useState, useEffect } from 'react';
 import { X, Check, ShoppingBag, Star } from 'lucide-react';
 import { useUIStore } from '@/store/useUIStore';
 import { useCartStore } from '@/store/useCartStore';
-import { ProductVariant, ProductType } from '@/types/product';
+import { ProductType } from '@/types/product';
 import { formatCurrency } from '@/lib/formatters';
-
-const SIZES = ['S', 'M', 'L', 'XL', '2XL', '3XL'];
-const COLORS = [
-  { name: 'Black', hex: '#111111' },
-  { name: 'Navy', hex: '#0f172a' },
-  { name: 'White', hex: '#f8fafc' },
-  { name: 'Dark Heather', hex: '#334155' },
-];
-const PRODUCT_TYPES: ProductType[] = ['T-Shirt', 'Hoodie', 'Sweatshirt'];
 
 export default function VariantSelectorModal() {
   const { selectedProductForModal, isVariantModalOpen, closeVariantModal, openCart, openSizeGuide } = useUIStore();
   const addToCart = useCartStore((state) => state.addToCart);
 
-  const [selectedType, setSelectedType] = useState<ProductType>('T-Shirt');
-  const [selectedSize, setSelectedSize] = useState('M');
-  const [selectedColor, setSelectedColor] = useState('Black');
+  const [selectedType, setSelectedType] = useState<ProductType>('');
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
 
   // Reset state when modal opens
   useEffect(() => {
     if (selectedProductForModal) {
-      setSelectedType('T-Shirt');
-      setSelectedSize('M');
-      setSelectedColor('Black');
+      const firstVariant = selectedProductForModal.variants?.find((variant) => variant.isActive !== false);
+      setSelectedType(firstVariant?.productType || '');
+      setSelectedSize(firstVariant?.size || '');
+      setSelectedColor(firstVariant?.color || '');
       setQuantity(1);
     }
   }, [selectedProductForModal]);
@@ -39,26 +31,21 @@ export default function VariantSelectorModal() {
   if (!isVariantModalOpen || !selectedProductForModal) return null;
 
   const product = selectedProductForModal;
-
-  // Find matching variant or create a dynamic variant
-  const currentPrice = selectedType === 'Hoodie'
-    ? 39.99
-    : selectedType === 'Sweatshirt'
-    ? 34.99
-    : product.basePrice;
+  const activeVariants = (product.variants || []).filter((variant) => variant.isActive !== false);
+  const availableTypes = Array.from(new Set(activeVariants.map((variant) => variant.productType)));
+  const variantsForType = activeVariants.filter((variant) => variant.productType === selectedType);
+  const availableColors = Array.from(new Set(variantsForType.map((variant) => variant.color)));
+  const variantsForColor = variantsForType.filter((variant) => variant.color === selectedColor);
+  const availableSizes = Array.from(new Set(variantsForColor.map((variant) => variant.size)));
+  const matchedVariant = activeVariants.find(
+    (variant) => variant.productType === selectedType && variant.color === selectedColor && variant.size === selectedSize
+  );
+  const currentPrice = matchedVariant?.price ?? product.basePrice;
+  const currentStock = Number(matchedVariant?.stock ?? 0);
+  const isOutOfStock = currentStock <= 0;
 
   const handleAddToCart = () => {
-    const matchedVariant: ProductVariant = {
-      id: `${product.id}-${selectedType}-${selectedColor}-${selectedSize}`,
-      sku: `${product.id}-${selectedType.substring(0, 3)}-${selectedColor.substring(0, 3)}-${selectedSize}`,
-      size: selectedSize,
-      color: selectedColor,
-      productType: selectedType,
-      price: currentPrice,
-      originalPrice: product.originalPrice,
-      stock: 50,
-    };
-
+    if (!matchedVariant || isOutOfStock) return;
     addToCart(product, matchedVariant, quantity);
     closeVariantModal();
     openCart(); // Automatically slide open cart drawer
@@ -113,14 +100,22 @@ export default function VariantSelectorModal() {
             {/* Option 1: Style */}
             <div className="mb-6">
               <label className="block text-xs font-bold uppercase text-gray-400 mb-3">
-                1. Select Style: <span className="text-white font-bold">{selectedType}</span>
+                1. Select Style: <span className="text-white font-bold">{selectedType || 'Unavailable'}</span>
               </label>
               <div className="grid grid-cols-3 gap-2.5">
-                {PRODUCT_TYPES.map((type) => (
+                {availableTypes.map((type) => (
                   <button
                     key={type}
                     type="button"
-                    onClick={() => setSelectedType(type)}
+                    onClick={() => {
+                      const firstVariant = activeVariants.find((variant) => variant.productType === type);
+                      setSelectedType(type);
+                      if (firstVariant) {
+                        setSelectedColor(firstVariant.color);
+                        setSelectedSize(firstVariant.size);
+                      }
+                      setQuantity(1);
+                    }}
                     className={`py-2.5 text-xs font-bold rounded-xl border transition ${
                       selectedType === type
                         ? 'border-[#ff7700] bg-[#ff7700]/10 text-[#ff7700]'
@@ -136,25 +131,33 @@ export default function VariantSelectorModal() {
             {/* Option 2: Color */}
             <div className="mb-6">
               <label className="block text-xs font-bold uppercase text-gray-400 mb-3">
-                2. Select Color: <span className="text-white font-bold">{selectedColor}</span>
+                2. Select Color: <span className="text-white font-bold">{selectedColor || 'Unavailable'}</span>
               </label>
               <div className="flex gap-3">
-                {COLORS.map((c) => (
-                  <button
-                    key={c.name}
-                    type="button"
-                    onClick={() => setSelectedColor(c.name)}
-                    className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition ${
-                      selectedColor === c.name ? 'border-[#ff7700] scale-110' : 'border-transparent'
-                    }`}
-                    style={{ backgroundColor: c.hex }}
-                    title={c.name}
-                  >
-                    {selectedColor === c.name && (
-                      <Check size={14} className={c.name === 'White' ? 'text-black' : 'text-white'} />
-                    )}
-                  </button>
-                ))}
+                {availableColors.map((colorName) => {
+                  const colorHex = variantsForType.find((variant) => variant.color === colorName)?.colorHex;
+                  return (
+                    <button
+                      key={colorName}
+                      type="button"
+                      onClick={() => {
+                        const firstVariant = variantsForType.find((variant) => variant.color === colorName);
+                        setSelectedColor(colorName);
+                        if (firstVariant) setSelectedSize(firstVariant.size);
+                        setQuantity(1);
+                      }}
+                      className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition ${
+                        selectedColor === colorName ? 'border-[#ff7700] scale-110' : 'border-transparent'
+                      }`}
+                      style={{ backgroundColor: colorHex || undefined }}
+                      title={colorName}
+                    >
+                      {selectedColor === colorName && (
+                        <Check size={14} className={colorName === 'White' ? 'text-black' : 'text-white'} />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -162,7 +165,7 @@ export default function VariantSelectorModal() {
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
                 <label className="text-xs font-bold uppercase text-gray-400">
-                  3. Select Size: <span className="text-white font-bold">{selectedSize}</span>
+                  3. Select Size: <span className="text-white font-bold">{selectedSize || 'Out of stock'}</span>
                 </label>
                 <button
                   type="button"
@@ -173,11 +176,14 @@ export default function VariantSelectorModal() {
                 </button>
               </div>
               <div className="grid grid-cols-6 gap-2">
-                {SIZES.map((sz) => (
+                {availableSizes.length > 0 ? availableSizes.map((sz) => (
                   <button
                     key={sz}
                     type="button"
-                    onClick={() => setSelectedSize(sz)}
+                    onClick={() => {
+                      setSelectedSize(sz);
+                      setQuantity(1);
+                    }}
                     className={`py-2 text-xs font-bold rounded-xl border transition ${
                       selectedSize === sz
                         ? 'border-[#a80000] bg-[#a80000] text-white'
@@ -186,7 +192,11 @@ export default function VariantSelectorModal() {
                   >
                     {sz}
                   </button>
-                ))}
+                )) : (
+                  <p className="col-span-6 rounded-lg border border-red-900/50 bg-red-950/30 px-3 py-2 text-xs font-semibold text-red-300">
+                    No sizes available — this item is currently out of stock.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -204,8 +214,9 @@ export default function VariantSelectorModal() {
                 <span className="px-3 py-1 text-xs font-bold">{quantity}</span>
                 <button
                   type="button"
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="px-3 py-1 text-gray-300 hover:text-white"
+                  onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
+                  disabled={isOutOfStock || quantity >= currentStock}
+                  className="px-3 py-1 text-gray-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   +
                 </button>
@@ -217,10 +228,11 @@ export default function VariantSelectorModal() {
           <button
             type="button"
             onClick={handleAddToCart}
-            className="w-full bg-[#a80000] hover:bg-[#7a0000] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg transition duration-200"
+            disabled={isOutOfStock}
+            className="w-full bg-[#a80000] hover:bg-[#7a0000] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg transition duration-200 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed"
           >
             <ShoppingBag size={18} />
-            <span>Add To Cart • {formatCurrency(currentPrice * quantity)}</span>
+            <span>{isOutOfStock ? 'Out of Stock' : `Add To Cart • ${formatCurrency(currentPrice * quantity)}`}</span>
           </button>
         </div>
       </div>

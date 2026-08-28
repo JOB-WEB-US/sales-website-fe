@@ -18,7 +18,6 @@ import {
   ChevronRight,
   ZoomIn,
   X,
-  MessageSquarePlus,
   Send,
   Camera,
   UploadCloud,
@@ -32,18 +31,6 @@ import { ProductVariant } from '@/types/product';
 import ProductCard from '@/components/features/products/product-card';
 import { getProductBySlug, getProducts, createProductReview, mapApiProductToUI, ApiProduct } from '@/lib/api';
 
-const DEFAULT_SIZES = ['S', 'M', 'L', 'XL', '2XL', '3XL'];
-const DEFAULT_COLORS = [
-  { name: 'Black', hex: '#111111' },
-  { name: 'Navy', hex: '#0f172a' },
-  { name: 'White', hex: '#f8fafc' },
-  { name: 'Dark Heather', hex: '#334155' },
-  { name: 'Heather Gray', hex: '#94a3b8' },
-  { name: 'Red', hex: '#ef4444' },
-  { name: 'Royal Blue', hex: '#2563eb' },
-  { name: 'Pink', hex: '#f472b6' },
-];
-
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   const [product, setProduct] = useState<any>(null);
@@ -53,11 +40,13 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
   // Gallery state
   const [activeImage, setActiveImage] = useState<string>('');
   const [isZoomed, setIsZoomed] = useState(false);
+  const [isModalImageZoomed, setIsModalImageZoomed] = useState(false);
+  const [modalZoomPosition, setModalZoomPosition] = useState({ x: 50, y: 50 });
 
   // Selection states
-  const [selectedType, setSelectedType] = useState<string>('T-Shirt');
-  const [selectedColor, setSelectedColor] = useState<string>('Black');
-  const [selectedSize, setSelectedSize] = useState<string>('M');
+  const [selectedType, setSelectedType] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
 
   // Accordion state
@@ -67,7 +56,6 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewPage, setReviewPage] = useState(0);
   const [relatedOffset, setRelatedOffset] = useState(0);
-  const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewName, setReviewName] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
@@ -110,9 +98,10 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           setReviews(uiProduct.reviews || []);
 
           if (uiProduct.variants && uiProduct.variants.length > 0) {
-            setSelectedType(uiProduct.variants[0].productType || 'T-Shirt');
-            setSelectedColor(uiProduct.variants[0].color || 'Black');
-            setSelectedSize(uiProduct.variants[0].size || 'M');
+            const firstActiveVariant = uiProduct.variants.find((variant: any) => variant.isActive !== false);
+            setSelectedType(firstActiveVariant?.productType || '');
+            setSelectedColor(firstActiveVariant?.color || '');
+            setSelectedSize(firstActiveVariant?.size || '');
           }
         }
 
@@ -159,6 +148,8 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     const currentIndex = imagesList.indexOf(activeImage);
     const prevIndex = (currentIndex - 1 + imagesList.length) % imagesList.length;
     setActiveImage(imagesList[prevIndex]);
+    setIsModalImageZoomed(false);
+    setModalZoomPosition({ x: 50, y: 50 });
   };
 
   const handleNextImage = (e?: React.MouseEvent) => {
@@ -166,27 +157,58 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     const currentIndex = imagesList.indexOf(activeImage);
     const nextIndex = (currentIndex + 1) % imagesList.length;
     setActiveImage(imagesList[nextIndex]);
+    setIsModalImageZoomed(false);
+    setModalZoomPosition({ x: 50, y: 50 });
   };
 
-  // Derive available types, colors, sizes from product variants
-  const availableTypes: string[] = product.variants && product.variants.length > 0
-    ? Array.from(new Set(product.variants.map((v: any) => v.productType)))
-    : ['T-Shirt', 'Hoodie', 'Sweatshirt'];
+  const updateModalZoomPosition = (event: React.MouseEvent<HTMLDivElement>) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - bounds.left) / bounds.width) * 100;
+    const y = ((event.clientY - bounds.top) / bounds.height) * 100;
+    setModalZoomPosition({
+      x: Math.max(0, Math.min(100, x)),
+      y: Math.max(0, Math.min(100, y)),
+    });
+  };
 
-  const availableColors: string[] = product.variants && product.variants.length > 0
-    ? Array.from(new Set(product.variants.map((v: any) => v.color)))
-    : ['Black', 'White', 'Navy', 'Dark Heather'];
+  const openImageModal = () => {
+    setIsModalImageZoomed(false);
+    setModalZoomPosition({ x: 50, y: 50 });
+    setIsZoomed(true);
+  };
 
-  const availableSizes: string[] = product.variants && product.variants.length > 0
-    ? Array.from(new Set(product.variants.map((v: any) => v.size)))
-    : DEFAULT_SIZES;
+  const closeImageModal = () => {
+    setIsZoomed(false);
+    setIsModalImageZoomed(false);
+    setModalZoomPosition({ x: 50, y: 50 });
+  };
 
-  // Matching variant calculation
-  const matchedVariant = product.variants?.find(
+  // Only expose real, active combinations supplied by the API.
+  const activeVariants = (product.variants || []).filter((variant: any) => variant.isActive !== false);
+  const availableTypes: string[] = Array.from(new Set(activeVariants.map((variant: any) => variant.productType)));
+  const variantsForType = activeVariants.filter((variant: any) => variant.productType === selectedType);
+  const availableColors = Array.from(
+    new Map(
+      variantsForType.map((variant: any) => [
+        variant.color,
+        { name: variant.color, hex: variant.colorHex || undefined },
+      ])
+    ).values()
+  ) as { name: string; hex?: string }[];
+  const variantsForColor = variantsForType.filter((variant: any) => variant.color === selectedColor);
+  const availableSizes: string[] = Array.from(new Set(variantsForColor.map((variant: any) => variant.size)));
+
+  const matchedVariant = activeVariants.find(
     (v: any) => v.productType === selectedType && v.color === selectedColor && v.size === selectedSize
-  ) || product.variants?.find((v: any) => v.productType === selectedType) || product.variants?.[0];
+  );
 
   const currentPrice = matchedVariant ? matchedVariant.price : product.basePrice;
+  const currentStock = matchedVariant ? Number(matchedVariant.stock ?? 0) : 0;
+  const isOutOfStock = currentStock <= 0;
+  const displayedReviewCount = reviews.length || product.reviewCount || 0;
+  const displayedRating = reviews.length > 0
+    ? reviews.reduce((sum: number, review: any) => sum + Number(review.rating || 0), 0) / reviews.length
+    : Number(product.rating ?? 0);
 
   const currentVariant: ProductVariant = {
     id: matchedVariant?.id || `${product.id}-${selectedType}-${selectedColor}-${selectedSize}`,
@@ -197,15 +219,17 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     price: currentPrice,
     originalPrice: matchedVariant?.originalPrice || product.originalPrice,
     imageUrl: activeImage,
-    stock: matchedVariant?.stock ?? 50,
+    stock: currentStock,
   };
 
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     addToCart(product, currentVariant, quantity);
     openCart();
   };
 
   const handleBuyNow = () => {
+    if (isOutOfStock) return;
     addToCart(product, currentVariant, quantity);
     router.push('/checkout');
   };
@@ -227,7 +251,6 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
       setReviewComment('');
       setReviewImage(null);
       setTimeout(() => {
-        setShowReviewForm(false);
         setReviewSuccess(false);
       }, 2000);
     } catch (err) {
@@ -281,7 +304,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
 
               {/* Main Preview with Navigation Arrows */}
               <div 
-                onClick={() => setIsZoomed(true)}
+                onClick={openImageModal}
                 className="flex-1 relative aspect-square rounded-3xl overflow-hidden bg-[#181818] border border-[#262626] shadow-2xl group/main cursor-zoom-in"
               >
                 <Image
@@ -339,12 +362,12 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex text-amber-400">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} fill="currentColor" />
+                    <Star key={i} size={16} fill={i < Math.round(displayedRating) ? 'currentColor' : 'none'} />
                   ))}
                 </div>
-                <span className="text-xs font-bold text-white">{product.rating}</span>
+                <span className="text-xs font-bold text-white">{displayedRating.toFixed(1)}</span>
                 <a href="#reviews" className="text-xs text-gray-400 hover:text-[#ff7700] underline">
-                  ({reviews.length || product.reviewCount} customer reviews)
+                  ({displayedReviewCount} customer reviews)
                 </a>
               </div>
 
@@ -374,15 +397,19 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             </div>
 
             {/* Urgency Stock Banner */}
-            <div className="p-4 bg-gradient-to-r from-red-950/80 to-[#181818] border border-red-900/50 rounded-2xl space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-red-400">
-                <Flame className="w-4 h-4 animate-bounce text-red-500" />
-                <span>🔥 Only {matchedVariant?.stock || 12} items left in stock - In high demand!</span>
+            <div className={`p-4 bg-gradient-to-r from-red-950/80 to-[#181818] border rounded-2xl space-y-2 ${isOutOfStock ? 'border-gray-700' : 'border-red-900/50'}`}>
+              <div className={`flex items-center gap-2 text-xs font-bold ${isOutOfStock ? 'text-gray-300' : 'text-red-400'}`}>
+                <Flame className={`w-4 h-4 ${isOutOfStock ? 'text-gray-500' : 'animate-bounce text-red-500'}`} />
+                <span>
+                  {isOutOfStock
+                    ? 'Out of Stock — Please select another available variant.'
+                    : `🔥 Only ${currentStock} items left in stock - In high demand!`}
+                </span>
               </div>
-              <div className="flex items-center gap-2 text-xs font-medium text-gray-300">
+              {!isOutOfStock && <div className="flex items-center gap-2 text-xs font-medium text-gray-300">
                 <Clock className="w-3.5 h-3.5 text-[#ff7700]" />
                 <span>Fast dispatch in 24 hours</span>
-              </div>
+              </div>}
             </div>
 
             {/* VARIANT CONTROLS FORM */}
@@ -391,14 +418,20 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               {/* 1. Select Style */}
               <div>
                 <label className="block text-xs font-bold uppercase text-gray-400 mb-3">
-                  1. Select Style: <span className="text-white font-extrabold">{selectedType}</span>
+                  1. Select Style: <span className="text-white font-extrabold">{selectedType || 'Unavailable'}</span>
                 </label>
                 <div className="grid grid-cols-3 gap-2.5">
                   {availableTypes.map((type) => (
                     <button
                       key={type}
                       type="button"
-                      onClick={() => setSelectedType(type)}
+                      onClick={() => {
+                        const firstVariant = activeVariants.find((variant: any) => variant.productType === type);
+                        setSelectedType(type);
+                        setSelectedColor(firstVariant?.color || '');
+                        setSelectedSize(firstVariant?.size || '');
+                        setQuantity(1);
+                      }}
                       className={`py-3 text-xs font-bold rounded-xl border transition ${
                         selectedType === type
                           ? 'border-[#ff7700] bg-[#ff7700]/10 text-[#ff7700] ring-1 ring-[#ff7700]'
@@ -414,23 +447,27 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               {/* 2. Select Color */}
               <div>
                 <label className="block text-xs font-bold uppercase text-gray-400 mb-3">
-                  2. Select Color: <span className="text-white font-extrabold">{selectedColor}</span>
+                  2. Select Color: <span className="text-white font-extrabold">{selectedColor || 'Unavailable'}</span>
                 </label>
                 <div className="flex flex-wrap gap-3.5">
-                  {availableColors.map((colorName) => {
-                    const colorObj = DEFAULT_COLORS.find((c) => c.name.toLowerCase() === colorName.toLowerCase());
-                    const hexCode = colorObj ? colorObj.hex : '#333333';
+                  {availableColors.map((colorOption) => {
+                    const colorName = colorOption.name;
                     return (
                       <button
                         key={colorName}
                         type="button"
-                        onClick={() => setSelectedColor(colorName)}
+                        onClick={() => {
+                          const firstVariant = variantsForType.find((variant: any) => variant.color === colorName);
+                          setSelectedColor(colorName);
+                          setSelectedSize(firstVariant?.size || '');
+                          setQuantity(1);
+                        }}
                         className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition shadow-sm ${
                           selectedColor === colorName 
                             ? 'border-[#ff7700] ring-2 ring-[#ff7700]/30 scale-110' 
                             : 'border-gray-700 hover:scale-105'
                         }`}
-                        style={{ backgroundColor: hexCode }}
+                        style={{ backgroundColor: colorOption.hex }}
                         title={colorName}
                       >
                         {selectedColor === colorName && (
@@ -446,7 +483,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-xs font-bold uppercase text-gray-400">
-                    3. Select Size: <span className="text-white font-extrabold">{selectedSize}</span>
+                    3. Select Size: <span className="text-white font-extrabold">{selectedSize || 'Out of stock'}</span>
                   </label>
                   <button
                     type="button"
@@ -457,7 +494,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                   </button>
                 </div>
                 <div className="grid grid-cols-6 gap-2.5">
-                  {availableSizes.map((sz) => (
+                  {availableSizes.length > 0 ? availableSizes.map((sz) => (
                     <button
                       key={sz}
                       type="button"
@@ -470,7 +507,11 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                     >
                       {sz}
                     </button>
-                  ))}
+                  )) : (
+                    <p className="col-span-6 rounded-xl border border-red-900/50 bg-red-950/30 px-3 py-2.5 text-xs font-semibold text-red-300">
+                      No sizes available — this item is currently out of stock.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -488,8 +529,9 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                   <span className="px-3.5 py-1.5 text-xs font-extrabold">{quantity}</span>
                   <button
                     type="button"
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-3.5 py-1.5 text-gray-300 hover:text-white font-bold"
+                    onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
+                    disabled={isOutOfStock || quantity >= currentStock}
+                    className="px-3.5 py-1.5 text-gray-300 hover:text-white font-bold disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     +
                   </button>
@@ -501,15 +543,17 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  className="w-full py-4 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-sm uppercase tracking-wider rounded-xl shadow-xl transition flex items-center justify-center gap-2 cursor-pointer"
+                  disabled={isOutOfStock}
+                  className="w-full py-4 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-sm uppercase tracking-wider rounded-xl shadow-xl transition flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed"
                 >
-                  <ShoppingBag size={18} /> Add To Cart • {formatCurrency(currentPrice * quantity)}
+                  <ShoppingBag size={18} /> {isOutOfStock ? 'Out of Stock' : `Add To Cart • ${formatCurrency(currentPrice * quantity)}`}
                 </button>
 
                 <button
                   type="button"
                   onClick={handleBuyNow}
-                  className="w-full py-4 bg-[#ff7700] hover:bg-[#e06800] text-black font-extrabold text-sm uppercase tracking-wider rounded-xl shadow-xl transition flex items-center justify-center gap-2 cursor-pointer"
+                  disabled={isOutOfStock}
+                  className="w-full py-4 bg-[#ff7700] hover:bg-[#e06800] text-black font-extrabold text-sm uppercase tracking-wider rounded-xl shadow-xl transition flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed"
                 >
                   <Lock size={18} /> Buy It Now (Fast Checkout)
                 </button>
@@ -583,23 +627,15 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               <div className="flex items-center gap-2 mt-1">
                 <div className="flex text-amber-400">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} fill="currentColor" />
+                    <Star key={i} size={16} fill={i < Math.round(displayedRating) ? 'currentColor' : 'none'} />
                   ))}
                 </div>
-                <span className="text-sm font-bold text-white">4.9 out of 5.0</span>
-                <span className="text-xs text-gray-400">({reviews.length} reviews)</span>
+                <span className="text-sm font-bold text-white">{displayedRating.toFixed(1)} out of 5.0</span>
+                <span className="text-xs text-gray-400">({displayedReviewCount} reviews)</span>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowReviewForm(!showReviewForm)}
-                className="px-4 py-2 bg-[#ff7700] hover:bg-[#e06800] text-black text-xs font-bold rounded-xl flex items-center gap-1.5 transition"
-              >
-                <MessageSquarePlus size={16} />
-                Write a Review
-              </button>
-
               <div className="flex items-center gap-1.5 bg-[#181818] p-1 rounded-xl border border-[#2a2a2a]">
                 <button
                   type="button"
@@ -628,9 +664,8 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             </div>
           </div>
 
-          {/* Write Review Form Modal / Drawer */}
-          {showReviewForm && (
-            <form onSubmit={handleReviewSubmit} className="bg-[#141414] p-6 rounded-2xl border border-[#333] mb-8 space-y-4 max-w-xl">
+          {/* Review form is always visible for direct submission */}
+            <form onSubmit={handleReviewSubmit} className="w-full bg-[#141414] p-6 rounded-2xl border border-[#333] mb-8 space-y-4">
               <h3 className="font-bold text-sm text-white">Write a Review for {product.title}</h3>
               {reviewSuccess && (
                 <div className="p-3 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded-xl text-xs">
@@ -730,16 +765,8 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                 >
                   <Send size={14} /> {submittingReview ? 'Submitting...' : 'Submit Review'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setShowReviewForm(false)}
-                  className="px-4 py-2 bg-[#222] text-gray-300 text-xs rounded-xl hover:bg-[#333] cursor-pointer"
-                >
-                  Cancel
-                </button>
               </div>
             </form>
-          )}
 
           {/* Review List Carousel */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
@@ -845,10 +872,10 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
       {isZoomed && (
         <div 
           className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-between p-4 sm:p-8 animate-fade-in"
-          onClick={() => setIsZoomed(false)}
+          onClick={closeImageModal}
         >
           <button
-            onClick={() => setIsZoomed(false)}
+            onClick={closeImageModal}
             className="absolute top-4 right-4 text-gray-400 hover:text-white bg-[#1a1a1a]/60 hover:bg-[#1a1a1a] p-2.5 rounded-full border border-gray-800 transition z-10 cursor-pointer"
           >
             <X size={20} />
@@ -866,12 +893,27 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               </button>
             )}
 
-            <div className="relative max-h-[70vh] aspect-square w-full max-w-2xl overflow-hidden rounded-xl bg-black">
+            <div
+              className={`relative max-h-[70vh] aspect-square w-full max-w-2xl overflow-hidden rounded-xl bg-black ${isModalImageZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
+              onMouseMove={(event) => {
+                if (isModalImageZoomed) updateModalZoomPosition(event);
+              }}
+              onClick={(event) => {
+                event.stopPropagation();
+                updateModalZoomPosition(event);
+                setIsModalImageZoomed((current) => !current);
+              }}
+              title={isModalImageZoomed ? 'Click to zoom out' : 'Click to zoom in'}
+            >
               <Image
                 src={activeImage}
                 alt={product.title}
                 fill
-                className="object-contain"
+                className="object-contain transition-transform duration-200 ease-out"
+                style={{
+                  transformOrigin: `${modalZoomPosition.x}% ${modalZoomPosition.y}%`,
+                  transform: isModalImageZoomed ? 'scale(2.2)' : 'scale(1)',
+                }}
               />
             </div>
 
@@ -892,7 +934,11 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             {imagesList.map((img, idx) => (
               <button
                 key={idx}
-                onClick={() => setActiveImage(img)}
+                onClick={() => {
+                  setActiveImage(img);
+                  setIsModalImageZoomed(false);
+                  setModalZoomPosition({ x: 50, y: 50 });
+                }}
                 className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-[#181818] border-2 transition cursor-pointer ${
                   activeImage === img ? 'border-[#ff7700] ring-2 ring-[#ff7700]/30' : 'border-[#262626] opacity-60 hover:opacity-100'
                 }`}
