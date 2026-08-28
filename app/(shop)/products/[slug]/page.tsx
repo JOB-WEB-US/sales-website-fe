@@ -521,9 +521,9 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               </div>
 
               {/* BUNDLE & SAVE VOLUME TIERS WIDGET */}
-              {selectedVariant && (
+              {currentVariant && (
                 <div className="pt-2">
-                  <BundleSaveWidget product={product} selectedVariant={selectedVariant} />
+                  <BundleSaveWidget product={product} selectedVariant={currentVariant} />
                 </div>
               )}
 
