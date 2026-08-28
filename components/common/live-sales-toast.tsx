@@ -170,7 +170,7 @@ export default function LiveSalesToast() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 15, scale: 0.95 }}
             transition={{ type: 'spring', damping: 24, stiffness: 320 }}
-            className="bg-[#161616]/95 backdrop-blur-md border border-[#2b2b2b] hover:border-[#ff7700]/50 rounded-2xl p-3 shadow-2xl flex items-center gap-3 relative group"
+            className="bg-white/95 dark:bg-[#161616]/95 backdrop-blur-md border border-gray-200 dark:border-[#2b2b2b] hover:border-orange-300 dark:hover:border-[#ff7700]/50 rounded-2xl p-3 shadow-xl flex items-center gap-3 relative group text-gray-900 dark:text-white"
           >
             {/* Close Button */}
             <button
@@ -178,7 +178,7 @@ export default function LiveSalesToast() {
                 e.stopPropagation();
                 setIsDismissed(true);
               }}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#252525] border border-[#3a3a3a] rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-900/80 transition cursor-pointer z-10"
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-white dark:bg-[#252525] border border-gray-200 dark:border-[#3a3a3a] rounded-full flex items-center justify-center text-gray-400 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:text-white dark:hover:bg-red-900/80 transition cursor-pointer z-10 shadow-xs"
               title="Dismiss notifications"
             >
               <X size={10} />
@@ -187,7 +187,7 @@ export default function LiveSalesToast() {
             {/* Thumbnail */}
             <Link
               href={`/products/${currentNotice.productSlug}`}
-              className="relative w-13 h-13 rounded-xl overflow-hidden bg-[#222] border border-[#333] shrink-0 block group-hover:scale-105 transition-transform"
+              className="relative w-13 h-13 rounded-xl overflow-hidden bg-gray-100 dark:bg-[#222] border border-gray-200 dark:border-[#333] shrink-0 block group-hover:scale-105 transition-transform shadow-xs"
             >
               <Image
                 src={currentNotice.productImage}
@@ -199,23 +199,23 @@ export default function LiveSalesToast() {
 
             {/* Notification Content */}
             <div className="flex-1 min-w-0 pr-1">
-              <div className="flex items-center gap-1.5 text-[11px] text-gray-300">
-                <span className="font-extrabold text-white truncate">
+              <div className="flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-gray-300">
+                <span className="font-extrabold text-gray-900 dark:text-white truncate">
                   {currentNotice.customerName}
                 </span>
-                <span className="text-gray-400 text-[10px]">in {currentNotice.location}</span>
+                <span className="text-gray-500 dark:text-gray-400 text-[10px]">in {currentNotice.location}</span>
               </div>
 
               <Link
                 href={`/products/${currentNotice.productSlug}`}
-                className="text-[11px] font-semibold text-gray-200 hover:text-[#ff7700] line-clamp-1 transition block my-0.5"
+                className="text-[11px] font-semibold text-gray-800 dark:text-gray-200 hover:text-[#ff7700] dark:hover:text-[#ff7700] line-clamp-1 transition block my-0.5"
               >
                 purchased {currentNotice.productTitle}
               </Link>
 
               <div className="flex items-center justify-between text-[9px] text-gray-400 pt-0.5">
                 <span>{currentNotice.timeAgo}</span>
-                <span className="inline-flex items-center gap-0.5 text-emerald-400 font-bold">
+                <span className="inline-flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400 font-bold">
                   <CheckCircle size={9} /> Verified Purchase
                 </span>
               </div>

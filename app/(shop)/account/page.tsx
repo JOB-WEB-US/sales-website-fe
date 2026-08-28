@@ -389,17 +389,17 @@ export default function AccountDashboardPage() {
               </div>
             ) : (
               orders.map((order) => (
-                <div key={order.id} className="bg-[#141414] rounded-2xl border border-[#222] p-6 shadow-sm">
+                <div key={order.id} className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-6 shadow-sm">
                   {/* Order Top Bar */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#222] pb-4 mb-4">
+                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 dark:border-[#222] pb-4 mb-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-sm text-white">Order #{order.id}</span>
-                        <span className="px-2.5 py-0.5 bg-red-950/60 text-[#ff7700] text-[10px] font-bold rounded-full border border-red-800/40 uppercase">
+                        <span className="font-extrabold text-sm text-gray-900 dark:text-white">Order #{order.id}</span>
+                        <span className="px-2.5 py-0.5 bg-orange-50 dark:bg-red-950/60 text-[#ea580c] dark:text-[#ff7700] text-[10px] font-extrabold rounded-full border border-orange-200 dark:border-red-800/40 uppercase">
                           {order.status === 'printing' ? 'In POD Production' : order.status}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                         Placed on {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </p>
                     </div>
@@ -419,7 +419,7 @@ export default function AccountDashboardPage() {
                             className={`px-3 py-2 text-xs font-bold rounded-xl transition ${
                               isDeliveryClickable 
                                 ? "bg-[#ff7700] hover:bg-[#ff8822] text-black shadow-md cursor-pointer border-none"
-                                : "bg-[#181818] text-gray-500 border border-gray-800 cursor-not-allowed"
+                                : "bg-gray-100 dark:bg-[#181818] text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-800 cursor-not-allowed"
                             }`}
                             title={isDeliveryClickable ? "Confirm receipt of your order" : "Confirm receipt is only available once order status in tracking is 'Delivered'"}
                           >
@@ -429,7 +429,7 @@ export default function AccountDashboardPage() {
                       })()}
                       <Link
                         href={`/pages/order-tracking?orderId=${order.id}`}
-                        className="px-4 py-2 bg-[#1e1e1e] hover:bg-[#282828] text-white text-xs font-bold rounded-xl transition border border-[#2a2a2a] flex items-center gap-1.5"
+                        className="px-4 py-2 bg-white hover:bg-gray-50 dark:bg-[#1e1e1e] dark:hover:bg-[#282828] text-gray-900 dark:text-white text-xs font-bold rounded-xl transition border border-gray-200 dark:border-[#2a2a2a] flex items-center gap-1.5 shadow-sm"
                       >
                         <Truck size={14} className="text-[#ff7700]" /> Track Status
                       </Link>
@@ -437,23 +437,23 @@ export default function AccountDashboardPage() {
                   </div>
 
                   {/* Purchased Items List */}
-                  <div className="space-y-3 divide-y divide-[#222]">
+                  <div className="space-y-3 divide-y divide-gray-100 dark:divide-[#222]">
                     {order.items.map((item, idx) => (
                       <div key={idx} className="pt-2 first:pt-0 flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#222] border border-[#333] flex-shrink-0">
+                          <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-[#333] flex-shrink-0 shadow-xs">
                             <Image src={item.image} alt={item.title} fill className="object-cover" />
                           </div>
                           <div>
-                            <h4 className="text-xs font-bold text-white line-clamp-1">{item.title}</h4>
-                            <p className="text-[11px] text-gray-400">
+                            <h4 className="text-xs font-bold text-gray-900 dark:text-white line-clamp-1">{item.title}</h4>
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400">
                               {item.productType} • {item.color} • Size {item.size} • Qty: {item.quantity}
                             </p>
                           </div>
                         </div>
                         
                         <div className="text-right flex flex-col items-end gap-1 flex-shrink-0">
-                          <span className="text-xs font-bold text-[#ff7700]">
+                          <span className="text-xs font-bold text-[#ea580c] dark:text-[#ff7700]">
                             {formatCurrency(item.price * item.quantity)}
                           </span>
                           
@@ -467,7 +467,7 @@ export default function AccountDashboardPage() {
                                 Write Review
                               </button>
                             ) : (
-                              <span className="text-[9px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-full">
+                              <span className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/40 px-2 py-0.5 rounded-full">
                                 Reviewed ✓
                               </span>
                             )
@@ -478,9 +478,9 @@ export default function AccountDashboardPage() {
                   </div>
 
                   {/* Order Total Footer */}
-                  <div className="mt-4 pt-3 border-t border-[#222] flex items-center justify-between text-xs">
-                    <span className="text-gray-400">Total Paid (incl. shipping):</span>
-                    <span className="text-sm font-extrabold text-white">{formatCurrency(order.totalPrice)}</span>
+                  <div className="mt-4 pt-3 border-t border-gray-200 dark:border-[#222] flex items-center justify-between text-xs">
+                    <span className="text-gray-600 dark:text-gray-400 font-medium">Total Paid (incl. shipping):</span>
+                    <span className="text-sm font-extrabold text-gray-900 dark:text-white">{formatCurrency(order.totalPrice)}</span>
                   </div>
                 </div>
               ))
