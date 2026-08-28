@@ -82,15 +82,20 @@ export default function CategoryCollectionPage({ params }: { params: { category:
   const categoryInfo = CATEGORY_META[rawCategory] || {
     title: matchedCat ? matchedCat.name : `${params.category.toUpperCase()} Collection`,
     subtitle: 'Explore our latest custom graphic printed apparel and merchandise.',
-    icon: '✨',
+    icon: matchedCat?.icon || '✨',
   };
 
-  // Filter products by category slug
+  // Filter products by category slug or categoryId
   const categoryProducts = products.filter((product) => {
     if (rawCategory === 'trending') return true;
     const cat = (product.category || '').toLowerCase();
+    const catId = product.categoryId || '';
     const slug = (product.slug || '').toLowerCase();
-    return cat === rawCategory || slug.includes(rawCategory);
+    return (
+      cat === rawCategory ||
+      (matchedCat && catId === matchedCat.id) ||
+      slug.includes(rawCategory)
+    );
   });
 
   // Apply Type Filter

@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { ShoppingBag, Heart, User, Search, ChevronDown, Menu, X, Sun, Moon, Flame } from 'lucide-react';
+import { ShoppingBag, Heart, User, Search, ChevronDown, Menu, X, Sun, Moon, Flame, Sparkles } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { useUIStore } from '@/store/useUIStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
@@ -21,7 +21,7 @@ export default function Header() {
   const [productTypes, setProductTypes] = useState<any[]>([]);
   
   const totalItems = useCartStore((state) => state.getTotalItems());
-  const { openCart, openSearch } = useUIStore();
+  const { openCart, openSearch, particlesEnabled, toggleParticles } = useUIStore();
   
   const { items: wishlistItems, openWishlist } = useWishlistStore();
   const wishlistCount = wishlistItems.length;
@@ -62,15 +62,28 @@ export default function Header() {
     return '🏷️';
   };
 
-  const getCategoryDisplay = (name: string) => {
-    const parts = name.trim().split(/\s+/);
-    const possibleIcon = parts[0] || '';
+  const getCategoryDisplay = (name: string, slug?: string, icon?: string | null) => {
+    // 1. Clean corrupted leading question marks or junk
+    const cleanName = (name || '')
+      .replace(/^(\?\?|\?)\s*/, '')
+      .replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]\s*/u, '')
+      .trim();
 
-    if (possibleIcon.length <= 4 && parts.length > 1) {
-      return { icon: possibleIcon, label: parts.slice(1).join(' ') };
+    // 2. Explicit icon if valid
+    if (icon && !icon.includes('?')) {
+      return { icon, label: cleanName || name };
     }
 
-    return { icon: '✨', label: name };
+    // 3. Fallback icons by slug
+    const s = (slug || '').toLowerCase();
+    if (s === 'halloween') return { icon: '🎃', label: cleanName || 'Halloween & Spooky' };
+    if (s === 'christmas' || s.includes('xmas')) return { icon: '🎄', label: cleanName || 'Christmas Deals' };
+    if (s === 'horror') return { icon: '💀', label: cleanName || 'Horror Classics' };
+    if (s === 'vintage') return { icon: '📻', label: cleanName || 'Vintage & Retro' };
+    if (s === 'trending') return { icon: '🔥', label: cleanName || 'Trending Streetwear' };
+    if (s === 'country-music') return { icon: '🤠', label: cleanName || 'Country Music' };
+
+    return { icon: '🏷️', label: cleanName || name };
   };
 
   return (
@@ -175,6 +188,26 @@ export default function Header() {
             )}
           </button>
 
+          {/* Seasonal Particle Animation Toggle Button */}
+          <button
+            onClick={toggleParticles}
+            className={`p-1.5 rounded-full transition relative flex items-center justify-center ${
+              particlesEnabled
+                ? 'text-[#ff7700] hover:bg-[#ff7700]/15'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-[#222] opacity-60'
+            }`}
+            title={
+              particlesEnabled
+                ? '✨ Hiệu ứng hạt theo mùa: ĐANG BẬT (Bấm để Tắt)'
+                : '✨ Hiệu ứng hạt theo mùa: ĐÃ TẮT (Bấm để Bật)'
+            }
+          >
+            <Sparkles size={20} className={particlesEnabled ? 'animate-pulse text-[#ff7700]' : ''} />
+            {particlesEnabled && (
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ff7700] rounded-full animate-ping" />
+            )}
+          </button>
+
           {/* Cart Icon Button */}
           <button
             onClick={openCart}
@@ -201,9 +234,35 @@ export default function Header() {
             Shop All
           </Link>
           
-          <Link href="/collections/halloween" className="text-[#ff7700] hover:brightness-125 transition py-1 flex items-center gap-1.5 font-extrabold">
-            {categories.find((c) => c.slug === 'halloween')?.name || '🎃 Halloween & Spooky'}
-          </Link>
+          {/* Dynamic Trending / Featured Menus configured by Admin */}
+          {(() => {
+            const trendingCategories = categories
+              .filter((c) => c.isTrendingMenu && !c.isHidden)
+              .sort((a, b) => (a.menuOrder || 0) - (b.menuOrder || 0));
+            const displayTrending = trendingCategories.length > 0
+              ? trendingCategories
+              : categories.filter((c) => c.slug === 'halloween');
+
+            return displayTrending.map((trendCat) => {
+              const { icon, label } = getCategoryDisplay(trendCat.name, trendCat.slug, trendCat.icon);
+
+              return (
+                <Link
+                  key={trendCat.id}
+                  href={`/collections/${trendCat.slug}`}
+                  className="trend-nav-link text-[#ff7700] hover:brightness-125 transition py-1 px-3 flex items-center gap-1.5 font-extrabold whitespace-nowrap group/trend"
+                >
+                  <span className="text-base">{icon}</span>
+                  <span className="trend-text">{label}</span>
+                  {trendCat.badgeText && (
+                    <span className="bg-[#a80000] text-white text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider scale-90">
+                      {trendCat.badgeText}
+                    </span>
+                  )}
+                </Link>
+              );
+            });
+          })()}
 
           {/* Dropdown: Curated Collections */}
           <div className="relative group shrink-0">
@@ -214,7 +273,7 @@ export default function Header() {
             <div className={headerDropdownClass}>
               <div className={headerDropdownListClass}>
                 {categories.map((cat) => {
-                  const { icon, label } = getCategoryDisplay(cat.name);
+                  const { icon, label } = getCategoryDisplay(cat.name, cat.slug, cat.icon);
 
                   return (
                     <Link
@@ -279,23 +338,56 @@ export default function Header() {
           <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="text-gray-100 hover:text-[#ff7700] py-2 font-bold text-base">
             Shop All
           </Link>
-          <Link href="/collections/halloween" onClick={() => setMobileMenuOpen(false)} className="text-[#ff7700] font-extrabold py-2 text-base">
-            {categories.find((c) => c.slug === 'halloween')?.name || '🎃 Halloween & Spooky'}
-          </Link>
+          {/* Dynamic Trending Menus in Mobile Drawer */}
+          {(() => {
+            const trendingCategories = categories
+              .filter((c) => c.isTrendingMenu && !c.isHidden)
+              .sort((a, b) => (a.menuOrder || 0) - (b.menuOrder || 0));
+            const displayTrending = trendingCategories.length > 0
+              ? trendingCategories
+              : categories.filter((c) => c.slug === 'halloween');
+
+            return displayTrending.map((trendCat) => {
+              const { icon, label } = getCategoryDisplay(trendCat.name, trendCat.slug, trendCat.icon);
+
+              return (
+                <Link
+                  key={trendCat.id}
+                  href={`/collections/${trendCat.slug}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="trend-nav-link text-[#ff7700] font-extrabold py-2 px-3 text-base flex items-center justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-base">{icon}</span>
+                    <span className="trend-text">{label}</span>
+                  </span>
+                  {trendCat.badgeText && (
+                    <span className="bg-[#a80000] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      {trendCat.badgeText}
+                    </span>
+                  )}
+                </Link>
+              );
+            });
+          })()}
 
           <div className="pt-3 border-t border-gray-800">
             <span className="text-xs font-black text-gray-400 uppercase tracking-wider block mb-2">Collections</span>
             <div className="space-y-1">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/collections/${cat.slug}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-gray-200 hover:text-[#ff7700] py-2 text-sm font-semibold"
-                >
-                  {cat.name}
-                </Link>
-              ))}
+              {categories.map((cat) => {
+                const { icon, label } = getCategoryDisplay(cat.name, cat.slug, cat.icon);
+                return (
+                  <Link
+                    key={cat.id}
+                    href={`/collections/${cat.slug}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2 text-gray-200 hover:text-[#ff7700] py-2 text-sm font-semibold"
+                  >
+                    <span>{icon}</span>
+                    <span>{label}</span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
 

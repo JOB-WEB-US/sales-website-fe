@@ -87,42 +87,8 @@ export default function Footer() {
 
       <div className="border-t border-[#181818] py-6 px-4 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
         <p>&copy; 2026 VELORA TEES. All rights reserved. Premium POD Graphic Apparel & Merchandise.</p>
-
-        {/* Seasonal Falling Particles Controls */}
-        <ParticlesControlWidget />
+        <p className="text-gray-600 dark:text-gray-500">Designed with ❤️ for fans of trending pop-culture apparel.</p>
       </div>
     </footer>
-  );
-}
-
-function ParticlesControlWidget() {
-  const { particlesEnabled, particlesTheme, toggleParticles, setParticlesTheme } = useUIStore();
-
-  return (
-    <div className="flex items-center gap-2 bg-[#141414] border border-[#2a2a2a] p-1.5 rounded-xl">
-      <button
-        onClick={toggleParticles}
-        className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition cursor-pointer ${
-          particlesEnabled ? 'bg-[#ff7700] text-black' : 'bg-[#222] text-gray-400'
-        }`}
-        title="Toggle Floating Effects"
-      >
-        {particlesEnabled ? '✨ Particles ON' : 'Particles OFF'}
-      </button>
-
-      {particlesEnabled && (
-        <select
-          value={particlesTheme}
-          onChange={(e) => setParticlesTheme(e.target.value as any)}
-          className="bg-[#1c1c1c] border border-[#333] text-white text-[11px] px-2 py-1 rounded-lg outline-none cursor-pointer"
-        >
-          <option value="halloween">🎃 Halloween</option>
-          <option value="sports">🏈 Sports</option>
-          <option value="sparkles">✨ Sparkles</option>
-          <option value="vintage">📻 Vintage</option>
-          <option value="autumn">🍂 Autumn</option>
-        </select>
-      )}
-    </div>
   );
 }

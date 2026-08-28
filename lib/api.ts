@@ -5,6 +5,10 @@ export interface ApiCategory {
   name: string;
   slug: string;
   isHidden?: boolean;
+  isTrendingMenu?: boolean;
+  menuOrder?: number;
+  badgeText?: string | null;
+  icon?: string | null;
   _count?: { products: number };
 }
 

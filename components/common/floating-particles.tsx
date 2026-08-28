@@ -2,14 +2,25 @@
 
 import React, { useEffect, useState } from 'react';
 
-export type ParticleTheme = 'halloween' | 'sports' | 'sparkles' | 'vintage' | 'autumn';
+export type ParticleTheme =
+  | 'halloween'
+  | 'christmas'
+  | 'sparkles'
+  | 'autumn'
+  | 'fireworks'
+  | 'sakura'
+  | 'sports'
+  | 'vintage';
 
-const PARTICLE_PRESETS: Record<ParticleTheme, string[]> = {
+export const PARTICLE_PRESETS: Record<ParticleTheme, string[]> = {
   halloween: ['🎃', '🦇', '👻', '💀', '🕷️'],
-  sports: ['🏈', '🏆', '⚽', '⚡', '🔥'],
-  sparkles: ['✨', '🌟', '💖', '🔥', '💎'],
-  vintage: ['🎸', '📻', '🎙️', '⚡', '🖤'],
+  christmas: ['❄️', '🎄', '🔔', '🎁', '⛄', '🎅'],
+  sparkles: ['✨', '🌟', '💖', '🔥', '💎', '⭐'],
   autumn: ['🍂', '🍁', '🎃', '🌾', '☕'],
+  fireworks: ['🎆', '🎇', '✨', '🎉', '🔥', '🥳'],
+  sakura: ['🌸', '🌺', '✨', '🍃', '💮', '🌷'],
+  sports: ['🏈', '🏆', '⚽', '⚡', '🔥'],
+  vintage: ['🎸', '📻', '🎙️', '⚡', '🖤'],
 };
 
 interface ParticleItem {
