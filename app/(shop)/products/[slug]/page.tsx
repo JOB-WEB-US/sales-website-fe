@@ -31,6 +31,7 @@ import { ProductVariant } from '@/types/product';
 import ProductCard from '@/components/features/products/product-card';
 import ProductLiveActivity from '@/components/features/products/product-live-activity';
 import BundleSaveWidget from '@/components/features/products/bundle-save-widget';
+import StickyMobileBuyBar from '@/components/features/products/sticky-mobile-buy-bar';
 import { getProductBySlug, getProducts, createProductReview, mapApiProductToUI, ApiProduct } from '@/lib/api';
 
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
@@ -962,6 +963,16 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             ))}
           </div>
         </div>
+      )}
+
+      {/* Sticky Mobile "Add to Cart" Bar */}
+      {product && currentVariant && (
+        <StickyMobileBuyBar
+          product={product}
+          currentVariant={currentVariant}
+          quantity={quantity}
+          isOutOfStock={isOutOfStock}
+        />
       )}
     </div>
   );
