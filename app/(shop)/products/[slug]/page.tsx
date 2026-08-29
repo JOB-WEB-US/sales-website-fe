@@ -32,6 +32,7 @@ import ProductCard from '@/components/features/products/product-card';
 import ProductLiveActivity from '@/components/features/products/product-live-activity';
 import BundleSaveWidget from '@/components/features/products/bundle-save-widget';
 import StickyMobileBuyBar from '@/components/features/products/sticky-mobile-buy-bar';
+import TrustBadges from '@/components/common/trust-badges';
 import { getProductBySlug, getProducts, createProductReview, mapApiProductToUI, ApiProduct } from '@/lib/api';
 
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
@@ -321,7 +322,10 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
 
                 
                 {product.isSale && (
-                  <span className="absolute top-4 left-4 bg-[#a80000] text-white font-extrabold text-xs uppercase px-3 py-1 rounded-md shadow-md z-10">
+                  <span 
+                    className="sale-badge absolute top-4 left-4 bg-[#a80000] font-extrabold text-xs uppercase px-3 py-1 rounded-md shadow-md z-10"
+                    style={{ backgroundColor: '#a80000', color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
+                  >
                     SALE
                   </span>
                 )}
@@ -353,7 +357,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           {/* RIGHT: Product Info & Order Controls */}
           <div className="lg:col-span-6 space-y-6">
             <div>
-              <span className="inline-block bg-red-950/60 text-[#ff7700] border border-red-800/40 text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider mb-3">
+              <span className="category-pill inline-block bg-red-950/60 text-[#ff7700] border border-red-800/40 text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider mb-3 shadow-sm">
                 {product.categoryLabel || product.category}
               </span>
 
@@ -390,7 +394,10 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                     ? Math.round(((activeOrig - currentPrice) / activeOrig) * 100)
                     : (product.discountPercent || 0);
                   return discount > 0 ? (
-                    <span className="text-xs bg-[#a80000] text-white px-2.5 py-1 rounded-full font-black uppercase tracking-wider">
+                    <span 
+                      className="sale-badge text-xs bg-[#a80000] text-white px-2.5 py-1 rounded-full font-black uppercase tracking-wider"
+                      style={{ backgroundColor: '#a80000', color: '#ffffff' }}
+                    >
                       SAVE {discount}%
                     </span>
                   ) : null;
@@ -558,20 +565,28 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                     type="button"
                     onClick={handleAddToCart}
                     disabled={isOutOfStock}
-                    className="w-full py-3.5 bg-[#262626] hover:bg-[#333] text-white font-bold text-xs uppercase tracking-wider rounded-xl border border-[#383838] transition flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    className="add-to-cart-cta-btn w-full py-3.5 bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-xs uppercase tracking-wider rounded-xl border border-[#1e293b] transition flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed shadow-md"
+                    style={{ backgroundColor: '#0f172a', color: '#ffffff', borderColor: '#1e293b' }}
                   >
-                    <ShoppingBag size={15} /> {isOutOfStock ? 'Out of Stock' : `Add 1 Item • ${formatCurrency(currentPrice * quantity)}`}
+                    <ShoppingBag size={15} className="text-white shrink-0" style={{ color: '#ffffff' }} />
+                    <span className="text-white font-bold" style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}>
+                      {isOutOfStock ? 'Out of Stock' : `Add 1 Item • ${formatCurrency(currentPrice * quantity)}`}
+                    </span>
                   </button>
 
                   <button
                     type="button"
                     onClick={handleBuyNow}
                     disabled={isOutOfStock}
-                    className="w-full py-3.5 bg-[#a80000] hover:bg-[#850000] text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed"
+                    className="w-full py-3.5 bg-[#a80000] hover:bg-[#850000] text-white !text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed"
                   >
-                    <Lock size={15} /> Instant Buy 1 Item
+                    <Lock size={15} className="text-white !text-white shrink-0" />
+                    <span className="text-white !text-white font-black">Instant Buy 1 Item</span>
                   </button>
                 </div>
+
+                {/* Trust Badges & Payment Icons */}
+                <TrustBadges variant="product" />
               </div>
 
             </div>
@@ -886,14 +901,15 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
       {/* Fullscreen Zoom Modal */}
       {isZoomed && (
         <div 
-          className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-between p-4 sm:p-8 animate-fade-in"
+          className="zoom-modal-backdrop fixed inset-0 z-50 bg-black/95 !bg-black/95 flex flex-col items-center justify-between p-4 sm:p-8 animate-fade-in"
           onClick={closeImageModal}
         >
           <button
             onClick={closeImageModal}
-            className="absolute top-4 right-4 text-gray-400 hover:text-white bg-[#1a1a1a]/60 hover:bg-[#1a1a1a] p-2.5 rounded-full border border-gray-800 transition z-10 cursor-pointer"
+            className="absolute top-4 right-4 text-white bg-black/70 hover:bg-[#ff7700] hover:text-black p-2.5 rounded-full border border-white/20 transition z-10 cursor-pointer shadow-xl"
+            title="Close Zoom"
           >
-            <X size={20} />
+            <X size={20} className="text-white" />
           </button>
 
           <div className="hidden sm:block h-6" />
@@ -902,14 +918,15 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             {imagesList.length > 1 && (
               <button
                 onClick={handlePrevImage}
-                className="absolute left-2 sm:left-4 p-3 rounded-full bg-[#1a1a1a]/60 hover:bg-[#ff7700] text-white border border-gray-800 hover:border-[#ff7700] hover:text-black transition z-10 cursor-pointer"
+                className="absolute left-2 sm:left-4 p-3 rounded-full bg-black/70 hover:bg-[#ff7700] text-white hover:text-black border border-white/20 hover:border-[#ff7700] transition z-10 cursor-pointer shadow-2xl"
+                title="Previous Image"
               >
                 <ChevronLeft size={24} />
               </button>
             )}
 
             <div
-              className={`relative max-h-[70vh] aspect-square w-full max-w-2xl overflow-hidden rounded-xl bg-black ${isModalImageZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
+              className={`relative max-h-[70vh] aspect-square w-full max-w-2xl overflow-hidden rounded-2xl bg-black border border-white/10 ${isModalImageZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
               onMouseMove={(event) => {
                 if (isModalImageZoomed) updateModalZoomPosition(event);
               }}
@@ -935,7 +952,8 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             {imagesList.length > 1 && (
               <button
                 onClick={handleNextImage}
-                className="absolute right-2 sm:right-4 p-3 rounded-full bg-[#1a1a1a]/60 hover:bg-[#ff7700] text-white border border-gray-800 hover:border-[#ff7700] hover:text-black transition z-10 cursor-pointer"
+                className="absolute right-2 sm:right-4 p-3 rounded-full bg-black/70 hover:bg-[#ff7700] text-white hover:text-black border border-white/20 hover:border-[#ff7700] transition z-10 cursor-pointer shadow-2xl"
+                title="Next Image"
               >
                 <ChevronRight size={24} />
               </button>
@@ -954,8 +972,8 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                   setIsModalImageZoomed(false);
                   setModalZoomPosition({ x: 50, y: 50 });
                 }}
-                className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-[#181818] border-2 transition cursor-pointer ${
-                  activeImage === img ? 'border-[#ff7700] ring-2 ring-[#ff7700]/30' : 'border-[#262626] opacity-60 hover:opacity-100'
+                className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-black/80 border-2 transition cursor-pointer ${
+                  activeImage === img ? 'border-[#ff7700] ring-2 ring-[#ff7700]/50' : 'border-white/20 opacity-60 hover:opacity-100'
                 }`}
               >
                 <Image src={img} alt={`Zoom Thumbnail ${idx + 1}`} fill className="object-cover" />

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { Zap, CheckCircle, Truck, Sparkles, Tag, ChevronDown, ChevronUp } from "lucide-react";
@@ -141,7 +141,7 @@ export default function BundleSaveWidget({
           <h3 className="font-heading font-black text-sm sm:text-base uppercase tracking-wider text-white flex items-center gap-2">
             <Zap className="w-5 h-5 text-[#ff7700] fill-[#ff7700]" /> {config.title}
           </h3>
-          <span className="text-[10px] font-black tracking-widest text-emerald-400 bg-emerald-950/80 border border-emerald-700/50 px-2.5 py-1 rounded-full uppercase">
+          <span className="bundle-instant-savings text-[10px] font-black tracking-widest text-emerald-400 bg-emerald-950/80 border border-emerald-700/50 px-2.5 py-1 rounded-full uppercase">
             ⚡ Instant Savings
           </span>
         </div>
@@ -196,7 +196,7 @@ export default function BundleSaveWidget({
                     <div className="text-sm font-extrabold text-white flex items-center gap-2">
                       <span>Buy {tier.quantity} {tier.quantity > 1 ? "Items" : "Item"}</span>
                       {tier.discountValue > 0 && (
-                        <span className="text-[10px] font-black text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
+                        <span className="bundle-save-pill text-[10px] font-black text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
                           Save {tier.discountType === "percentage" ? `${tier.discountValue}%` : `$${tier.discountValue}`}
                         </span>
                       )}
@@ -288,7 +288,7 @@ export default function BundleSaveWidget({
         {totalSavings > 0 && (
           <div className="flex items-center justify-between text-xs font-bold">
             <span className="text-gray-400">Your Volume Savings:</span>
-            <span className="text-emerald-400">-{formatCurrency(totalSavings)} (Auto-Discount)</span>
+            <span className="bundle-savings-total text-emerald-400 font-extrabold">-{formatCurrency(totalSavings)} (Auto-Discount)</span>
           </div>
         )}
 

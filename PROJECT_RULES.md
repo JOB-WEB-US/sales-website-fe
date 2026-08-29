@@ -35,6 +35,12 @@ Unless explicitly allowed by the user, DO NOT use:
 2. **Component Structure:** Keep React components modular, reusable, and placed inside `components/ui/` or `components/features/`.
 3. **Database Security:** Ensure all PostgreSQL database migrations are managed via `npx prisma migrate`.
 4. **Server vs Client Components:** Keep Server Components (RSC) by default; only use `'use client'` where interactivity, state (Zustand), or Framer Motion is required.
+5. **🎨 Color System & Dark/Light Mode Strict Standard:**
+   - AI MUST strictly adhere to `COLOR_SYSTEM.md` for all color palettes, contrast ratios, and badges.
+   - **No broken Unicode symbols:** Always use inline SVG vector for payment/brand logos (e.g. Apple Pay SVG, never use raw `` which causes `□` on Windows).
+   - **Sale Badges:** Modern athletic red `bg-red-600` with clean `text-white font-extrabold` (NEVER use dark maroon with yellow text).
+   - **Wishlist Buttons:** Use clean translucent glassmorphism `bg-black/40 hover:bg-black/70 backdrop-blur-md text-white border border-white/10`.
+   - **Text Contrast:** Ensure 4.5:1 WCAG contrast in both Light (`#0F172A` text on `#FFF`/`#F8FAFC`) and Dark (`#FCF7FA` text on `#0B0B0B`/`#141414`).
 
 ---
 
@@ -45,9 +51,9 @@ Dưới đây là các prompt mẫu chuẩn hóa để phát triển dự án Ve
 ### 1. 🎯 Master System Prompt (Ngữ cảnh mặc định cho AI)
 ```markdown
 Bạn là một Senior Fullstack Developer chuyên về Next.js (App Router), TypeScript và E-Commerce POD.
-Nhiệm vụ của bạn là phát triển dự án "Velora Store" (sales-website-fe) tuân thủ 100% các quy tắc trong PROJECT_RULES.md:
+Nhiệm vụ của bạn là phát triển dự án "Velora Store" (sales-website-fe) tuân thủ 100% các quy tắc trong PROJECT_RULES.md & COLOR_SYSTEM.md:
 - Frontend: Next.js 13+ (App Router), TypeScript 100% strict type.
-- Styling: Tailwind CSS + Shadcn UI primitives + Lucide Icons.
+- Styling: Tailwind CSS + Shadcn UI primitives + Lucide Icons + COLOR_SYSTEM.md (Chuẩn màu 2 chế độ Light & Dark).
 - Client State: Zustand (`store/useCartStore.ts`, `store/useUIStore.ts`). Không dùng Redux/Context cho Cart.
 - Data Fetching: TanStack Query (React Query v5) + Custom hooks.
 - Animation: Framer Motion cho Cart Side Drawer, Modals, Sliders.
@@ -62,7 +68,7 @@ Nhiệm vụ của bạn là phát triển dự án "Velora Store" (sales-websit
 1. Tạo component tại vị trí thư mục chuẩn (`components/features/` hoặc `components/ui/`).
 2. Tương tác State: Dùng Zustand stores trong `store/`.
 3. Type-Safety: Định nghĩa đầy đủ interface/type trong `types/`. Không dùng `any`.
-4. Responsive: Tailwind CSS cho tất cả breakpoints (sm, md, lg, xl).
+4. Responsive & Colors: Tailwind CSS chuẩn Light/Dark mode theo COLOR_SYSTEM.md cho tất cả breakpoints (sm, md, lg, xl).
 ```
 
 ### 3. 🔄 Prompt Kết Nối API & TanStack Query
@@ -76,7 +82,6 @@ Nhiệm vụ của bạn là phát triển dự án "Velora Store" (sales-websit
 ### 4. 🛠️ Prompt Sửa Lỗi & Refactor (Fix Bug)
 ```markdown
 [SỬA LỖI]: <Mô tả hoặc dán log lỗi>
-1. Phân tích nguyên nhân gốc rễ (Root Cause), đặc biệt chú ý Hydration Mismatch giữa SSR và Zustand localStorage.
+1. Phân tích nguyên nhân gốc rễ (Root Cause), đặc biệt chú ý Hydration Mismatch giữa SSR và Zustand localStorage, kiểm tra hiển thị cả 2 chế độ Dark & Light.
 2. Sửa lỗi triệt để, đảm bảo type-safe và không làm vỡ kiến trúc dự án.
 ```
-

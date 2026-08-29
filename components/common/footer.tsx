@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useUIStore } from '@/store/useUIStore';
+import TrustBadges from '@/components/common/trust-badges';
 
 export default function Footer() {
   return (
@@ -82,6 +83,11 @@ export default function Footer() {
               </button>
             </form>
           </div>
+        </div>
+
+        {/* Payment & Security Trust Badges */}
+        <div className="mt-10 pt-6 border-t border-[#181818]">
+          <TrustBadges variant="footer" />
         </div>
       </div>
 

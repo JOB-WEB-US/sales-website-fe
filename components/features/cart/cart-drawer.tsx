@@ -19,6 +19,7 @@ import {
 import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
 import { formatCurrency } from "@/lib/formatters";
+import TrustBadges from "@/components/common/trust-badges";
 
 interface PublicCoupon {
   id: string;
@@ -403,6 +404,9 @@ export default function CartDrawer() {
                   <span>Proceed to Checkout</span>
                   <ArrowRight size={16} />
                 </button>
+
+                {/* Trust Badges */}
+                <TrustBadges variant="cart" />
               </div>
             )}
           </motion.div>

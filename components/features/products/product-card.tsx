@@ -49,10 +49,16 @@ export default function ProductCard({ product }: ProductCardProps) {
       >
         {/* Dynamic SALE & Discount Badge */}
         {product.isSale && (
-          <div className="absolute top-2.5 left-2.5 bg-[#a80000] text-white font-black text-[10px] uppercase px-2 py-0.5 rounded shadow-lg z-10 flex items-center gap-1">
-            <span>SALE</span>
+          <div 
+            className="sale-badge absolute top-2.5 left-2.5 bg-[#a80000] font-extrabold text-[10px] tracking-wider uppercase px-2.5 py-0.5 rounded-full shadow-md z-10 flex items-center gap-1.5"
+            style={{ backgroundColor: '#a80000', color: '#ffffff' }}
+          >
+            <span style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff', fontWeight: 900 }}>SALE</span>
             {product.discountPercent && product.discountPercent > 0 ? (
-              <span className="bg-black/50 px-1 py-0.2 rounded text-[9px] font-bold text-amber-300">
+              <span 
+                className="sale-discount-tag text-[10px] font-bold"
+                style={{ backgroundColor: 'transparent', color: '#ffffff', WebkitTextFillColor: '#ffffff', fontWeight: 900 }}
+              >
                 -{product.discountPercent}%
               </span>
             ) : null}
@@ -66,14 +72,14 @@ export default function ProductCard({ product }: ProductCardProps) {
             e.stopPropagation();
             toggleWishlist(product);
           }}
-          className={`absolute top-2.5 right-2.5 p-1.5 rounded-full transition z-10 ${
+          className={`absolute top-2.5 right-2.5 p-2 rounded-full backdrop-blur-md transition-all duration-200 z-10 ${
             isSaved
-              ? 'bg-red-950 text-red-500 border border-red-800'
-              : 'bg-[#000]/60 hover:bg-[#000] text-white'
+              ? 'bg-red-600 text-white shadow-lg shadow-red-600/30 scale-105'
+              : 'bg-black/40 hover:bg-black/70 text-white border border-white/10 shadow-sm'
           }`}
           title={isSaved ? 'Remove from Wishlist' : 'Add to Wishlist'}
         >
-          <Heart size={16} className={isSaved ? 'fill-red-500 text-red-500' : ''} />
+          <Heart size={15} className={isSaved ? 'fill-white text-white' : 'text-white'} />
         </button>
 
         {/* Front & Back Images with Error Fallback */}

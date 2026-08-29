@@ -165,15 +165,15 @@ html.light-mode div.bg-\[\#262626\],
 html.light-mode div.bg-\[\#282828\],
 html.light-mode div.bg-\[\#2a2a2a\],
 html.light-mode span.bg-\[\#2a2a2a\],
-html.light-mode button.bg-\[\#1e1e1e\]:not(.color-swatch-pill),
-html.light-mode button.bg-\[\#1a1a1a\]:not(.color-swatch-pill),
-html.light-mode button.bg-\[\#181818\]:not(.color-swatch-pill),
-html.light-mode button.bg-\[\#141414\]:not(.color-swatch-pill),
-html.light-mode button.bg-\[\#202020\]:not(.color-swatch-pill),
-html.light-mode button.bg-\[\#222\]:not(.color-swatch-pill),
-html.light-mode button.bg-\[\#242424\]:not(.color-swatch-pill),
-html.light-mode button.bg-\[\#282828\]:not(.color-swatch-pill),
-html.light-mode button.bg-white:not(.color-swatch-pill) {
+html.light-mode button.bg-\[\#1e1e1e\]:not(.color-swatch-pill):not(.add-to-cart-cta-btn),
+html.light-mode button.bg-\[\#1a1a1a\]:not(.color-swatch-pill):not(.add-to-cart-cta-btn),
+html.light-mode button.bg-\[\#181818\]:not(.color-swatch-pill):not(.add-to-cart-cta-btn),
+html.light-mode button.bg-\[\#141414\]:not(.color-swatch-pill):not(.add-to-cart-cta-btn),
+html.light-mode button.bg-\[\#202020\]:not(.color-swatch-pill):not(.add-to-cart-cta-btn),
+html.light-mode button.bg-\[\#222\]:not(.color-swatch-pill):not(.add-to-cart-cta-btn),
+html.light-mode button.bg-\[\#242424\]:not(.color-swatch-pill):not(.add-to-cart-cta-btn),
+html.light-mode button.bg-\[\#282828\]:not(.color-swatch-pill):not(.add-to-cart-cta-btn),
+html.light-mode button.bg-white:not(.color-swatch-pill):not(.add-to-cart-cta-btn) {
   background-color: #f1f5f9 !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
@@ -279,11 +279,11 @@ html.light-mode .text-gray-500 {
   color: #64748b !important;
 }
 
-/* Generic text-white override (except protected brand badges and hero slider) */
-html.light-mode .text-white:not(.bg-\[\#a80000\]):not(.bg-red-600):not(.bg-\[\#ff7700\]):not(.text-white-force):not(.bg-emerald-600) {
+/* Generic text-white override (except protected brand badges, sale badges and buttons) */
+html.light-mode .text-white:not(.sale-badge):not(.sale-badge *):not(.sale-discount-tag):not(.bg-\[\#a80000\]):not(.bg-red-600):not(.bg-\[\#ff7700\]):not(.text-white-force):not(.bg-emerald-600):not(button):not(button *) {
   color: #0f172a !important;
 }
-html.light-mode .text-white:not(.bg-\[\#a80000\]):not(.bg-red-600):not(.bg-\[\#ff7700\]):not(.text-white-force):not(.bg-emerald-600):hover {
+html.light-mode .text-white:not(.sale-badge):not(.sale-badge *):not(.sale-discount-tag):not(.bg-\[\#a80000\]):not(.bg-red-600):not(.bg-\[\#ff7700\]):not(.text-white-force):not(.bg-emerald-600):not(button):not(button *):hover {
   color: #ff7700 !important;
 }
 
@@ -301,24 +301,170 @@ html.light-mode .border-gray-700 {
 }
 
 /* 11. PRESERVE HIGH CONTRAST ON RED & ORANGE BRAND BUTTONS & BADGES */
+.sale-badge,
+.sale-badge *,
+.sale-badge span,
+html.light-mode .sale-badge,
+html.light-mode .sale-badge *,
+html.light-mode .sale-badge span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.sale-badge,
+html.light-mode .sale-badge {
+  background-color: #a80000 !important;
+}
+
+.sale-discount-tag,
+html.light-mode .sale-discount-tag,
+html.light-mode .sale-badge .sale-discount-tag {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
 html.light-mode .bg-\[\#a80000\],
-html.light-mode .bg-\[\#a80000\] *,
-html.light-mode .bg-\[\#a80000\] span,
 html.light-mode button.bg-\[\#a80000\],
-html.light-mode button.bg-\[\#a80000\] *,
 html.light-mode a.bg-\[\#a80000\],
-html.light-mode a.bg-\[\#a80000\] *,
 html.light-mode .bg-red-600,
-html.light-mode .bg-red-600 * {
+html.light-mode button.bg-red-600 {
   background-color: #a80000 !important;
   color: #ffffff !important;
 }
 
+html.light-mode .bg-\[\#a80000\] > span,
+html.light-mode .bg-\[\#a80000\] > svg,
+html.light-mode button.bg-\[\#a80000\] > span,
+html.light-mode button.bg-\[\#a80000\] > svg,
+html.light-mode a.bg-\[\#a80000\] > span,
+html.light-mode a.bg-\[\#a80000\] > svg {
+  color: #ffffff !important;
+}
+
 html.light-mode .bg-\[\#ff7700\],
-html.light-mode .bg-\[\#ff7700\] *,
-html.light-mode .bg-\[\#ff7700\] span,
-html.light-mode button.bg-\[\#ff7700\],
-html.light-mode button.bg-\[\#ff7700\] * {
+html.light-mode button.bg-\[\#ff7700\] {
+  background-color: #ff7700 !important;
+  color: #000000 !important;
+}
+
+html.light-mode .bg-\[\#ff7700\] > span,
+html.light-mode button.bg-\[\#ff7700\] > span {
+  color: #000000 !important;
+}
+
+/* Category Pills & Trending Badges in Light Mode */
+html.light-mode .category-pill,
+html.light-mode .bg-red-950\/60,
+html.light-mode span.bg-red-950\/60,
+html.light-mode [class*="bg-red-950"] {
+  background-color: #fff7ed !important;
+  color: #c2410c !important;
+  border: 1.5px solid #fed7aa !important;
+  font-weight: 800 !important;
+}
+
+/* Bundle & Save Widget Badges in Light Mode */
+html.light-mode .bundle-instant-savings,
+html.light-mode .bundle-save-pill,
+html.light-mode span[class*="bg-emerald-950"],
+html.light-mode div[class*="bg-emerald-950"] {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+  font-weight: 800 !important;
+}
+
+html.light-mode .bundle-savings-total,
+html.light-mode .text-emerald-400 {
+  color: #059669 !important;
+  font-weight: 800 !important;
+}
+
+/* Add to Cart CTA Button (Both Dark and Light Modes) */
+.add-to-cart-cta-btn,
+html.light-mode .add-to-cart-cta-btn,
+button.add-to-cart-cta-btn,
+html.light-mode button.add-to-cart-cta-btn {
+  background-color: #0f172a !important;
+  border: 1.5px solid #1e293b !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25) !important;
+}
+
+.add-to-cart-cta-btn *,
+.add-to-cart-cta-btn span,
+.add-to-cart-cta-btn svg,
+html.light-mode .add-to-cart-cta-btn *,
+html.light-mode .add-to-cart-cta-btn span,
+html.light-mode .add-to-cart-cta-btn svg {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.add-to-cart-cta-btn:hover,
+html.light-mode .add-to-cart-cta-btn:hover {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+/* Payment Icons & Trust Badges in Light Mode */
+html.light-mode [title="Apple Pay"],
+html.light-mode [title="Apple Pay"] *,
+html.light-mode [title="Apple Pay"] span {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+html.light-mode [title="American Express"],
+html.light-mode [title="American Express"] *,
+html.light-mode [title="American Express"] span {
+  background-color: #006FCF !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html.light-mode [title="Discover"],
+html.light-mode [title="Discover"] *,
+html.light-mode [title="Discover"] span {
+  background-color: #FF6000 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html.light-mode [title="PayPal"] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light-mode [title="Visa"],
+html.light-mode [title="Mastercard"],
+html.light-mode [title="Google Pay"] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Zoom Modal in Light Mode: Theatre Dark Canvas */
+html.light-mode div[class*="bg-black/95"] {
+  background-color: rgba(0, 0, 0, 0.95) !important;
+  color: #ffffff !important;
+}
+
+html.light-mode div[class*="bg-black/95"] * {
+  color: #ffffff !important;
+}
+
+html.light-mode div[class*="bg-black/95"] button {
+  background-color: rgba(30, 30, 30, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+html.light-mode div[class*="bg-black/95"] button:hover {
   background-color: #ff7700 !important;
   color: #000000 !important;
 }

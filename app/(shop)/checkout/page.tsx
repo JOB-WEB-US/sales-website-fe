@@ -11,6 +11,7 @@ import { Order, ShippingAddress } from '@/types/orders';
 import { createOrder } from '@/lib/api';
 import dynamic from 'next/dynamic';
 const PayPalButton = dynamic(() => import('@/components/features/checkout/paypal-button'), { ssr: false });
+import TrustBadges from '@/components/common/trust-badges';
 import { 
   ShieldCheck, 
   Truck, 
@@ -725,15 +726,8 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Guarantees Badges */}
-              <div className="grid grid-cols-2 gap-2 pt-2 text-[11px] text-gray-400 border-t border-[#222]">
-                <div className="flex items-[#ff7700] gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" /> 30-Day Money Back
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" /> POD Print Quality
-                </div>
-              </div>
+              {/* Guarantees & Trust Badges */}
+              <TrustBadges variant="checkout" />
 
             </div>
           </div>
