@@ -166,13 +166,19 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
 /**
  * 1. Products API
  */
-export async function getProducts(params?: { category?: string; search?: string }): Promise<ApiProduct[]> {
+export async function getProducts(params?: { category?: string; search?: string; limit?: number; page?: number }): Promise<ApiProduct[]> {
   const query = new URLSearchParams();
   if (params?.category && params.category !== 'all') {
     query.set('category', params.category);
   }
   if (params?.search) {
     query.set('search', params.search);
+  }
+  if (params?.limit) {
+    query.set('limit', params.limit.toString());
+  }
+  if (params?.page) {
+    query.set('page', params.page.toString());
   }
 
   const queryString = query.toString() ? `?${query.toString()}` : '';
