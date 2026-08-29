@@ -130,6 +130,16 @@ export interface ApiOrder {
   createdAt: string;
 }
 
+import { MOCK_PRODUCTS } from './mock-data';
+import { MOCK_BLOGS } from './mock-blogs';
+
+const FALLBACK_CATEGORIES: ApiCategory[] = [
+  { id: 'cat-1', name: 'Halloween Tees', slug: 'halloween' },
+  { id: 'cat-2', name: 'Horror Graphics', slug: 'horror' },
+  { id: 'cat-3', name: 'Country Music', slug: 'ella-langley' },
+  { id: 'cat-4', name: 'Cyberpunk & Vintage', slug: 'cyberpunk' },
+];
+
 /**
  * Generic fetcher with error handling
  */
@@ -156,7 +166,7 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
 
     return await res.json();
   } catch (error: any) {
-    console.error(`Failed request to ${url}:`, error);
+    console.warn(`Failed request to ${url}:`, error?.message || error);
     throw error;
   }
 }
@@ -167,47 +177,57 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
  * 1. Products API
  */
 export async function getProducts(params?: { category?: string; search?: string; limit?: number; page?: number }): Promise<ApiProduct[]> {
-  const query = new URLSearchParams();
-  if (params?.category && params.category !== 'all') {
-    query.set('category', params.category);
-  }
-  if (params?.search) {
-    query.set('search', params.search);
-  }
-  if (params?.limit) {
-    query.set('limit', params.limit.toString());
-  }
-  if (params?.page) {
-    query.set('page', params.page.toString());
-  }
+  try {
+    const query = new URLSearchParams();
+    if (params?.category && params.category !== 'all') {
+      query.set('category', params.category);
+    }
+    if (params?.search) {
+      query.set('search', params.search);
+    }
+    if (params?.limit) {
+      query.set('limit', params.limit.toString());
+    }
+    if (params?.page) {
+      query.set('page', params.page.toString());
+    }
 
-  const queryString = query.toString() ? `?${query.toString()}` : '';
-  const response = await fetchApi<{ success: boolean; count: number; data: ApiProduct[] }>(`/products${queryString}`);
-  return (response.data || []).filter(
-    (product) => product.isActive !== false && product.category?.isHidden !== true
-  );
+    const queryString = query.toString() ? `?${query.toString()}` : '';
+    const response = await fetchApi<{ success: boolean; count: number; data: ApiProduct[] }>(`/products${queryString}`);
+    if (response && Array.isArray(response.data) && response.data.length > 0) {
+      return response.data.filter(
+        (product) => product.isActive !== false && product.category?.isHidden !== true
+      );
+    }
+  } catch (error) {
+    console.warn("Backend unavailable, using fallback mock products");
+  }
+  return (MOCK_PRODUCTS as unknown as ApiProduct[]);
 }
 
 export async function getProductBySlug(slug: string): Promise<ApiProduct | null> {
   try {
     const response = await fetchApi<{ success: boolean; data: ApiProduct }>(`/products/${slug}`);
-    const product = response.data || null;
-    if (!product || product.isActive === false || product.category?.isHidden === true) {
-      return null;
+    const product = response?.data || null;
+    if (product && product.isActive !== false && product.category?.isHidden !== true) {
+      return product;
     }
-    return product;
   } catch (error) {
-    return null;
+    console.warn(`Backend unavailable for product ${slug}, using fallback`);
   }
+
+  const fallback = MOCK_PRODUCTS.find((p) => p.slug === slug || p.id === slug);
+  return (fallback as unknown as ApiProduct) || null;
 }
 
 export async function getAllReviews(): Promise<ApiReview[]> {
   try {
     const response = await fetchApi<{ success: boolean; count: number; data: ApiReview[] }>('/products/reviews/all');
-    return response.data || [];
-  } catch (error) {
-    return [];
-  }
+    if (response?.data && Array.isArray(response.data) && response.data.length > 0) {
+      return response.data;
+    }
+  } catch (error) {}
+  return [];
 }
 
 export async function createProductReview(
@@ -227,10 +247,11 @@ export async function createProductReview(
 export async function getCategories(): Promise<ApiCategory[]> {
   try {
     const response = await fetchApi<{ success: boolean; count: number; data: ApiCategory[] }>('/categories');
-    return (response.data || []).filter((category) => category.isHidden !== true);
-  } catch (error) {
-    return [];
-  }
+    if (response && Array.isArray(response.data) && response.data.length > 0) {
+      return response.data.filter((category) => category.isHidden !== true);
+    }
+  } catch (error) {}
+  return FALLBACK_CATEGORIES;
 }
 
 /**
@@ -261,20 +282,20 @@ export async function getBlogs(category?: string): Promise<ApiBlog[]> {
   const query = category && category.toLowerCase() !== 'all' ? `?category=${encodeURIComponent(category)}` : '';
   try {
     const response = await fetchApi<{ success: boolean; count: number; data: ApiBlog[] }>(`/blogs${query}`);
-    return response.data || [];
-  } catch (error) {
-    return [];
-  }
+    if (response && Array.isArray(response.data) && response.data.length > 0) {
+      return response.data;
+    }
+  } catch (error) {}
+  return (MOCK_BLOGS as unknown as ApiBlog[]);
 }
-
 
 export async function getBlogBySlug(slug: string): Promise<ApiBlog | null> {
   try {
     const response = await fetchApi<{ success: boolean; data: ApiBlog }>(`/blogs/${slug}`);
-    return response.data || null;
-  } catch (error) {
-    return null;
-  }
+    if (response?.data) return response.data;
+  } catch (error) {}
+  const found = MOCK_BLOGS.find((b) => b.slug === slug || b.id === slug);
+  return (found as unknown as ApiBlog) || null;
 }
 
 /**

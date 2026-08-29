@@ -43,12 +43,14 @@ const DEFAULT_SLIDES: BannerSlide[] = [
   },
 ];
 
+import { API_BASE_URL } from '@/lib/api';
+
 export default function HeroSlider() {
   const [slides, setSlides] = useState<BannerSlide[]>(DEFAULT_SLIDES);
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/v1/banners')
+    fetch(`${API_BASE_URL}/banners`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && Array.isArray(data.data) && data.data.length > 0) {
@@ -56,7 +58,7 @@ export default function HeroSlider() {
         }
       })
       .catch((err) => {
-        console.warn('Could not load dynamic banners, using default slides:', err);
+        console.warn('Could not load dynamic banners, using default slides');
       });
   }, []);
 

@@ -8,7 +8,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { formatCurrency } from '@/lib/formatters';
 import { SHIPPING_METHODS, saveOrderToStorage } from '@/lib/mock-orders';
 import { Order, ShippingAddress } from '@/types/orders';
-import { createOrder } from '@/lib/api';
+import { createOrder, API_BASE_URL } from '@/lib/api';
 import dynamic from 'next/dynamic';
 const PayPalButton = dynamic(() => import('@/components/features/checkout/paypal-button'), { ssr: false });
 import TrustBadges from '@/components/common/trust-badges';
@@ -104,7 +104,7 @@ export default function CheckoutPage() {
     }
 
     // Fetch dynamic shipping threshold
-    fetch("http://localhost:5000/api/v1/settings/shipping")
+    fetch(`${API_BASE_URL}/settings/shipping`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data?.freeShippingThreshold) {
@@ -159,7 +159,7 @@ export default function CheckoutPage() {
     setValidatingCoupon(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/v1/coupons/validate", {
+      const res = await fetch(`${API_BASE_URL}/coupons/validate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, subtotal, shippingFee: selectedShipping.price }),

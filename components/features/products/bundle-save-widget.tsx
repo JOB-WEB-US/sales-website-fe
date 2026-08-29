@@ -30,12 +30,25 @@ interface BundleSaveWidgetProps {
   onVariantChange?: (variant: ProductVariant) => void;
 }
 
+import { API_BASE_URL } from "@/lib/api";
+
+const DEFAULT_BUNDLE_CONFIG: BundleConfig = {
+  enabled: true,
+  title: "BUNDLE & SAVE MORE!",
+  subtitle: "Mix and match any colors & sizes. Volume discount automatically applied!",
+  tiers: [
+    { id: "tier-1", quantity: 1, discountType: "percentage", discountValue: 0, badgeText: "", freeShipping: false, isPopular: false },
+    { id: "tier-2", quantity: 2, discountType: "percentage", discountValue: 10, badgeText: "🔥 MOST POPULAR", freeShipping: false, isPopular: true },
+    { id: "tier-3", quantity: 3, discountType: "percentage", discountValue: 20, badgeText: "🏆 BEST VALUE • FREE SHIPPING", freeShipping: true, isPopular: false },
+  ],
+};
+
 export default function BundleSaveWidget({
   product,
   selectedVariant,
 }: BundleSaveWidgetProps) {
-  const [config, setConfig] = useState<BundleConfig | null>(null);
-  const [selectedQty, setSelectedQty] = useState(1);
+  const [config, setConfig] = useState<BundleConfig | null>(DEFAULT_BUNDLE_CONFIG);
+  const [selectedQty, setSelectedQty] = useState(2);
   const [bundleItems, setBundleItems] = useState<{ size: string; color: string; productType: string }[]>([]);
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
@@ -49,19 +62,21 @@ export default function BundleSaveWidget({
 
   // Fetch bundle settings from backend
   useEffect(() => {
-    fetch("http://localhost:5000/api/v1/settings/bundles")
+    fetch(`${API_BASE_URL}/settings/bundles`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data && data.data.enabled) {
           setConfig(data.data);
-          // Default to popular tier if exists
           const pop = data.data.tiers.find((t: BundleTier) => t.isPopular);
           if (pop) {
             setSelectedQty(pop.quantity);
           }
         }
       })
-      .catch((err) => console.error("Failed to load bundles:", err));
+      .catch((err) => {
+        // Fallback to default bundle config if backend is offline
+        setConfig(DEFAULT_BUNDLE_CONFIG);
+      });
   }, []);
 
   // Sync bundle item configurations when quantity changes

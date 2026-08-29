@@ -20,6 +20,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
 import { formatCurrency } from "@/lib/formatters";
 import TrustBadges from "@/components/common/trust-badges";
+import { API_BASE_URL } from "@/lib/api";
 
 interface PublicCoupon {
   id: string;
@@ -65,7 +66,7 @@ export default function CartDrawer() {
   useEffect(() => {
     if (isCartOpen) {
       // 1. Fetch coupons
-      fetch("http://localhost:5000/api/v1/coupons")
+      fetch(`${API_BASE_URL}/coupons`)
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
@@ -81,7 +82,7 @@ export default function CartDrawer() {
         });
 
       // 2. Fetch shipping config
-      fetch("http://localhost:5000/api/v1/settings/shipping")
+      fetch(`${API_BASE_URL}/settings/shipping`)
         .then((res) => res.json())
         .then((data) => {
           if (data.success && data.data) {
@@ -89,7 +90,7 @@ export default function CartDrawer() {
             if (data.data.enabled !== undefined) setShippingBarEnabled(Boolean(data.data.enabled));
           }
         })
-        .catch((err) => console.warn("Could not load shipping config:", err));
+        .catch((err) => console.warn("Could not load shipping config"));
     }
   }, [isCartOpen]);
 
@@ -102,7 +103,7 @@ export default function CartDrawer() {
     setValidating(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/v1/coupons/validate", {
+      const res = await fetch(`${API_BASE_URL}/coupons/validate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, subtotal, shippingFee: 4.99 }),
