@@ -9,6 +9,7 @@ import { User, Package, MapPin, Settings, LogOut, Truck, ArrowRight, ShieldCheck
 import { getOrdersFromStorage, getOrderTrackingStatus } from '@/lib/mock-orders';
 import { Order } from '@/types/orders';
 import { formatCurrency } from '@/lib/formatters';
+import { useWishlistStore } from '@/store/useWishlistStore';
 
 export default function AccountDashboardPage() {
   const router = useRouter();
@@ -177,8 +178,10 @@ export default function AccountDashboardPage() {
       const ordersMap = JSON.parse(data);
       
       let qty = 0;
+      const currentEmail = userEmail.trim().toLowerCase();
       Object.values(ordersMap).forEach((order: any) => {
-        if (order.items && Array.isArray(order.items) && order.status === 'delivered') {
+        const orderEmail = (order.shippingAddress?.email || order.userEmail || '').trim().toLowerCase();
+        if (orderEmail === currentEmail && order.items && Array.isArray(order.items) && order.status === 'delivered') {
           order.items.forEach((item: any) => {
             if (item.productId === productId) {
               qty += (item.quantity || 1);
@@ -192,12 +195,23 @@ export default function AccountDashboardPage() {
     }
   };
 
-  // Helper to load and sort orders (newest first)
-  const loadSortedOrders = () => {
-    const allOrders = Object.values(getOrdersFromStorage()).sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-    setOrders(allOrders);
+  // Helper to load and sort orders (newest first) for the specific logged-in user
+  const loadSortedOrders = (email?: string) => {
+    const currentEmail = (email || userEmail || '').trim().toLowerCase();
+    if (!currentEmail) {
+      setOrders([]);
+      return;
+    }
+
+    const allOrders = Object.values(getOrdersFromStorage());
+    const userOrders = allOrders
+      .filter((order) => {
+        const orderEmail = (order.shippingAddress?.email || (order as any).userEmail || '').trim().toLowerCase();
+        return orderEmail === currentEmail;
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    setOrders(userOrders);
   };
 
   const handleConfirmDelivery = (orderId: string) => {
@@ -258,6 +272,7 @@ export default function AccountDashboardPage() {
 
   useEffect(() => {
     let currentName = '';
+    let currentEmail = '';
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('velora_user');
       if (!stored) {
@@ -266,15 +281,18 @@ export default function AccountDashboardPage() {
       }
       try {
         const parsed = JSON.parse(stored);
-        if (parsed.email) setUserEmail(parsed.email);
+        if (parsed.email) {
+          setUserEmail(parsed.email);
+          currentEmail = parsed.email;
+        }
         if (parsed.name) {
           setUserName(parsed.name);
           currentName = parsed.name;
         }
       } catch (e) {}
       loadAddresses(currentName);
+      loadSortedOrders(currentEmail);
     }
-    loadSortedOrders();
     setIsLoading(false);
   }, []);
 
@@ -282,25 +300,27 @@ export default function AccountDashboardPage() {
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('velora_user');
+      localStorage.removeItem('velora_auth_token');
     }
+    useWishlistStore.getState().clearOnLogout();
     router.push('/account/login');
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0d0d0d] text-white py-10 md:py-16">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#0d0d0d] text-gray-900 dark:text-white py-10 md:py-16 transition-colors">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-pulse">
-          <div className="bg-[#141414] rounded-3xl border border-[#222] p-6 sm:p-8 flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-[#222]" />
+          <div className="bg-white dark:bg-[#141414] rounded-3xl border border-gray-200 dark:border-[#222] p-6 sm:p-8 flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-[#222]" />
             <div className="space-y-2 flex-1">
-              <div className="h-5 bg-[#222] rounded w-48" />
-              <div className="h-3 bg-[#1e1e1e] rounded w-32" />
+              <div className="h-5 bg-gray-200 dark:bg-[#222] rounded w-48" />
+              <div className="h-3 bg-gray-100 dark:bg-[#1e1e1e] rounded w-32" />
             </div>
           </div>
-          <div className="h-12 bg-[#141414] rounded-2xl border border-[#222]" />
+          <div className="h-12 bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222]" />
           <div className="space-y-4">
-            <div className="h-32 bg-[#141414] rounded-2xl border border-[#222]" />
-            <div className="h-32 bg-[#141414] rounded-2xl border border-[#222]" />
+            <div className="h-32 bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222]" />
+            <div className="h-32 bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222]" />
           </div>
         </div>
       </div>
@@ -308,64 +328,64 @@ export default function AccountDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] text-white py-10 md:py-16">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0d0d0d] text-gray-900 dark:text-white py-10 md:py-16 transition-colors">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Profile Header */}
-        <div className="bg-[#141414] rounded-3xl border border-[#222] p-6 sm:p-8 mb-8 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="bg-white dark:bg-[#141414] rounded-3xl border border-gray-200 dark:border-[#222] p-6 sm:p-8 mb-8 shadow-sm dark:shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 transition-colors">
           <div className="flex items-center gap-4 text-center sm:text-left">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#a80000] to-[#ff7700] p-0.5 shadow-lg flex-shrink-0">
-              <div className="w-full h-full bg-[#181818] rounded-full flex items-center justify-center text-white font-black text-xl font-heading">
-                {userName ? userName.charAt(0) : 'U'}
+            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#a80000] to-[#ff7700] p-0.5 shadow-md flex-shrink-0">
+              <div className="w-full h-full bg-gray-100 dark:bg-[#181818] rounded-full flex items-center justify-center text-gray-900 dark:text-white font-black text-xl font-heading">
+                {userName ? userName.charAt(0).toUpperCase() : 'U'}
               </div>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-extrabold text-white font-heading">{userName}</h1>
-                <span className="px-2.5 py-0.5 bg-emerald-950 text-emerald-400 text-[10px] font-bold rounded-full border border-emerald-800/50">
+                <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white font-heading">{userName}</h1>
+                <span className="px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold rounded-full border border-emerald-200 dark:border-emerald-800/50">
                   VIP Member
                 </span>
               </div>
-              <p className="text-xs text-gray-400 mt-0.5">{userEmail}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{userEmail}</p>
             </div>
           </div>
 
           <button
             onClick={handleLogout}
-            className="px-4 py-2 bg-[#222] hover:bg-[#333] text-gray-300 hover:text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5"
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-[#222] dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
             <LogOut size={14} /> Sign Out
           </button>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-[#222] mb-8 overflow-x-auto">
+        <div className="flex border-b border-gray-200 dark:border-[#222] mb-8 overflow-x-auto transition-colors">
           <button
             onClick={() => setActiveTab('orders')}
-            className={`py-3 px-6 text-xs font-extrabold uppercase tracking-wider border-b-2 transition flex items-center gap-2 whitespace-nowrap ${
+            className={`py-3 px-6 text-xs font-extrabold uppercase tracking-wider border-b-2 transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
               activeTab === 'orders'
-                ? 'border-[#ff7700] text-[#ff7700]'
-                : 'border-transparent text-gray-400 hover:text-white'
+                ? 'border-[#ff7700] text-[#c2410c] dark:text-[#ff7700]'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <Package size={16} /> Order History ({orders.length})
           </button>
           <button
             onClick={() => setActiveTab('addresses')}
-            className={`py-3 px-6 text-xs font-extrabold uppercase tracking-wider border-b-2 transition flex items-center gap-2 whitespace-nowrap ${
+            className={`py-3 px-6 text-xs font-extrabold uppercase tracking-wider border-b-2 transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
               activeTab === 'addresses'
-                ? 'border-[#ff7700] text-[#ff7700]'
-                : 'border-transparent text-gray-400 hover:text-white'
+                ? 'border-[#ff7700] text-[#c2410c] dark:text-[#ff7700]'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <MapPin size={16} /> Saved Addresses
           </button>
           <button
             onClick={() => setActiveTab('settings')}
-            className={`py-3 px-6 text-xs font-extrabold uppercase tracking-wider border-b-2 transition flex items-center gap-2 whitespace-nowrap ${
+            className={`py-3 px-6 text-xs font-extrabold uppercase tracking-wider border-b-2 transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
               activeTab === 'settings'
-                ? 'border-[#ff7700] text-[#ff7700]'
-                : 'border-transparent text-gray-400 hover:text-white'
+                ? 'border-[#ff7700] text-[#c2410c] dark:text-[#ff7700]'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <Settings size={16} /> Account Settings
@@ -376,13 +396,13 @@ export default function AccountDashboardPage() {
         {activeTab === 'orders' && (
           <div className="space-y-6">
             {orders.length === 0 ? (
-              <div className="py-16 text-center bg-[#141414] rounded-2xl border border-[#222]">
-                <Package size={48} className="mx-auto mb-3 opacity-30 text-[#ff7700]" />
-                <h3 className="text-base font-bold text-white mb-1">No Orders Found</h3>
-                <p className="text-xs text-gray-400 mb-6">You haven't placed any orders with this account yet.</p>
+              <div className="py-16 text-center bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] shadow-sm">
+                <Package size={48} className="mx-auto mb-3 opacity-40 text-[#ff7700]" />
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">No Orders Found</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">You haven't placed any orders with this account yet.</p>
                 <Link
                   href="/shop"
-                  className="px-6 py-3 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-md"
+                  className="px-6 py-3 bg-[#a80000] hover:bg-[#7a0000] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-md inline-block cursor-pointer"
                 >
                   Start Shopping
                 </Link>

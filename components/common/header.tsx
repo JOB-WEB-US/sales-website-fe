@@ -8,7 +8,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useUIStore } from '@/store/useUIStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { useThemeStore } from '@/store/useThemeStore';
-import { getCategories, getAttributes, ApiCategory } from '@/lib/api';
+import { getCategories, getAttributes, getAnnouncements, ApiCategory, ApiAnnouncementConfig, DEFAULT_ANNOUNCEMENTS } from '@/lib/api';
 
 const headerDropdownClass = 'absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block w-72 bg-[#141414] border border-[#2a2a2a] rounded-2xl shadow-2xl p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150';
 const headerDropdownListClass = 'py-1 space-y-1 max-h-80 overflow-y-auto';
@@ -19,17 +19,27 @@ export default function Header() {
   const [mounted, setMounted] = useState(false);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [productTypes, setProductTypes] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<ApiAnnouncementConfig>(DEFAULT_ANNOUNCEMENTS);
   
   const totalItems = useCartStore((state) => state.getTotalItems());
   const { openCart, openSearch, particlesEnabled, toggleParticles } = useUIStore();
   
-  const { items: wishlistItems, openWishlist } = useWishlistStore();
+  const { items: wishlistItems, openWishlist, syncUserWishlist } = useWishlistStore();
   const wishlistCount = wishlistItems.length;
 
   const { theme, toggleTheme } = useThemeStore();
 
   useEffect(() => {
     setMounted(true);
+    syncUserWishlist();
+
+    const handleStorageChange = () => {
+      syncUserWishlist();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', handleStorageChange);
+
     if (typeof document !== 'undefined') {
       if (theme === 'light') {
         document.documentElement.classList.add('light-mode');
@@ -49,7 +59,17 @@ export default function Header() {
         setProductTypes(attrs.types);
       }
     });
-  }, [theme]);
+    getAnnouncements().then((ann) => {
+      if (ann && ann.items) {
+        setAnnouncements(ann);
+      }
+    });
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleStorageChange);
+    };
+  }, [theme, syncUserWishlist]);
 
   const getTypeIcon = (name: string) => {
     const n = (name || '').toLowerCase();
@@ -91,51 +111,72 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 w-full bg-[#121212]/95 backdrop-blur border-b border-[#222]">
       {/* 1. Top Announcement Marquee Bar */}
-      <div className="bg-[#a80000] text-white py-1.5 text-xs font-semibold overflow-hidden" style={{ color: '#ffffff' }}>
-        <div className="flex whitespace-nowrap animate-marquee" style={{ color: '#ffffff' }}>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🔥 10% OFF YOUR ENTIRE ORDER — USE CODE: VELORA10</span>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>⭐ PREMIUM GRAPHIC TEES & HOODIES</span>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🚚 FREE EXPRESS US SHIPPING ON ORDERS OVER $75</span>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🔥 10% OFF YOUR ENTIRE ORDER — USE CODE: VELORA10</span>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>⭐ PREMIUM GRAPHIC TEES & HOODIES</span>
-          <span className="mx-6 text-white font-bold text-white-force" style={{ color: '#ffffff' }}>🚚 FREE EXPRESS US SHIPPING ON ORDERS OVER $75</span>
+      {announcements.enabled && announcements.items && announcements.items.length > 0 && (
+        <div
+          className="py-1.5 text-xs font-semibold overflow-hidden transition-colors duration-300"
+          style={{ backgroundColor: announcements.bgColor, color: announcements.textColor }}
+        >
+          <div
+            className={`flex whitespace-nowrap ${
+              announcements.speed === 'slow'
+                ? 'animate-marquee-slow'
+                : announcements.speed === 'fast'
+                ? 'animate-marquee-fast'
+                : 'animate-marquee'
+            }`}
+            style={{ color: announcements.textColor }}
+          >
+            {[...announcements.items, ...announcements.items, ...announcements.items, ...announcements.items].map((item, idx) => (
+              <span key={`${item.id}-${idx}`} className="mx-6 font-bold" style={{ color: announcements.textColor }}>
+                {item.linkUrl ? (
+                  <Link href={item.linkUrl} className="hover:underline transition-opacity hover:opacity-90">
+                    {item.text}
+                  </Link>
+                ) : (
+                  <span>{item.text}</span>
+                )}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 2. Header Main Content (Layer 1) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-        {/* Mobile Menu Toggle */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden text-gray-300 hover:text-white p-1"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 flex items-center justify-between gap-2 sm:gap-4">
+        {/* Left Side: Mobile Menu Button + Brand Logo grouped together */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden text-gray-300 hover:text-white p-1.5 shrink-0"
+            aria-label="Toggle Menu"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
 
-        {/* Brand Official Logo (Transparent, Black in Light Mode, White in Dark Mode) */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="relative h-12 w-auto flex items-center transition-all duration-300 group-hover:scale-105">
-            <Image
-              src="/images/velora-logo.png"
-              alt="VELORA TEES Official Logo"
-              width={140}
-              height={48}
-              priority
-              unoptimized
-              className="brand-logo-img object-contain h-11 w-auto"
-            />
-          </div>
-          <div className="hidden sm:flex flex-col">
-            <span className="text-[10px] font-black text-[#ff7700] tracking-widest uppercase leading-tight">
-              OFFICIAL STORE
-            </span>
-            <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase">
-              Trending Graphic Apparel
-            </span>
-          </div>
-        </Link>
-
-
+          {/* Brand Official Logo */}
+          <Link href="/" className="flex items-center gap-2 group shrink-0">
+            <div className="relative h-8 sm:h-11 w-auto flex items-center transition-all duration-300 group-hover:scale-105 shrink-0">
+              <Image
+                src="/images/velora-logo.png"
+                alt="VELORA TEES Official Logo"
+                width={130}
+                height={44}
+                priority
+                unoptimized
+                className="brand-logo-img object-contain h-8 sm:h-10 md:h-11 w-auto shrink-0 max-w-[110px] sm:max-w-[140px]"
+              />
+            </div>
+            <div className="hidden lg:flex flex-col">
+              <span className="text-[10px] font-black text-[#ff7700] tracking-widest uppercase leading-tight">
+                OFFICIAL STORE
+              </span>
+              <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase">
+                Trending Graphic Apparel
+              </span>
+            </div>
+          </Link>
+        </div>
 
         {/* Search Bar Click Trigger */}
         <div 
@@ -151,61 +192,69 @@ export default function Header() {
           <Search className="absolute left-3.5 top-2.5 text-gray-400 group-hover:text-[#ff7700] transition" size={16} />
         </div>
 
-        {/* Actions (Search Mobile, Wishlist, User, Cart) */}
-        <div className="flex items-center gap-4">
+        {/* Actions (Search, Wishlist, User, Theme, Particle, Cart) */}
+        <div className="flex items-center gap-1 sm:gap-2.5 md:gap-4 shrink-0">
+          {/* Search Button */}
           <button 
             onClick={openSearch}
             className="md:hidden text-gray-300 hover:text-[#ff7700] transition p-1.5" 
             title="Search"
           >
-            <Search size={20} />
+            <Search size={19} />
           </button>
+
+          {/* Wishlist Button */}
           <button
             onClick={openWishlist}
             className="text-gray-300 hover:text-[#ff7700] transition relative p-1.5"
             title="Wishlist"
           >
-            <Heart size={20} className={wishlistCount > 0 ? 'fill-red-500 text-red-500' : ''} />
-            {wishlistCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">
+            <Heart size={19} className={mounted && wishlistCount > 0 ? 'fill-red-500 text-red-500' : ''} />
+            {mounted && wishlistCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">
                 {wishlistCount}
               </span>
             )}
           </button>
 
-          <Link href="/account" className="text-gray-300 hover:text-[#ff7700] transition p-1.5" title="Account Dashboard">
-            <User size={20} />
+          {/* User Account Button (Hidden on small mobile header, easily accessed via mobile drawer) */}
+          <Link href="/account" className="hidden sm:flex text-gray-300 hover:text-[#ff7700] transition p-1.5" title="Account Dashboard">
+            <User size={19} />
           </Link>
 
           {/* Dark / Light Theme Toggle Switch */}
           <button
             onClick={toggleTheme}
-            className="text-gray-300 hover:text-[#ff7700] transition p-1.5 rounded-full hover:bg-[#222]"
+            className="hidden sm:flex text-gray-300 hover:text-[#ff7700] transition p-1.5 rounded-full hover:bg-[#222]"
             title={mounted && theme === 'light' ? 'Light Mode (Click to switch to Dark Mode 🌙)' : 'Dark Mode (Click to switch to Light Mode ☀️)'}
           >
-            {mounted && theme === 'light' ? (
-              <Sun size={20} className="text-amber-500" />
+            {mounted ? (
+              theme === 'light' ? (
+                <Sun size={19} className="text-amber-500" />
+              ) : (
+                <Moon size={19} className="text-indigo-400" />
+              )
             ) : (
-              <Moon size={20} className="text-indigo-400" />
+              <Moon size={19} className="text-indigo-400 opacity-0" />
             )}
           </button>
 
           {/* Seasonal Particle Animation Toggle Button */}
           <button
             onClick={toggleParticles}
-            className={`p-1.5 rounded-full transition relative flex items-center justify-center ${
-              particlesEnabled
+            className={`hidden sm:flex p-1.5 rounded-full transition relative items-center justify-center ${
+              mounted && particlesEnabled
                 ? 'text-[#ff7700] hover:bg-[#ff7700]/15'
                 : 'text-gray-400 hover:text-gray-200 hover:bg-[#222] opacity-60'
             }`}
             title={
-              particlesEnabled
+              mounted && particlesEnabled
                 ? '✨ Seasonal Particle Effects: ON (Click to Turn Off)'
                 : '✨ Seasonal Particle Effects: OFF (Click to Turn On)'
             }
           >
-            <Sparkles size={20} className={particlesEnabled ? 'animate-pulse text-[#ff7700]' : ''} />
-            {particlesEnabled && (
+            <Sparkles size={19} className={mounted && particlesEnabled ? 'animate-pulse text-[#ff7700]' : ''} />
+            {mounted && particlesEnabled && (
               <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ff7700] rounded-full animate-ping" />
             )}
           </button>
@@ -213,13 +262,13 @@ export default function Header() {
           {/* Cart Icon Button */}
           <button
             onClick={openCart}
-            className="flex items-center gap-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white px-3.5 py-1.5 rounded-full border border-gray-800 transition"
+            className="flex items-center gap-1.5 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white px-2.5 py-1.5 sm:px-3.5 rounded-full border border-gray-800 transition shrink-0"
             title="Shopping Cart"
           >
             <div className="relative">
-              <ShoppingBag size={20} className="text-[#ff7700]" />
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#a80000] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+              <ShoppingBag size={18} className="text-[#ff7700]" />
+              {mounted && totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#a80000] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {totalItems}
                 </span>
               )}
@@ -336,8 +385,50 @@ export default function Header() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#121212] border-t border-gray-800 px-5 py-5 flex flex-col gap-3 text-base">
-          <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="text-gray-100 hover:text-[#ff7700] py-2 font-bold text-base">
+        <div className="lg:hidden bg-white dark:bg-[#121212] border-t border-gray-200 dark:border-gray-800 px-5 py-5 flex flex-col gap-3 text-base animate-in fade-in slide-in-from-top-2 shadow-2xl">
+          {/* Quick Account & Preference Bar in Mobile Drawer */}
+          <div className="p-3 bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center justify-between gap-2 mb-1">
+            <Link
+              href="/account"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 text-xs font-bold text-gray-900 dark:text-gray-200 hover:text-[#ff7700] transition"
+            >
+              <div className="w-8 h-8 rounded-full bg-white dark:bg-[#2a2a2a] text-[#c2410c] dark:text-[#ff7700] flex items-center justify-center shadow-xs">
+                <User size={16} />
+              </div>
+              <span>Account / Sign In</span>
+            </Link>
+
+            <div className="flex items-center gap-1.5">
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-xl bg-white dark:bg-[#252525] border border-gray-200 dark:border-transparent text-gray-700 dark:text-gray-300 hover:text-[#ff7700] dark:hover:text-white transition flex items-center gap-1 text-xs font-semibold shadow-xs"
+                title="Toggle Theme"
+              >
+                {mounted && theme === 'light' ? (
+                  <Sun size={16} className="text-amber-500" />
+                ) : (
+                  <Moon size={16} className="text-indigo-400" />
+                )}
+              </button>
+
+              {/* Particle Toggle */}
+              <button
+                onClick={toggleParticles}
+                className={`p-2 rounded-xl border border-gray-200 dark:border-transparent transition flex items-center gap-1 text-xs font-semibold shadow-xs ${
+                  particlesEnabled
+                    ? 'bg-[#ff7700]/15 text-[#ff7700] dark:bg-[#ff7700]/20'
+                    : 'bg-white dark:bg-[#252525] text-gray-400'
+                }`}
+                title="Toggle Particles"
+              >
+                <Sparkles size={16} />
+              </button>
+            </div>
+          </div>
+
+          <Link href="/shop" onClick={() => setMobileMenuOpen(false)} className="text-gray-900 dark:text-gray-100 hover:text-[#ff7700] py-2 font-bold text-base">
             Shop All
           </Link>
           {/* Dynamic Trending Menus in Mobile Drawer */}
@@ -357,7 +448,7 @@ export default function Header() {
                   key={trendCat.id}
                   href={`/collections/${trendCat.slug}`}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="trend-nav-link text-[#ff7700] font-extrabold py-2 px-3 text-base flex items-center justify-between"
+                  className="trend-nav-link text-[#ff7700] font-extrabold py-2 px-3 text-base flex items-center justify-between rounded-xl bg-orange-50/50 dark:bg-transparent"
                 >
                   <span className="flex items-center gap-2">
                     <span className="text-base">{icon}</span>
@@ -373,8 +464,8 @@ export default function Header() {
             });
           })()}
 
-          <div className="pt-3 border-t border-gray-800">
-            <span className="text-xs font-black text-gray-400 uppercase tracking-wider block mb-2">Collections</span>
+          <div className="pt-3 border-t border-gray-200 dark:border-gray-800">
+            <span className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">Collections</span>
             <div className="space-y-1">
               {categories.map((cat) => {
                 const { icon, label } = getCategoryDisplay(cat.name, cat.slug, cat.icon);
@@ -383,7 +474,7 @@ export default function Header() {
                     key={cat.id}
                     href={`/collections/${cat.slug}`}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 text-gray-200 hover:text-[#ff7700] py-2 text-sm font-semibold"
+                    className="flex items-center gap-2 text-gray-800 dark:text-gray-200 hover:text-[#ff7700] py-2 text-sm font-semibold"
                   >
                     <span>{icon}</span>
                     <span>{label}</span>
@@ -393,15 +484,15 @@ export default function Header() {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-gray-800">
-            <span className="text-xs font-black text-gray-400 uppercase tracking-wider block mb-2">Product Types</span>
+          <div className="pt-3 border-t border-gray-200 dark:border-gray-800">
+            <span className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">Product Types</span>
             <div className="space-y-1">
               {productTypes.map((pt) => (
                 <Link
                   key={pt.id}
                   href={`/shop?type=${encodeURIComponent(pt.name)}`}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 text-gray-200 hover:text-[#ff7700] py-2 text-sm font-semibold"
+                  className="flex items-center gap-2 text-gray-800 dark:text-gray-200 hover:text-[#ff7700] py-2 text-sm font-semibold"
                 >
                   <span className="text-base">{getTypeIcon(pt.name)}</span>
                   <span>{pt.name}</span>
@@ -410,8 +501,8 @@ export default function Header() {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-gray-800 flex flex-col gap-2 text-sm font-semibold">
-            <Link href="/pages/order-tracking" onClick={() => setMobileMenuOpen(false)} className="text-gray-200 hover:text-[#ff7700] py-1.5">
+          <div className="pt-3 border-t border-gray-200 dark:border-gray-800 flex flex-col gap-2 text-sm font-semibold">
+            <Link href="/pages/order-tracking" onClick={() => setMobileMenuOpen(false)} className="text-gray-800 dark:text-gray-200 hover:text-[#ff7700] py-1.5">
               Track Order
             </Link>
           </div>

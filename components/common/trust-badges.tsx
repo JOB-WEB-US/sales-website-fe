@@ -134,8 +134,8 @@ export default function TrustBadges({ variant = 'product', className = '' }: Tru
 
   if (variant === 'cart') {
     return (
-      <div className={`pt-3.5 border-t border-[#262626] dark:border-[#262626] light:border-slate-200 space-y-2 text-center ${className}`}>
-        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-gray-400 dark:text-gray-400 uppercase tracking-wider">
+      <div className={`pt-3 border-t border-gray-200 dark:border-[#262626] space-y-2 text-center ${className}`}>
+        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
           <ShieldCheck size={13} className="text-emerald-500" />
           <span>Guaranteed Safe & Secure Checkout</span>
         </div>

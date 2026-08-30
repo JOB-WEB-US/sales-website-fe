@@ -443,3 +443,47 @@ export function mapApiProductToUI(p: ApiProduct): any {
     reviews: p.reviews || [],
   };
 }
+
+/**
+ * 7. Top Bar Announcements API
+ */
+export interface ApiAnnouncementItem {
+  id: string;
+  text: string;
+  linkUrl?: string;
+  isActive: boolean;
+  order: number;
+}
+
+export interface ApiAnnouncementConfig {
+  enabled: boolean;
+  speed: 'normal' | 'slow' | 'fast';
+  bgColor: string;
+  textColor: string;
+  items: ApiAnnouncementItem[];
+}
+
+export const DEFAULT_ANNOUNCEMENTS: ApiAnnouncementConfig = {
+  enabled: true,
+  speed: 'normal',
+  bgColor: '#a80000',
+  textColor: '#ffffff',
+  items: [
+    { id: 'ann-1', text: '🔥 10% OFF YOUR ENTIRE ORDER — USE CODE: VELORA10', linkUrl: '/shop', isActive: true, order: 1 },
+    { id: 'ann-2', text: '⭐ PREMIUM GRAPHIC TEES & HOODIES', linkUrl: '/collections/trending', isActive: true, order: 2 },
+    { id: 'ann-3', text: '🚚 FREE EXPRESS US SHIPPING ON ORDERS OVER $75', linkUrl: '/pages/order-tracking', isActive: true, order: 3 },
+  ],
+};
+
+export async function getAnnouncements(): Promise<ApiAnnouncementConfig> {
+  try {
+    const response = await fetchApi<{ success: boolean; data: ApiAnnouncementConfig }>('/announcements');
+    if (response?.data) {
+      return response.data;
+    }
+  } catch (error) {
+    console.warn('Could not fetch announcements from backend, using defaults');
+  }
+  return DEFAULT_ANNOUNCEMENTS;
+}
+
