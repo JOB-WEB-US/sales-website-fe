@@ -152,6 +152,7 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
         'Content-Type': 'application/json',
         ...(options?.headers || {}),
       },
+      credentials: 'include',
       cache: 'no-store',
     });
 
@@ -334,9 +335,12 @@ export async function createOrder(orderPayload: {
   return response.data;
 }
 
-export async function lookupOrder(orderIdentifier: string): Promise<ApiOrder | null> {
+export async function lookupOrder(orderIdentifier: string, email?: string): Promise<ApiOrder | null> {
   try {
-    const response = await fetchApi<{ success: boolean; data: ApiOrder }>(`/orders/lookup/${encodeURIComponent(orderIdentifier)}`);
+    const query = email ? `?email=${encodeURIComponent(email)}` : '';
+    const response = await fetchApi<{ success: boolean; data: ApiOrder }>(
+      `/orders/lookup/${encodeURIComponent(orderIdentifier)}${query}`
+    );
     return response.data || null;
   } catch (error) {
     return null;
@@ -382,10 +386,20 @@ export async function loginUser(data: { email: string; password: string }) {
   });
 }
 
-export async function getProfile(token: string) {
+export async function getProfile(token?: string) {
   return fetchApi<{ success: boolean; authenticated: boolean; user: any }>('/auth/me', {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
+}
+
+export async function logoutUser() {
+  try {
+    return await fetchApi<{ success: boolean; message: string }>('/auth/logout', {
+      method: 'POST',
+    });
+  } catch {
+    return { success: true };
+  }
 }
 
 /**

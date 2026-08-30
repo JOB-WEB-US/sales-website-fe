@@ -271,36 +271,49 @@ export default function AccountDashboardPage() {
   };
 
   useEffect(() => {
-    let currentName = '';
-    let currentEmail = '';
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('velora_user');
-      if (!stored) {
-        router.push('/account/login');
-        return;
-      }
+    async function initSession() {
       try {
-        const parsed = JSON.parse(stored);
-        if (parsed.email) {
-          setUserEmail(parsed.email);
-          currentEmail = parsed.email;
+        const { getProfile, getUserOrders } = await import('@/lib/api');
+        const res = await getProfile();
+        if (res && res.authenticated && res.user) {
+          setUserEmail(res.user.email);
+          setUserName(res.user.name);
+
+          // Tải đơn hàng thật từ Backend Database
+          const dbOrders = await getUserOrders();
+          if (dbOrders && dbOrders.length > 0) {
+            setOrders(dbOrders as any);
+          } else {
+            loadSortedOrders(res.user.email);
+          }
+          loadAddresses(res.user.name);
+          setIsLoading(false);
+          return;
         }
-        if (parsed.name) {
-          setUserName(parsed.name);
-          currentName = parsed.name;
-        }
-      } catch (e) {}
-      loadAddresses(currentName);
-      loadSortedOrders(currentEmail);
+      } catch (err) {
+        // Fallback or unauthenticated
+      }
+
+      // Nếu không có session hợp lệ -> Chuyển về trang đăng nhập
+      router.push('/account/login');
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, []);
 
+    initSession();
+  }, [router]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      const { logoutUser } = await import('@/lib/api');
+      await logoutUser();
+    } catch {}
+
     if (typeof window !== 'undefined') {
       localStorage.removeItem('velora_user');
       localStorage.removeItem('velora_auth_token');
+      localStorage.removeItem('velora_user_addresses');
+      localStorage.removeItem('velora_orders');
+      localStorage.removeItem('velora_reviewed_products');
     }
     useWishlistStore.getState().clearOnLogout();
     router.push('/account/login');

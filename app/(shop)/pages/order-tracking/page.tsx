@@ -20,9 +20,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 function OrderTrackingContent() {
   const searchParams = useSearchParams();
-  const initialOrderId = searchParams?.get('orderId') || 'VELORA-84920';
+  const initialOrderId = searchParams?.get('orderId') || '';
+  const initialEmail = searchParams?.get('email') || '';
 
   const [inputOrderId, setInputOrderId] = useState(initialOrderId);
+  const [inputEmail, setInputEmail] = useState(initialEmail);
   const [activeOrder, setActiveOrder] = useState<ApiOrder | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -30,20 +32,20 @@ function OrderTrackingContent() {
 
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
-  const fetchOrder = async (id: string) => {
+  const fetchOrder = async (id: string, email?: string) => {
     if (!id.trim()) return;
     setLoading(true);
     setErrorMsg('');
     try {
-      const order = await lookupOrder(id.trim());
+      const order = await lookupOrder(id.trim(), email?.trim());
       if (order) {
         setActiveOrder(order);
       } else {
         setActiveOrder(null);
-        setErrorMsg(`No order found matching "${id}". Please check your order confirmation.`);
+        setErrorMsg(`Không tìm thấy đơn hàng "${id}" hoặc email xác minh không khớp. Vui lòng kiểm tra lại email xác nhận đặt hàng.`);
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Error tracking order');
+      setErrorMsg(err.message || 'Lỗi tra cứu đơn hàng');
     } finally {
       setLoading(false);
     }
@@ -51,13 +53,17 @@ function OrderTrackingContent() {
 
   useEffect(() => {
     if (initialOrderId) {
-      fetchOrder(initialOrderId);
+      fetchOrder(initialOrderId, initialEmail);
     }
-  }, [initialOrderId]);
+  }, [initialOrderId, initialEmail]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchOrder(inputOrderId);
+    if (!inputOrderId.trim()) {
+      setErrorMsg('Vui lòng nhập mã đơn hàng.');
+      return;
+    }
+    fetchOrder(inputOrderId, inputEmail);
   };
 
   const handleConfirmDelivery = async () => {
@@ -66,6 +72,8 @@ function OrderTrackingContent() {
     if (ok) {
       setConfirmSuccess(true);
       setActiveOrder({ ...activeOrder, status: 'DELIVERED' });
+    } else {
+      setErrorMsg('Vui lòng đăng nhập với tài khoản đặt hàng để xác nhận nhận hàng.');
     }
   };
 
@@ -97,20 +105,20 @@ function OrderTrackingContent() {
             Track Your Package
           </h1>
           <p className="text-slate-600 dark:text-gray-400 text-sm mt-2">
-            Enter your order number to view real-time AES-256 decrypted POD fulfillment progress.
+            Nhập mã đơn hàng và email đặt hàng để tra cứu tiến độ đơn hàng.
           </p>
         </div>
 
         {/* Search Box */}
         <div className="bg-white dark:bg-[#141414] rounded-2xl border border-slate-200 dark:border-[#222] shadow-sm dark:shadow-xl p-6 md:p-8 mb-10">
           <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-            <div className="sm:col-span-9">
-              <label className="block text-xs font-bold text-slate-700 dark:text-gray-400 mb-1">Order Number / ID *</label>
+            <div className="sm:col-span-5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-gray-400 mb-1">Mã đơn hàng *</label>
               <div className="relative">
                 <input
                   type="text"
                   required
-                  placeholder="e.g. VELORA-84920 or #VEL-123456"
+                  placeholder="Ví dụ: #VEL-123456"
                   value={inputOrderId}
                   onChange={(e) => setInputOrderId(e.target.value)}
                   className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 dark:bg-[#1c1c1c] border border-slate-200 dark:border-[#333] rounded-xl text-sm font-semibold uppercase text-slate-900 dark:text-white focus:ring-2 focus:ring-[#a80000] dark:focus:ring-[#ff7700] outline-none transition"
@@ -119,13 +127,27 @@ function OrderTrackingContent() {
               </div>
             </div>
 
-            <div className="sm:col-span-3 flex items-end">
+            <div className="sm:col-span-5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-gray-400 mb-1">Email đặt hàng *</label>
+              <div className="relative">
+                <input
+                  type="email"
+                  required
+                  placeholder="email@example.com"
+                  value={inputEmail}
+                  onChange={(e) => setInputEmail(e.target.value)}
+                  className="w-full pl-3.5 pr-3.5 py-2.5 bg-slate-50 dark:bg-[#1c1c1c] border border-slate-200 dark:border-[#333] rounded-xl text-sm font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-[#a80000] dark:focus:ring-[#ff7700] outline-none transition"
+                />
+              </div>
+            </div>
+
+            <div className="sm:col-span-2 flex items-end">
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full py-2.5 px-4 bg-[#a80000] hover:bg-[#800000] text-white font-extrabold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                {loading ? 'Searching...' : 'Track'}
+                {loading ? 'Đang tìm...' : 'Tra cứu'}
               </button>
             </div>
           </form>
