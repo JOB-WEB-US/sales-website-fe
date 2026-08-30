@@ -403,6 +403,76 @@ export async function logoutUser() {
 }
 
 /**
+ * 7. User Addresses & Verified Purchase API (Database persistence)
+ */
+export interface ApiUserAddress {
+  id: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  street: string;
+  apartment?: string | null;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  isDefault: boolean;
+}
+
+export async function getUserAddresses(): Promise<ApiUserAddress[]> {
+  try {
+    const res = await fetchApi<{ success: boolean; data: ApiUserAddress[] }>('/user/addresses');
+    return res.data || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function createUserAddress(data: Omit<ApiUserAddress, 'id' | 'userId'>): Promise<ApiUserAddress | null> {
+  try {
+    const res = await fetchApi<{ success: boolean; data: ApiUserAddress }>('/user/addresses', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return res.data || null;
+  } catch {
+    return null;
+  }
+}
+
+export async function updateUserAddress(id: string, data: Partial<ApiUserAddress>): Promise<ApiUserAddress | null> {
+  try {
+    const res = await fetchApi<{ success: boolean; data: ApiUserAddress }>(`/user/addresses/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return res.data || null;
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteUserAddress(id: string): Promise<boolean> {
+  try {
+    const res = await fetchApi<{ success: boolean }>(`/user/addresses/${id}`, {
+      method: 'DELETE',
+    });
+    return res.success;
+  } catch {
+    return false;
+  }
+}
+
+export async function checkUserPurchaseStatus(productId: string): Promise<boolean> {
+  try {
+    const res = await fetchApi<{ success: boolean; hasPurchased: boolean }>(`/user/purchase-status/${productId}`);
+    return Boolean(res?.hasPurchased);
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Helper to map backend product to UI Product model
  */
 export function mapApiProductToUI(p: ApiProduct): any {

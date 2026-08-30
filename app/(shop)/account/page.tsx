@@ -59,73 +59,74 @@ export default function AccountDashboardPage() {
   const [addrCountry, setAddrCountry] = useState('United States');
   const [addrIsDefault, setAddrIsDefault] = useState(false);
 
-  const loadAddresses = (currentUserName: string) => {
-    if (typeof window === 'undefined') return;
+  const loadAddresses = async () => {
     try {
-      const data = localStorage.getItem('velora_user_addresses');
-      if (data) {
-        setAddresses(JSON.parse(data));
-      } else {
-        setAddresses([]);
-      }
+      const { getUserAddresses } = await import('@/lib/api');
+      const data = await getUserAddresses();
+      setAddresses(
+        data.map((d) => ({
+          id: d.id,
+          firstName: d.firstName,
+          lastName: d.lastName,
+          street: d.street,
+          apartment: d.apartment || '',
+          city: d.city,
+          state: d.state,
+          zip: d.zipCode,
+          country: d.country,
+          isDefault: d.isDefault,
+        }))
+      );
     } catch (e) {
       setAddresses([]);
     }
   };
 
-  const handleSaveAddress = (e: React.FormEvent) => {
+  const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
-    let updatedList = [...addresses];
-
-    const newAddr: UserAddress = {
-      id: editingAddressId || `addr-${Date.now()}`,
-      firstName: addrFirstName,
-      lastName: addrLastName,
-      street: addrStreet,
-      apartment: addrApartment,
-      city: addrCity,
-      state: addrState,
-      zip: addrZip,
-      country: addrCountry,
-      isDefault: addrIsDefault || addresses.length === 0,
-    };
-
-    if (newAddr.isDefault) {
-      updatedList = updatedList.map(a => ({ ...a, isDefault: false }));
-    }
+    const { createUserAddress, updateUserAddress } = await import('@/lib/api');
 
     if (editingAddressId) {
-      updatedList = updatedList.map(a => a.id === editingAddressId ? newAddr : a);
+      await updateUserAddress(editingAddressId, {
+        firstName: addrFirstName,
+        lastName: addrLastName,
+        street: addrStreet,
+        apartment: addrApartment,
+        city: addrCity,
+        state: addrState,
+        zipCode: addrZip,
+        country: addrCountry,
+        isDefault: addrIsDefault,
+      });
     } else {
-      updatedList.push(newAddr);
+      await createUserAddress({
+        firstName: addrFirstName,
+        lastName: addrLastName,
+        street: addrStreet,
+        apartment: addrApartment,
+        city: addrCity,
+        state: addrState,
+        zipCode: addrZip,
+        country: addrCountry,
+        isDefault: addrIsDefault || addresses.length === 0,
+      });
     }
 
-    if (updatedList.length > 0 && !updatedList.some(a => a.isDefault)) {
-      updatedList[0].isDefault = true;
-    }
-
-    localStorage.setItem('velora_user_addresses', JSON.stringify(updatedList));
-    setAddresses(updatedList);
+    await loadAddresses();
     setIsEditingAddress(false);
     setEditingAddressId(null);
   };
 
-  const handleSetDefaultAddress = (id: string) => {
-    const updatedList = addresses.map(a => ({
-      ...a,
-      isDefault: a.id === id,
-    }));
-    localStorage.setItem('velora_user_addresses', JSON.stringify(updatedList));
-    setAddresses(updatedList);
+  const handleSetDefaultAddress = async (id: string) => {
+    const { updateUserAddress } = await import('@/lib/api');
+    await updateUserAddress(id, { isDefault: true });
+    await loadAddresses();
   };
 
-  const handleDeleteAddress = (id: string) => {
-    let updatedList = addresses.filter(a => a.id !== id);
-    if (addresses.find(a => a.id === id)?.isDefault && updatedList.length > 0) {
-      updatedList[0].isDefault = true;
-    }
-    localStorage.setItem('velora_user_addresses', JSON.stringify(updatedList));
-    setAddresses(updatedList);
+  const handleDeleteAddress = async (id: string) => {
+    const { deleteUserAddress } = await import('@/lib/api');
+    await deleteUserAddress(id);
+    await loadAddresses();
   };
 
   const handleOpenAddAddress = () => {
@@ -158,77 +159,42 @@ export default function AccountDashboardPage() {
 
   // Helper to count how many times a product has been reviewed by the user
   const getReviewedCount = (productId: string) => {
-    if (typeof window === 'undefined') return 0;
-    try {
-      const data = localStorage.getItem('velora_reviewed_products');
-      if (!data) return 0;
-      const reviewed = JSON.parse(data);
-      return reviewed[productId] || 0;
-    } catch (e) {
-      return 0;
-    }
+    return 0;
   };
 
-  // Helper to count how many of a product was purchased in all orders
+  // Helper to count how many of a product was purchased in all delivered orders
   const getPurchasedQty = (productId: string) => {
-    if (typeof window === 'undefined') return 0;
-    try {
-      const data = localStorage.getItem('velora_orders');
-      if (!data) return 0;
-      const ordersMap = JSON.parse(data);
-      
-      let qty = 0;
-      const currentEmail = userEmail.trim().toLowerCase();
-      Object.values(ordersMap).forEach((order: any) => {
-        const orderEmail = (order.shippingAddress?.email || order.userEmail || '').trim().toLowerCase();
-        if (orderEmail === currentEmail && order.items && Array.isArray(order.items) && order.status === 'delivered') {
-          order.items.forEach((item: any) => {
-            if (item.productId === productId) {
-              qty += (item.quantity || 1);
-            }
-          });
-        }
-      });
-      return qty;
-    } catch (e) {
-      return 0;
-    }
+    let qty = 0;
+    orders.forEach((order: any) => {
+      if ((order.status === 'DELIVERED' || order.status === 'delivered') && order.items && Array.isArray(order.items)) {
+        order.items.forEach((item: any) => {
+          if (item.productId === productId || item.id === productId) {
+            qty += item.quantity || 1;
+          }
+        });
+      }
+    });
+    return qty;
   };
 
   // Helper to load and sort orders (newest first) for the specific logged-in user
-  const loadSortedOrders = (email?: string) => {
-    const currentEmail = (email || userEmail || '').trim().toLowerCase();
-    if (!currentEmail) {
-      setOrders([]);
-      return;
-    }
-
-    const allOrders = Object.values(getOrdersFromStorage());
-    const userOrders = allOrders
-      .filter((order) => {
-        const orderEmail = (order.shippingAddress?.email || (order as any).userEmail || '').trim().toLowerCase();
-        return orderEmail === currentEmail;
-      })
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-    setOrders(userOrders);
+  const loadSortedOrders = async () => {
+    try {
+      const { getUserOrders } = await import('@/lib/api');
+      const dbOrders = await getUserOrders();
+      if (dbOrders) {
+        setOrders(dbOrders as any);
+      }
+    } catch {}
   };
 
-  const handleConfirmDelivery = (orderId: string) => {
-    if (typeof window === 'undefined') return;
+  const handleConfirmDelivery = async (orderId: string) => {
     try {
-      const data = localStorage.getItem('velora_orders');
-      if (!data) return;
-      const ordersMap = JSON.parse(data);
-      if (ordersMap[orderId]) {
-        ordersMap[orderId].status = 'delivered';
-        localStorage.setItem('velora_orders', JSON.stringify(ordersMap));
-        
-        // Refresh local state using sorted loader
-        loadSortedOrders();
-      }
+      const { confirmOrderDelivery } = await import('@/lib/api');
+      await confirmOrderDelivery(orderId);
+      await loadSortedOrders();
     } catch (e) {
-      console.error(e);
+      console.error('Confirm delivery error:', e);
     }
   };
 
@@ -259,15 +225,8 @@ export default function AccountDashboardPage() {
       console.error('Error submitting review to backend:', e);
     }
 
-    try {
-      const reviewedData = localStorage.getItem('velora_reviewed_products');
-      const reviewed = reviewedData ? JSON.parse(reviewedData) : {};
-      reviewed[reviewProductId] = (reviewed[reviewProductId] || 0) + 1;
-      localStorage.setItem('velora_reviewed_products', JSON.stringify(reviewed));
-    } catch (e) {}
-
     setIsReviewModalOpen(false);
-    loadSortedOrders();
+    await loadSortedOrders();
   };
 
   useEffect(() => {
@@ -279,14 +238,12 @@ export default function AccountDashboardPage() {
           setUserEmail(res.user.email);
           setUserName(res.user.name);
 
-          // Tải đơn hàng thật từ Backend Database
+          // Tải đơn hàng thật và sổ địa chỉ từ Database
           const dbOrders = await getUserOrders();
-          if (dbOrders && dbOrders.length > 0) {
+          if (dbOrders) {
             setOrders(dbOrders as any);
-          } else {
-            loadSortedOrders(res.user.email);
           }
-          loadAddresses(res.user.name);
+          await loadAddresses();
           setIsLoading(false);
           return;
         }

@@ -18,7 +18,7 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value:
-              "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https: http:; frame-src https://accounts.google.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self';",
+              "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://www.paypal.com https://*.paypalobjects.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https://*.onrender.com https://accounts.google.com https://apis.google.com https://www.paypal.com https://api-m.sandbox.paypal.com https://api-m.paypal.com http://localhost:5000 http://localhost:3000; frame-src https://accounts.google.com https://www.sandbox.paypal.com https://www.paypal.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self';",
           },
           {
             key: 'X-Frame-Options',
