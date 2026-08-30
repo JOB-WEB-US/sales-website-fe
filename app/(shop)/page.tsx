@@ -37,7 +37,7 @@ export default async function HomePage() {
           <div className="w-16 h-1 bg-[#a80000] mx-auto mt-2 rounded"></div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {products.map((product: any) => (
             <ProductCard key={product.id} product={product} />
           ))}

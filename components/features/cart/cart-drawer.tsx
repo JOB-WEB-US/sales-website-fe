@@ -157,19 +157,20 @@ export default function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 26, stiffness: 220 }}
-            className="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-[#131313] border-l border-[#262626] text-white shadow-2xl flex flex-col justify-between"
+            className="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-white dark:bg-[#131313] border-l border-gray-200 dark:border-[#262626] text-gray-900 dark:text-white shadow-2xl flex flex-col justify-between transition-colors duration-200"
           >
             {/* Drawer Header */}
-            <div className="p-4 border-b border-[#222] flex items-center justify-between bg-[#181818]">
+            <div className="p-4 border-b border-gray-200 dark:border-[#222] flex items-center justify-between bg-gray-50/90 dark:bg-[#181818] transition-colors">
               <div className="flex items-center gap-2">
                 <ShoppingBag className="text-[#ff7700]" size={20} />
-                <h3 className="font-heading font-bold text-base uppercase tracking-wider">
+                <h3 className="font-heading font-extrabold text-base uppercase tracking-wider text-gray-900 dark:text-white">
                   Your Shopping Cart ({cart.length})
                 </h3>
               </div>
               <button
                 onClick={closeCart}
-                className="text-gray-400 hover:text-white p-1 rounded-lg transition cursor-pointer"
+                className="text-gray-400 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white p-1.5 rounded-xl hover:bg-gray-200 dark:hover:bg-[#252525] transition cursor-pointer"
+                title="Close Cart"
               >
                 <X size={20} />
               </button>
@@ -177,24 +178,24 @@ export default function CartDrawer() {
 
             {/* Free Shipping Progress Bar */}
             {shippingBarEnabled && cart.length > 0 && (
-              <div className="bg-[#181818] px-4 py-2.5 border-b border-[#222]">
+              <div className="bg-orange-50/60 dark:bg-[#181818] px-4 py-2.5 border-b border-gray-200 dark:border-[#222] transition-colors">
                 <div className="flex items-center justify-between text-xs mb-1.5">
-                  <span className="flex items-center gap-1 font-bold text-gray-300">
+                  <span className="flex items-center gap-1 font-bold text-gray-800 dark:text-gray-300">
                     <Truck size={13} className="text-[#ff7700]" />
                     {amountToFreeShip === 0 ? (
-                      <strong className="text-emerald-400">🎉 You unlocked FREE US SHIPPING!</strong>
+                      <strong className="text-emerald-600 dark:text-emerald-400 font-extrabold">🎉 You unlocked FREE US SHIPPING!</strong>
                     ) : (
                       <span>
-                        Add <strong className="text-[#ff7700]">{formatCurrency(amountToFreeShip)}</strong> more for <strong>FREE SHIPPING</strong>
+                        Add <strong className="text-[#c2410c] dark:text-[#ff7700]">{formatCurrency(amountToFreeShip)}</strong> more for <strong>FREE SHIPPING</strong>
                       </span>
                     )}
                   </span>
-                  <span className="text-[10px] font-bold text-gray-400">{freeShippingProgress}%</span>
+                  <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400">{freeShippingProgress}%</span>
                 </div>
-                <div className="w-full h-1.5 bg-[#262626] rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-gray-200 dark:bg-[#262626] rounded-full overflow-hidden">
                   <div
                     className={`h-full transition-all duration-500 rounded-full ${
-                      freeShippingProgress >= 100 ? "bg-emerald-400" : "bg-gradient-to-r from-[#ff7700] to-[#ff0055]"
+                      freeShippingProgress >= 100 ? "bg-emerald-500" : "bg-gradient-to-r from-[#ff7700] to-[#ff0055]"
                     }`}
                     style={{ width: `${freeShippingProgress}%` }}
                   />
@@ -203,22 +204,27 @@ export default function CartDrawer() {
             )}
 
             {/* Cart Items List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-white dark:bg-[#131313] transition-colors">
               {cart.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center py-12 text-gray-500">
-                  <ShoppingBag
-                    size={48}
-                    className="mb-3 opacity-30 text-[#ff7700]"
-                  />
-                  <p className="text-sm font-medium">
-                    Your shopping cart is currently empty.
+                <div className="h-full flex flex-col items-center justify-center text-center py-16 px-4">
+                  <div className="w-16 h-16 rounded-full bg-orange-50 dark:bg-[#1c1c1c] border border-orange-200/60 dark:border-[#282828] flex items-center justify-center mb-4 shadow-sm">
+                    <ShoppingBag
+                      size={32}
+                      className="text-[#ff7700]"
+                    />
+                  </div>
+                  <h4 className="text-base font-bold text-gray-900 dark:text-white mb-1">
+                    Your cart is currently empty
+                  </h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs mb-6">
+                    Looks like you haven't added any graphic apparel or merch to your cart yet.
                   </p>
                   <button
                     onClick={() => {
                       closeCart();
-                      router.push("/");
+                      router.push("/shop");
                     }}
-                    className="mt-4 text-xs font-bold text-[#ff7700] hover:underline cursor-pointer"
+                    className="px-6 py-2.5 bg-[#ff7700] hover:bg-[#e06900] text-black font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md transition cursor-pointer"
                   >
                     Start Shopping Now
                   </button>
@@ -227,10 +233,10 @@ export default function CartDrawer() {
                 cart.map((item) => (
                   <div
                     key={item.id}
-                    className="flex gap-3 bg-[#1a1a1a] border border-[#262626] p-3 rounded-2xl relative group shadow-sm"
+                    className="flex gap-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] p-3 rounded-2xl relative group shadow-sm transition hover:border-gray-300 dark:hover:border-[#383838]"
                   >
                     {/* Item Image */}
-                    <div className="relative w-18 h-18 rounded-xl overflow-hidden bg-[#222] flex-shrink-0 border border-[#333]">
+                    <div className="relative w-18 h-18 rounded-xl overflow-hidden bg-gray-200 dark:bg-[#222] flex-shrink-0 border border-gray-200 dark:border-[#333]">
                       <Image
                         src={item.image}
                         alt={item.title}
@@ -242,40 +248,40 @@ export default function CartDrawer() {
                     {/* Item Info */}
                     <div className="flex-1 flex flex-col justify-between min-w-0">
                       <div>
-                        <h4 className="text-xs font-bold line-clamp-1 pr-6 text-gray-100">
+                        <h4 className="text-xs font-bold line-clamp-1 pr-6 text-gray-900 dark:text-gray-100">
                           {item.title}
                         </h4>
-                        <div className="text-[11px] text-gray-400 mt-0.5">
+                        <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 font-medium">
                           <span>{item.productType}</span> • <span>Size: {item.size}</span> • <span>{item.color}</span>
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between mt-2">
                         {/* Quantity Controls */}
-                        <div className="flex items-center bg-[#141414] border border-[#333] rounded-lg">
+                        <div className="flex items-center bg-white dark:bg-[#141414] border border-gray-300 dark:border-[#333] rounded-lg shadow-xs">
                           <button
                             onClick={() =>
                               updateQuantity(item.id, item.quantity - 1)
                             }
-                            className="px-2 py-0.5 text-xs text-gray-400 hover:text-white cursor-pointer"
+                            className="px-2 py-0.5 text-xs font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white cursor-pointer"
                           >
                             -
                           </button>
-                          <span className="px-2 text-xs font-bold text-white">
+                          <span className="px-2 text-xs font-black text-gray-900 dark:text-white">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() =>
                               updateQuantity(item.id, item.quantity + 1)
                             }
-                            className="px-2 py-0.5 text-xs text-gray-400 hover:text-white cursor-pointer"
+                            className="px-2 py-0.5 text-xs font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white cursor-pointer"
                           >
                             +
                           </button>
                         </div>
 
                         {/* Price */}
-                        <span className="text-xs sm:text-sm font-black text-[#ff7700]">
+                        <span className="text-xs sm:text-sm font-black text-[#c2410c] dark:text-[#ff7700]">
                           {formatCurrency(item.price * item.quantity)}
                         </span>
                       </div>
@@ -284,7 +290,7 @@ export default function CartDrawer() {
                     {/* Delete Item Button */}
                     <button
                       onClick={() => removeFromCart(item.id)}
-                      className="absolute top-2.5 right-2.5 text-gray-500 hover:text-red-400 p-1 transition cursor-pointer"
+                      className="absolute top-2.5 right-2.5 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 p-1 transition cursor-pointer"
                       title="Remove item"
                     >
                       <Trash2 size={14} />
@@ -298,24 +304,24 @@ export default function CartDrawer() {
                 DRAWER FOOTER: COUPON SECTION + TOTALS + CHECKOUT BUTTON
                 ========================================================================= */}
             {cart.length > 0 && (
-              <div className="p-4 border-t border-[#242424] bg-[#161616] space-y-3">
+              <div className="p-4 border-t border-gray-200 dark:border-[#242424] bg-gray-50/90 dark:bg-[#161616] space-y-3 transition-colors">
                 
                 {/* 1. Coupon Input & Applied Badge */}
                 <div className="space-y-2">
                   {appliedCoupon ? (
-                    <div className="p-2.5 bg-[#ff7700]/10 border border-[#ff7700]/30 rounded-xl flex items-center justify-between text-xs">
+                    <div className="p-2.5 bg-orange-50 dark:bg-[#ff7700]/10 border border-orange-200 dark:border-[#ff7700]/30 rounded-xl flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
-                        <Tag size={14} className="text-[#ff7700]" />
+                        <Tag size={14} className="text-[#c2410c] dark:text-[#ff7700]" />
                         <div>
-                          <strong className="text-white font-mono">{appliedCoupon.code}</strong>
-                          <span className="text-[11px] text-gray-300 ml-1.5">
+                          <strong className="text-gray-900 dark:text-white font-mono">{appliedCoupon.code}</strong>
+                          <span className="text-[11px] text-gray-600 dark:text-gray-300 ml-1.5 font-medium">
                             ({appliedCoupon.description})
                           </span>
                         </div>
                       </div>
                       <button
                         onClick={removeCoupon}
-                        className="text-gray-400 hover:text-red-400 text-xs font-bold underline cursor-pointer"
+                        className="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 text-xs font-bold underline cursor-pointer"
                       >
                         Remove
                       </button>
@@ -323,20 +329,20 @@ export default function CartDrawer() {
                   ) : (
                     <div className="flex gap-2">
                       <div className="relative flex-1">
-                        <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                        <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                         <input
                           type="text"
                           placeholder="Enter Promo Code (e.g. VELORA10)"
                           value={couponInput}
                           onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                           onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
-                          className="w-full pl-9 pr-3 py-2 bg-[#1f1f1f] border border-[#2e2e2e] focus:border-[#ff7700] rounded-xl text-xs font-mono font-bold text-white placeholder-gray-500 outline-none"
+                          className="w-full pl-9 pr-3 py-2 bg-white dark:bg-[#1f1f1f] border border-gray-300 dark:border-[#2e2e2e] focus:border-[#ff7700] rounded-xl text-xs font-mono font-bold text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none shadow-xs"
                         />
                       </div>
                       <button
                         onClick={() => handleApplyCoupon()}
                         disabled={validating || !couponInput.trim()}
-                        className="px-3.5 py-2 bg-[#282828] hover:bg-[#ff7700] hover:text-black text-white text-xs font-black rounded-xl transition disabled:opacity-50 cursor-pointer"
+                        className="px-3.5 py-2 bg-gray-900 hover:bg-[#ff7700] hover:text-black dark:bg-[#282828] text-white text-xs font-black rounded-xl transition disabled:opacity-50 cursor-pointer shadow-xs"
                       >
                         {validating ? "..." : "Apply"}
                       </button>
@@ -345,12 +351,12 @@ export default function CartDrawer() {
 
                   {/* Feedback messages */}
                   {couponSuccess && (
-                    <p className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                       <CheckCircle size={12} /> {couponSuccess}
                     </p>
                   )}
                   {couponError && (
-                    <p className="text-[11px] text-red-400 font-medium flex items-center gap-1">
+                    <p className="text-[11px] text-red-600 dark:text-red-400 font-medium flex items-center gap-1">
                       <AlertCircle size={12} /> {couponError}
                     </p>
                   )}
@@ -365,7 +371,7 @@ export default function CartDrawer() {
                         <button
                           key={c.code}
                           onClick={() => handleApplyCoupon(c.code)}
-                          className="px-2 py-0.5 bg-[#202020] hover:bg-[#ff7700] hover:text-black border border-[#303030] text-gray-300 text-[10px] font-mono font-bold rounded-lg transition shrink-0 cursor-pointer flex items-center gap-1"
+                          className="px-2 py-0.5 bg-gray-200 hover:bg-[#ff7700] hover:text-black dark:bg-[#202020] border border-gray-300 dark:border-[#303030] text-gray-800 dark:text-gray-300 text-[10px] font-mono font-bold rounded-lg transition shrink-0 cursor-pointer flex items-center gap-1"
                         >
                           <Tag size={9} />
                           <span>{c.code}</span>
@@ -376,22 +382,22 @@ export default function CartDrawer() {
                 </div>
 
                 {/* 2. Price Breakdown */}
-                <div className="pt-2 border-t border-[#262626] space-y-1 text-xs">
-                  <div className="flex items-center justify-between text-gray-400">
+                <div className="pt-2 border-t border-gray-200 dark:border-[#262626] space-y-1 text-xs">
+                  <div className="flex items-center justify-between text-gray-600 dark:text-gray-400">
                     <span>Subtotal:</span>
-                    <span className="font-bold text-gray-200">{formatCurrency(subtotal)}</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-200">{formatCurrency(subtotal)}</span>
                   </div>
 
                   {appliedCoupon && discountAmount > 0 && (
-                    <div className="flex items-center justify-between text-emerald-400 font-bold">
+                    <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 font-bold">
                       <span>Discount ({appliedCoupon.code}):</span>
                       <span>-{formatCurrency(discountAmount)}</span>
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between text-sm pt-1 border-t border-[#222]">
-                    <span className="font-bold text-white">Estimated Total:</span>
-                    <span className="text-lg font-black text-[#ff7700]">
+                  <div className="flex items-center justify-between text-sm pt-1 border-t border-gray-200 dark:border-[#222]">
+                    <span className="font-bold text-gray-900 dark:text-white">Estimated Total:</span>
+                    <span className="text-lg font-black text-[#c2410c] dark:text-[#ff7700]">
                       {formatCurrency(finalTotal)}
                     </span>
                   </div>
