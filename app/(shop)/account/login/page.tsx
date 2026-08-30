@@ -87,6 +87,19 @@ function LoginContent() {
             auto_select: false,
             cancel_on_tap_outside: true,
           });
+
+          const googleBtnEl = document.getElementById('google-btn-container');
+          if (googleBtnEl) {
+            googleBtnEl.innerHTML = '';
+            (window as any).google.accounts.id.renderButton(googleBtnEl, {
+              theme: 'outline',
+              size: 'large',
+              width: '100%',
+              text: 'continue_with',
+              shape: 'rectangular',
+            });
+          }
+
           setIsGoogleReady(true);
         } catch (e) {
           console.warn('Google GSI init error:', e);
@@ -117,46 +130,19 @@ function LoginContent() {
         throw new Error('No credential returned from Google.');
       }
 
-      // Decode Google JWT Token (header.payload.signature)
-      const base64Url = credential.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      const googleUser = JSON.parse(jsonPayload);
+      // Sync verified Google token with backend
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+      const res = await fetch(`${backendUrl}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ credential }),
+      });
 
-      const email = googleUser.email;
-      const name = googleUser.name || googleUser.given_name || email.split('@')[0];
-      const avatar = googleUser.picture;
-
-      // Sync with Backend
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/auth/google`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, name, avatar }),
-        });
-        const data = await res.json();
-        if (data.token) {
-          localStorage.setItem('velora_auth_token', data.token);
-        }
-      } catch (err) {
-        console.warn('Backend sync warning (offline or local):', err);
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Google Sign-In failed on backend.');
       }
-
-      // Save user profile to local session
-      localStorage.setItem(
-        'velora_user',
-        JSON.stringify({
-          email,
-          name,
-          avatar,
-          isGoogle: true,
-        })
-      );
 
       // Smart Wishlist Sync
       useWishlistStore.getState().syncUserWishlist();
@@ -164,45 +150,19 @@ function LoginContent() {
       router.push(redirectUrl);
     } catch (err: any) {
       console.error('Google Sign-In Error:', err);
-      setErrorMsg('Google Sign-In failed. Please try again or use standard email login.');
+      setErrorMsg(err.message || 'Google Sign-In failed. Please try again.');
       setIsSubmitting(false);
     }
   };
 
   const handleGoogleLogin = () => {
-    setIsSubmitting(true);
-    setErrorMsg('');
-
     if (typeof window !== 'undefined' && (window as any).google?.accounts?.id) {
       try {
-        (window as any).google.accounts.id.prompt((notification: any) => {
-          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            // If One-Tap prompt is suppressed or closed by user, fallback to Google standard OAuth dialog
-            console.log('Google prompt not displayed/skipped, reason:', notification.getNotDisplayedReason?.());
-            // Fallback OAuth client or direct prompt
-            setIsSubmitting(false);
-          }
-        });
-        return;
+        (window as any).google.accounts.id.prompt();
       } catch (err) {
         console.warn('Google prompt error:', err);
       }
     }
-
-    // Fallback if script loading or popups blocked
-    setTimeout(() => {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(
-          'velora_user',
-          JSON.stringify({
-            email: 'google.user@gmail.com',
-            name: 'Google Customer',
-            isGoogle: true,
-          })
-        );
-      }
-      router.push(redirectUrl);
-    }, 600);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -677,34 +637,36 @@ function LoginContent() {
             </div>
           )}
 
-          {/* Official Google Sign-In Button */}
+          {/* Official Google Sign-In Button Container */}
           <div className="mb-6">
-            <button
-              type="button"
-              disabled={isSubmitting}
-              onClick={handleGoogleLogin}
-              className="w-full py-3 px-4 bg-white dark:bg-[#1e1e1e] hover:bg-gray-50 dark:hover:bg-[#282828] border border-gray-300 dark:border-[#2a2a2a] rounded-2xl text-xs font-bold text-gray-800 dark:text-white flex items-center justify-center gap-3 transition shadow-sm hover:shadow-md cursor-pointer disabled:opacity-50"
-            >
-              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                />
-              </svg>
-              <span>Continue with Google</span>
-            </button>
+            <div id="google-btn-container" className="w-full flex justify-center min-h-[44px]">
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={handleGoogleLogin}
+                className="w-full py-3 px-4 bg-white dark:bg-[#1e1e1e] hover:bg-gray-50 dark:hover:bg-[#282828] border border-gray-300 dark:border-[#2a2a2a] rounded-2xl text-xs font-bold text-gray-800 dark:text-white flex items-center justify-center gap-3 transition shadow-sm hover:shadow-md cursor-pointer disabled:opacity-50"
+              >
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                  />
+                </svg>
+                <span>Continue with Google</span>
+              </button>
+            </div>
           </div>
 
           <div className="relative flex py-2 items-center mb-6">
