@@ -128,7 +128,7 @@ export default function VariantSelectorModal() {
                     : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
-                Mặt Trước
+                Front View
               </button>
               <button
                 type="button"
@@ -139,7 +139,7 @@ export default function VariantSelectorModal() {
                     : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
-                Mặt Sau
+                Back View
               </button>
             </div>
           )}
@@ -345,7 +345,7 @@ export default function VariantSelectorModal() {
                 onClick={closeVariantModal}
                 className="text-xs font-extrabold text-gray-600 dark:text-gray-400 hover:text-[#ff7700] dark:hover:text-[#ff7700] transition inline-flex items-center gap-1.5 group"
               >
-                <span>Xem Chi Tiết Đầy Đủ & Đánh Giá</span>
+                <span>View Full Details & Reviews</span>
                 <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>

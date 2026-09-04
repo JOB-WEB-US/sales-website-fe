@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Package, MapPin, Settings, LogOut, Truck, ArrowRight, ShieldCheck, Clock, Star, X, Camera } from 'lucide-react';
-import { getOrdersFromStorage, getOrderTrackingStatus } from '@/lib/mock-orders';
+import { getOrderTrackingStatus } from '@/lib/mock-orders';
 import { Order } from '@/types/orders';
 import { formatCurrency } from '@/lib/formatters';
 import { useWishlistStore } from '@/store/useWishlistStore';
@@ -238,7 +238,7 @@ export default function AccountDashboardPage() {
           setUserEmail(res.user.email);
           setUserName(res.user.name);
 
-          // Tải đơn hàng thật và sổ địa chỉ từ Database
+          // Load actual orders and address book from Database
           const dbOrders = await getUserOrders();
           if (dbOrders) {
             setOrders(dbOrders as any);
@@ -251,7 +251,7 @@ export default function AccountDashboardPage() {
         // Fallback or unauthenticated
       }
 
-      // Nếu không có session hợp lệ -> Chuyển về trang đăng nhập
+      // If no valid session -> Redirect to login page
       router.push('/account/login');
       setIsLoading(false);
     }

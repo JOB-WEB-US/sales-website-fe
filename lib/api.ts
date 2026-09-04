@@ -307,10 +307,13 @@ export async function createOrder(orderPayload: {
   items: any[];
   shippingAddress: any;
   paymentMethod: string;
-  subtotal: number;
-  discount: number;
-  tax: number;
-  totalPrice: number;
+  paypalOrderId?: string;
+  couponCode?: string;
+  shippingMethod?: string;
+  subtotal?: number;
+  discount?: number;
+  tax?: number;
+  totalPrice?: number;
 }): Promise<{
   orderNumber: string;
   invoiceNumber: string;

@@ -41,6 +41,14 @@ Unless explicitly allowed by the user, DO NOT use:
    - **Sale Badges:** Modern athletic red `bg-red-600` with clean `text-white font-extrabold` (NEVER use dark maroon with yellow text).
    - **Wishlist Buttons:** Use clean translucent glassmorphism `bg-black/40 hover:bg-black/70 backdrop-blur-md text-white border border-white/10`.
    - **Text Contrast:** Ensure 4.5:1 WCAG contrast in both Light (`#0F172A` text on `#FFF`/`#F8FAFC`) and Dark (`#FCF7FA` text on `#0B0B0B`/`#141414`).
+6. **🌐 Strict Language Directive (100% English Only):**
+   - The customer storefront is strictly for international English-speaking audiences.
+   - Every single component, page, button, modal, alert, toast, placeholder, and form label MUST be created in **100% English**.
+   - Absolutely **NO Vietnamese** characters or words are allowed in the storefront codebase. Build it right the first time; do not write Vietnamese and fix it later. Refer to [LANGUAGE_GUIDELINES.md](file:///D:/WebUs/LANGUAGE_GUIDELINES.md).
+7. **🛡️ Client-Side Security & Data Privacy:**
+   - NEVER store customer PII, addresses, or order history in `localStorage` or `sessionStorage`.
+   - Never expose backend secrets via `NEXT_PUBLIC_` prefixes.
+   - Never trust client-side prices during checkout; backend calculates all totals. Refer to [SECURITY_GUIDELINES.md](file:///D:/WebUs/SECURITY_GUIDELINES.md).
 
 ---
 

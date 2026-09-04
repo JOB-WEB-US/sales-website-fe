@@ -700,6 +700,57 @@ html.light-mode .color-swatch-sand {
   border-color: #c5a882 !important;
 }
 
+/* =========================================================================
+   16. SUPPORT CHAT WIDGET LIGHT & DARK MODE CONTRAST NORMALIZATION
+   ========================================================================= */
+
+/* Header text is ALWAYS pure white on the gradient background */
+.chat-header-text,
+.chat-header-text p,
+.chat-header-text span,
+html.light-mode .chat-header-text,
+html.light-mode .chat-header-text p,
+html.light-mode .chat-header-text span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Customer message bubble is ALWAYS rich orange with crisp white text */
+.chat-customer-bubble,
+.chat-customer-bubble p,
+html.light-mode .chat-customer-bubble,
+html.light-mode .chat-customer-bubble p {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #ea580c !important; /* bg-orange-600 */
+}
+
+/* Customer message timestamp */
+.chat-customer-bubble .chat-timestamp,
+html.light-mode .chat-customer-bubble .chat-timestamp {
+  color: rgba(255, 255, 255, 0.85) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Admin / Support received message bubble in Light Mode */
+html.light-mode .chat-admin-bubble {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light-mode .chat-admin-bubble p {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html.light-mode .chat-admin-bubble .chat-timestamp {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}
+
+
 
 
 

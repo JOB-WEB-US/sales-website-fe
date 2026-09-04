@@ -110,14 +110,19 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             setSelectedSize(firstActiveVariant?.size || '');
           }
         }
-
-        const allRaw = await getProducts();
-        const uiList = allRaw.map(mapApiProductToUI).filter((p) => p.slug !== params.slug);
-        setRelatedProducts(uiList);
       } catch (e) {
         console.error('Error fetching product details:', e);
       } finally {
         setLoading(false);
+      }
+
+      // Related products load in background without blocking the main product details.
+      try {
+        const allRaw = await getProducts();
+        const uiList = allRaw.map(mapApiProductToUI).filter((p) => p.slug !== params.slug);
+        setRelatedProducts(uiList);
+      } catch (e) {
+        console.error('Error fetching related products:', e);
       }
     }
     loadData();

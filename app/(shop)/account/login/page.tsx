@@ -114,10 +114,10 @@ function LoginContent() {
       setErrorMsg('');
       const credential = response.credential;
       if (!credential) {
-        throw new Error('Không nhận được token xác thực từ Google.');
+        throw new Error('Could not retrieve authentication token from Google.');
       }
 
-      // Gửi Google ID token đã ký lên backend xác thực an toàn
+      // Send signed Google ID token to backend for secure verification
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
       const res = await fetch(`${backendUrl}/auth/google`, {
         method: 'POST',
@@ -128,7 +128,7 @@ function LoginContent() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Xác thực Google thất bại trên máy chủ.');
+        throw new Error(data.message || 'Google authentication failed on server.');
       }
 
       // Smart Wishlist Sync
@@ -137,7 +137,7 @@ function LoginContent() {
       router.push(redirectUrl);
     } catch (err: any) {
       console.error('Google Sign-In Error:', err);
-      setErrorMsg(err.message || 'Đăng nhập Google thất bại. Vui lòng thử lại.');
+      setErrorMsg(err.message || 'Google sign-in failed. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -234,7 +234,7 @@ function LoginContent() {
       const res = await fetch(`${backendUrl}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Nhận HttpOnly cookies an toàn
+        credentials: 'include', // Securely receive HttpOnly cookies
         body: JSON.stringify({ email: cleanEmail, password }),
       });
 
@@ -315,7 +315,7 @@ function LoginContent() {
       const res = await fetch(`${backendUrl}/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Nhận HttpOnly cookies an toàn
+        credentials: 'include', // Securely receive HttpOnly cookies
         body: JSON.stringify({ email: email.trim().toLowerCase(), otp: fullOtp }),
       });
 
@@ -466,7 +466,7 @@ function LoginContent() {
     }
 
     if (!forgotNewPassword || forgotNewPassword.length < 8) {
-      setForgotError('Mật khẩu mới phải có ít nhất 8 ký tự.');
+      setForgotError('New password must be at least 8 characters.');
       return;
     }
 
@@ -482,7 +482,7 @@ function LoginContent() {
       const res = await fetch(`${backendUrl}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Nhận HttpOnly cookies an toàn
+        credentials: 'include', // Securely receive HttpOnly cookies
         body: JSON.stringify({
           email: forgotEmail.trim().toLowerCase(),
           otp: fullOtp,

@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { formatCurrency } from '@/lib/formatters';
-import { SHIPPING_METHODS, saveOrderToStorage } from '@/lib/mock-orders';
+import { SHIPPING_METHODS } from '@/lib/mock-orders';
 import { Order, ShippingAddress } from '@/types/orders';
 import { createOrder, API_BASE_URL } from '@/lib/api';
 import dynamic from 'next/dynamic';
@@ -225,10 +225,9 @@ export default function CheckoutPage() {
           country: address.country || 'United States',
         },
         paymentMethod: `PayPal Express (Txn: ${details.orderId})`,
-        subtotal,
-        discount: appliedDiscount,
-        tax,
-        totalPrice: grandTotal,
+        paypalOrderId: details.orderId,
+        couponCode: appliedCoupon?.code || undefined,
+        shippingMethod: selectedShipping.id,
       };
 
       const result = await createOrder(orderPayload);
@@ -237,8 +236,7 @@ export default function CheckoutPage() {
       router.push(`/checkout/thank-you?orderId=${encodeURIComponent(targetOrderId)}&paypalTxn=${encodeURIComponent(details.orderId)}`);
     } catch (err) {
       console.error('Error placing PayPal order:', err);
-      clearCart();
-      router.push(`/checkout/thank-you?orderId=${encodeURIComponent(details.orderId)}`);
+      alert(err instanceof Error ? err.message : 'Unable to verify and create order. Please contact support.');
     } finally {
       setIsSubmitting(false);
     }

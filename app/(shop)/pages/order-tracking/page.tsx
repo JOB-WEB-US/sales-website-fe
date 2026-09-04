@@ -42,10 +42,10 @@ function OrderTrackingContent() {
         setActiveOrder(order);
       } else {
         setActiveOrder(null);
-        setErrorMsg(`Không tìm thấy đơn hàng "${id}" hoặc email xác minh không khớp. Vui lòng kiểm tra lại email xác nhận đặt hàng.`);
+        setErrorMsg(`Order "${id}" was not found or verification email does not match. Please verify your order confirmation email.`);
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Lỗi tra cứu đơn hàng');
+      setErrorMsg(err.message || 'Order lookup failed');
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ function OrderTrackingContent() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputOrderId.trim()) {
-      setErrorMsg('Vui lòng nhập mã đơn hàng.');
+      setErrorMsg('Please enter your order number.');
       return;
     }
     fetchOrder(inputOrderId, inputEmail);
@@ -73,7 +73,7 @@ function OrderTrackingContent() {
       setConfirmSuccess(true);
       setActiveOrder({ ...activeOrder, status: 'DELIVERED' });
     } else {
-      setErrorMsg('Vui lòng đăng nhập với tài khoản đặt hàng để xác nhận nhận hàng.');
+      setErrorMsg('Please sign in with the ordering account to confirm delivery receipt.');
     }
   };
 
@@ -105,7 +105,7 @@ function OrderTrackingContent() {
             Track Your Package
           </h1>
           <p className="text-slate-600 dark:text-gray-400 text-sm mt-2">
-            Nhập mã đơn hàng và email đặt hàng để tra cứu tiến độ đơn hàng.
+            Enter your order number and billing email to track your order progress.
           </p>
         </div>
 
@@ -113,12 +113,12 @@ function OrderTrackingContent() {
         <div className="bg-white dark:bg-[#141414] rounded-2xl border border-slate-200 dark:border-[#222] shadow-sm dark:shadow-xl p-6 md:p-8 mb-10">
           <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-12 gap-4">
             <div className="sm:col-span-5">
-              <label className="block text-xs font-bold text-slate-700 dark:text-gray-400 mb-1">Mã đơn hàng *</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-gray-400 mb-1">Order Number *</label>
               <div className="relative">
                 <input
                   type="text"
                   required
-                  placeholder="Ví dụ: #VEL-123456"
+                  placeholder="e.g. #VEL-123456"
                   value={inputOrderId}
                   onChange={(e) => setInputOrderId(e.target.value)}
                   className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 dark:bg-[#1c1c1c] border border-slate-200 dark:border-[#333] rounded-xl text-sm font-semibold uppercase text-slate-900 dark:text-white focus:ring-2 focus:ring-[#a80000] dark:focus:ring-[#ff7700] outline-none transition"
@@ -128,7 +128,7 @@ function OrderTrackingContent() {
             </div>
 
             <div className="sm:col-span-5">
-              <label className="block text-xs font-bold text-slate-700 dark:text-gray-400 mb-1">Email đặt hàng *</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-gray-400 mb-1">Order Email *</label>
               <div className="relative">
                 <input
                   type="email"
@@ -147,7 +147,7 @@ function OrderTrackingContent() {
                 disabled={loading}
                 className="w-full py-2.5 px-4 bg-[#a80000] hover:bg-[#800000] text-white font-extrabold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                {loading ? 'Đang tìm...' : 'Tra cứu'}
+                {loading ? 'Tracking...' : 'Track Order'}
               </button>
             </div>
           </form>

@@ -11,6 +11,7 @@ import SizeGuideModal from '@/components/features/products/size-guide-modal';
 import WishlistDrawer from '@/components/features/wishlist/wishlist-drawer';
 import GlobalParticlesWrapper from '@/components/common/global-particles-wrapper';
 import LiveSalesToast from '@/components/common/live-sales-toast';
+import ChatWidget from '@/components/features/chat/chat-widget';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -47,6 +48,7 @@ export default function RootLayout({
           <WishlistDrawer />
           <GlobalParticlesWrapper />
           <LiveSalesToast />
+          <ChatWidget />
         </QueryProvider>
       </body>
     </html>
